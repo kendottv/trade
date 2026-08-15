@@ -1,0 +1,39 @@
+{
+  "params": {
+    "snr_min": 0.4,
+    "snr_rising": false,
+    "vol_mult": 0.0,
+    "twii_filter": true,
+    "no_chase": false,
+    "trail": true
+  },
+  "reason": "OOS constraints met (trades>=20, WR>=55%, PF>=1.2); highest OOS expectancy, tie-break lower |max_dd|",
+  "oos": {
+    "combo_id": "snr0.40_vol0_twii1_chase0_rise0_trail1",
+    "stage": "extra",
+    "window": "OOS",
+    "snr_min": 0.4,
+    "snr_rising": 0,
+    "vol_mult": 0.0,
+    "twii_filter": 1,
+    "no_chase": 0,
+    "trail": 1,
+    "trades": 66,
+    "n_trades": 66,
+    "win_rate": 0.7575757575757576,
+    "expectancy": 0.13911426695935336,
+    "profit_factor": 4.1519571550216225,
+    "total_return": 1.4083959836312494,
+    "max_dd": -0.09041464278712366,
+    "cagr": 0.5523679789641278,
+    "n_wins": 50,
+    "n_losses": 16,
+    "trades_no_5314": 57,
+    "win_rate_no_5314": 0.7368421052631579,
+    "expectancy_no_5314": 0.12774000054104348,
+    "profit_factor_no_5314": 4.137582879797294,
+    "total_return_no_5314": 1.1091451351988866,
+    "max_dd_no_5314": -0.11452574418588811,
+    "cagr_no_5314": 0.4526608364259248
+  }
+}

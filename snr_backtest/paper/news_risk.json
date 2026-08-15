@@ -1,0 +1,32 @@
+{
+  "session": "2026-08-14",
+  "slot": "0830",
+  "updated_at": "2026-08-14 16:52:41+0800",
+  "news_fetched": true,
+  "news_score": 35,
+  "off_headlines": [
+    "川普對進口無人機揮關稅大棒！台灣課15% 特定產品最高100% - 經濟日報",
+    "川普開鍘無人機最高100%關稅 台日韓被課15%-新聞內容-基金 - MoneyDJ",
+    "川普祭無人機關稅！台日韓盟友課15% 漢翔、邑錡、雷虎等攻漲停 - 民報",
+    "概念股挫咧等？川普祭「無人機關稅」台灣課15％、特定產品100％ 預計這天正式生效 - FTNN 新聞網",
+    "財經一週：川普對多晶矽課15%關稅、台股違約交割新制擬上路、金價短線急漲 - 天下雜誌",
+    "關稅大刀再度高懸！ 川普最快本周祭新政策 台灣被列調查名單 - Yahoo股市",
+    "〈台股開盤〉美國新關稅24日生效 衝擊台股跌逾800點回測4萬4與季線 - news.cnyes.com",
+    "川普關稅再起，台股先踩煞車，亞洲市場最怕的壓力是什麼？-陳逸軒 - CMoney投資網誌"
+  ],
+  "on_headlines": [
+    "TSMC 'at front of the line' for exemption of Trump tariff: US scholar|English News - 僑新聞",
+    "US-Taiwan trade deal tariffs to take effect retroactively from May 1 - Formosa News"
+  ],
+  "compared": true,
+  "news_allow": false,
+  "allow_new_entries": false,
+  "prev_session": null,
+  "prev_slot": null,
+  "prev_score": null,
+  "twii_d1": null,
+  "twii_d3": null,
+  "price_pause": false,
+  "reason": "今08:30分數 35 ≥ 4（尚無昨21:30）",
+  "prev_off_headlines": []
+}
