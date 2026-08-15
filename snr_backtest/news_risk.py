@@ -5,16 +5,21 @@ Only answers: can we open NEW paper positions today?
 Pipeline
   1. Google News RSS (5 queries) → titles
   2. Dedup: drop publisher suffix, same story once
-  3. Weighted heat per unique title (strong words > generic 關稅)
+  3. Weighted heat per unique title (strong words > generic 關稅).
+     Among hits, a shorter phrase is dropped if it sits inside a longer hit
+     (order of WEIGHTS does not matter). English uses whole-word match.
   4. Cap each title so eight near-copies cannot explode the score
   5. 21:30 store heat; next 08:30 compare trend
   6. TWII 1-day / 3-day crash still pauses
+  7. If RSS fetch fails entirely, treat as unknown risk and pause
+     (fail-safe, not fail-open)
 
 Decision (news only; price applied after)
   cool     morning heat < HOT          → allow
   cooling  still warm but dropped enough and not SEVERE → allow
   hot      warm and not improving      → pause
   severe   morning heat >= SEVERE      → pause even if cooling a bit
+  unknown  RSS fetch failed entirely   → pause (no signal, don't assume calm)
   no 21:30 yet                         → morning only (cool vs hot)
 
 Replay: price stress only (RSS has no historical same-day headlines).
@@ -49,7 +54,9 @@ QUERIES = [
     "聯準會 升息 台股",
 ]
 
-# Longer phrases first so 「取消關稅」 beats 「關稅」.
+# Phrase order does not matter: headline_heat() keeps the longest hit and
+# drops a shorter one that sits inside it ("取消關稅" wins over "關稅").
+# English tokens use whole-word match so "war" ≠ "warning".
 # Positive weight = heat (risk). Negative = cooling.
 WEIGHTS: list[tuple[str, int]] = [
     ("全面性關稅", 2),
@@ -69,7 +76,8 @@ WEIGHTS: list[tuple[str, int]] = [
     ("dovish", -2),
     ("tariff", 1),
     ("truce", -2),
-    ("deal", -1),
+    ("trade deal", -1),
+    ("peace deal", -1),
     ("war", 3),
     ("加徵", 2),
     ("制裁", 2),
@@ -121,19 +129,44 @@ def title_key(title: str) -> str:
     return _NOISE.sub("", normalize_title(title))
 
 
+def _is_ascii_phrase(phrase: str) -> bool:
+    return bool(re.fullmatch(r"[a-z0-9 \-]+", phrase.lower()))
+
+
+def phrase_in_title(text: str, phrase: str) -> bool:
+    """Chinese: substring. English: whole words, optional trailing s (tariffs)."""
+    p = phrase.lower()
+    if _is_ascii_phrase(p):
+        return re.search(r"\b" + re.escape(p) + r"s?\b", text) is not None
+    return p in text
+
+
 def headline_heat(title: str) -> tuple[int, list[str], list[str]]:
-    """Weighted heat of one title. Returns (capped_heat, off_words, on_words)."""
+    """Weighted heat of one title. Returns (capped_heat, off_words, on_words).
+
+    Collect every hit, then drop a phrase that is contained in a longer hit.
+    WEIGHTS list order is ignored.
+    """
     key = normalize_title(title)
+    found: list[tuple[str, int]] = []
+    for phrase, w in WEIGHTS:
+        if phrase_in_title(key, phrase):
+            found.append((phrase, w))
+    kept: list[tuple[str, int]] = []
+    for phrase, w in found:
+        p = phrase.lower()
+        if any(p != other.lower() and p in other.lower() for other, _ in found):
+            continue
+        kept.append((phrase, w))
     raw = 0
     off: list[str] = []
     on: list[str] = []
-    for phrase, w in WEIGHTS:
-        if phrase.lower() in key:
-            raw += w
-            if w > 0:
-                off.append(phrase)
-            else:
-                on.append(phrase)
+    for phrase, w in kept:
+        raw += w
+        if w > 0:
+            off.append(phrase)
+        else:
+            on.append(phrase)
     heat = max(-TITLE_HEAT_CAP, min(TITLE_HEAT_CAP, raw))
     return heat, off, on
 
@@ -230,14 +263,20 @@ def save_risk(result: dict, path: Path | None = None) -> Path:
 
 def _fetch_scored(session: pd.Timestamp, slot: str) -> dict:
     titles: list[str] = []
+    ok = 0
     for q in QUERIES:
-        titles.extend(_fetch_rss(q))
+        got = _fetch_rss(q)
+        if got:
+            ok += 1
+        titles.extend(got)
     scored = score_titles(titles)
     return {
         "session": pd.Timestamp(session).strftime("%Y-%m-%d"),
         "slot": slot,
         "updated_at": _now_iso(),
-        "news_fetched": True,
+        "news_fetched": ok > 0,
+        "fetch_ok": ok,
+        "fetch_total": len(QUERIES),
         "algo": "heat_v1",
         **scored,
     }
@@ -250,32 +289,32 @@ def decide_news(curr_heat: int, prev_heat: int | None) -> tuple[bool, str, str]:
     """
     if prev_heat is None:
         if curr_heat >= HOT:
-            return True, "hot", f"今08:30熱度 {curr_heat} ≥ {HOT}（尚無昨21:30）"
-        return False, "cool", f"今08:30熱度 {curr_heat} < {HOT}（尚無昨21:30，先看這一筆）"
+            return True, "hot", f"今08:30熱度 {curr_heat} ≥ {HOT}(尚無昨21:30)"
+        return False, "cool", f"今08:30熱度 {curr_heat} < {HOT}(尚無昨21:30,先看這一筆)"
 
     delta = curr_heat - prev_heat
     if curr_heat >= SEVERE:
         return (
             True,
             "severe",
-            f"今早熱度 {curr_heat} ≥ 嚴重線 {SEVERE}（昨21:30={prev_heat}，Δ{delta:+d}）仍關",
+            f"今早熱度 {curr_heat} ≥ 嚴重線 {SEVERE}(昨21:30={prev_heat},Δ{delta:+d})仍關",
         )
     if curr_heat < HOT:
         return (
             False,
             "cool",
-            f"今早已涼 {curr_heat} < {HOT}（昨21:30={prev_heat}，Δ{delta:+d}）",
+            f"今早已涼 {curr_heat} < {HOT}(昨21:30={prev_heat},Δ{delta:+d})",
         )
     if prev_heat - curr_heat >= COOLING_DROP:
         return (
             False,
             "cooling",
-            f"仍偏熱 {curr_heat} 但隔夜降溫 {prev_heat}→{curr_heat}（降≥{COOLING_DROP}）允許開倉",
+            f"仍偏熱 {curr_heat} 但隔夜降溫 {prev_heat}→{curr_heat}(降≥{COOLING_DROP})允許開倉",
         )
     return (
         True,
         "hot",
-        f"仍熱且未明顯降溫：昨21:30={prev_heat} 今08:30={curr_heat}（Δ{delta:+d}）",
+        f"仍熱且未明顯降溫:昨21:30={prev_heat} 今08:30={curr_heat}(Δ{delta:+d})",
     )
 
 
@@ -283,7 +322,7 @@ def snapshot_2130(session: pd.Timestamp | str | None = None) -> dict:
     """Weekday 21:30 heat only. Tomorrow 08:30 will compare against this."""
     session = pd.Timestamp(session or datetime.now(TAIPEI).date()).normalize()
     snap = _fetch_scored(session, "2130")
-    snap["note"] = "21:30 熱度，隔日 08:30 比升降溫；本日開關仍看今早結論"
+    snap["note"] = "21:30 熱度,隔日 08:30 比升降溫;本日開關仍看今早結論"
     save_risk(snap, SNAPSHOT_2130_PATH)
     return snap
 
@@ -300,7 +339,19 @@ def morning_0830(
         prev = load_risk(PAPER / "news_snapshot_0930.json")
     px = twii_stress(twii, session)
     prev_heat = None if prev is None or prev.get("news_score") is None else int(prev["news_score"])
-    news_pause, trend, news_reason = decide_news(int(curr["news_score"]), prev_heat)
+
+    if not curr.get("news_fetched", False):
+        # RSS fetch failed entirely: 0/5 queries returned anything, so
+        # news_score is 0 not because the news is calm but because we have
+        # no signal at all. Fail-safe: pause, don't treat silence as "cool".
+        news_pause, trend = True, "unknown"
+        news_reason = (
+            f"新聞抓取全部失敗({curr.get('fetch_ok', 0)}/{curr.get('fetch_total', len(QUERIES))} "
+            "成功),視為無訊號,暫停開新倉"
+        )
+    else:
+        news_pause, trend, news_reason = decide_news(int(curr["news_score"]), prev_heat)
+
     reasons = [news_reason]
     if px["price_pause"]:
         reasons.append(f"大盤壓力 d1={px['d1']} d3={px['d3']}")
@@ -360,7 +411,7 @@ def evaluate_risk(
     if px["price_pause"]:
         reasons.append(f"大盤壓力 d1={px['d1']} d3={px['d3']}")
     if not reasons:
-        reasons.append("通過：可開新倉")
+        reasons.append("通過:可開新倉")
     return {
         "session": dstr,
         "updated_at": _now_iso(),
@@ -396,6 +447,32 @@ if __name__ == "__main__":
         assert s["n_unique"] == 3, s
         # two copies of tariff should not double
         assert s["news_score"] < 20, s
+
+        # longer phrase must win over the shorter phrase it contains —
+        # these would previously double-count (e.g. -2 + 1 = -1 instead of -2)
+        h, off, on = headline_heat("央行宣布取消關稅")
+        assert h == -2 and off == [] and on == ["取消關稅"], (h, off, on)
+
+        h, off, on = headline_heat("政府宣布全面性關稅措施")
+        assert h == 2 and off == ["全面性關稅"] and on == [], (h, off, on)
+
+        h, off, on = headline_heat("Fed signals pause tariff plan")
+        assert h == -2 and on == ["pause tariff"], (h, off, on)
+
+        # a plain generic mention still scores on its own
+        h, off, on = headline_heat("政府研議調高關稅")
+        assert h == 1 and off == ["關稅"], (h, off, on)
+
+        # English whole-word: warning ≠ war; tariffs still counts as tariff
+        h, off, on = headline_heat("Fed warning on inflation")
+        assert h == 0 and off == [] and on == [], (h, off, on)
+        h, off, on = headline_heat("risk of war in the strait")
+        assert h == 3 and off == ["war"], (h, off, on)
+        h, off, on = headline_heat("US considers new tariffs")
+        assert h == 1 and off == ["tariff"], (h, off, on)
+        h, off, on = headline_heat("a big deal for exporters")
+        assert h == 0, (h, off, on)
+
         pause, trend, _ = decide_news(8, 12)
         assert pause is False and trend == "cooling", (pause, trend)
         pause, trend, _ = decide_news(4, 10)
