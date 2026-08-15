@@ -43,6 +43,17 @@ TAIPEI = timezone(timedelta(hours=8))
 PAPER = ROOT / "paper"
 RISK_PATH = PAPER / "news_risk.json"
 SNAPSHOT_2130_PATH = PAPER / "news_snapshot_2130.json"
+JOURNAL_PATH = PAPER / "news_journal.csv"
+
+JOURNAL_COLS = [
+    "logged_at", "session", "slot", "algo",
+    "heat", "n_unique", "n_raw", "fetch_ok", "fetch_total",
+    "trend", "news_allow", "allow_new_entries", "would_flat",
+    "prev_score", "prev_session",
+    "twii_d1", "twii_d3", "price_pause",
+    "cash", "equity", "n_positions", "holdings",
+    "reason",
+]
 
 UA = "Mozilla/5.0 (compatible; TWPaperRisk/1.0)"
 
@@ -261,6 +272,100 @@ def save_risk(result: dict, path: Path | None = None) -> Path:
     return path
 
 
+def _live_book() -> dict:
+    """Cash / equity / names from live paper account (best-effort)."""
+    out = {"cash": "", "equity": "", "n_positions": "", "holdings": ""}
+    acct_path = PAPER / "account.json"
+    raw = load_risk(acct_path)
+    if not raw:
+        return out
+    pos = raw.get("positions") or []
+    names = []
+    for p in pos:
+        if int(p.get("shares") or 0) > 0:
+            names.append(str(p.get("name") or p.get("ticker") or ""))
+    out["cash"] = raw.get("cash", "")
+    out["equity"] = raw.get("equity", "")
+    out["n_positions"] = len(names)
+    out["holdings"] = "／".join(names)
+    return out
+
+
+def preview_trend(heat: int | None, fetched: bool) -> str:
+    if not fetched:
+        return "unknown"
+    if heat is None:
+        return ""
+    if heat >= SEVERE:
+        return "severe"
+    if heat >= HOT:
+        return "hot"
+    return "cool"
+
+
+def append_journal(result: dict, extra: dict | None = None) -> Path:
+    """Append one daily row. Does not flatten live positions.
+
+    would_flat=1 means: if we later turn on 消息面停損, this print would
+    have queued exits. We only record it for now.
+    """
+    extra = extra or {}
+    book = _live_book()
+    book.update({k: v for k, v in extra.items() if v is not None and v != ""})
+    slot = str(result.get("slot") or "")
+    fetched = bool(result.get("news_fetched", True))
+    heat = result.get("news_score")
+    heat_i = None if heat is None or heat == "" else int(heat)
+    trend = str(result.get("trend") or "")
+    if not trend:
+        trend = preview_trend(heat_i, fetched)
+    price_pause = bool(result.get("price_pause"))
+    news_allow = result.get("news_allow")
+    if news_allow is None and slot == "2130":
+        news_allow = trend in ("cool", "cooling")
+    would_flat = int(
+        trend in ("hot", "severe", "unknown") or price_pause
+    )
+    row = {
+        "logged_at": result.get("updated_at") or _now_iso(),
+        "session": result.get("session") or "",
+        "slot": slot,
+        "algo": result.get("algo") or "heat_v1",
+        "heat": "" if heat_i is None else heat_i,
+        "n_unique": result.get("n_unique", ""),
+        "n_raw": result.get("n_raw", ""),
+        "fetch_ok": result.get("fetch_ok", ""),
+        "fetch_total": result.get("fetch_total", ""),
+        "trend": trend,
+        "news_allow": "" if news_allow is None else int(bool(news_allow)),
+        "allow_new_entries": (
+            "" if result.get("allow_new_entries") is None
+            else int(bool(result.get("allow_new_entries")))
+        ),
+        "would_flat": would_flat,
+        "prev_score": result.get("prev_score", ""),
+        "prev_session": result.get("prev_session", ""),
+        "twii_d1": result.get("twii_d1", ""),
+        "twii_d3": result.get("twii_d3", ""),
+        "price_pause": int(price_pause),
+        "cash": book.get("cash", ""),
+        "equity": book.get("equity", ""),
+        "n_positions": book.get("n_positions", ""),
+        "holdings": book.get("holdings", ""),
+        "reason": str(result.get("reason") or result.get("note") or ""),
+    }
+    JOURNAL_PATH.parent.mkdir(parents=True, exist_ok=True)
+    new_file = (not JOURNAL_PATH.exists()) or JOURNAL_PATH.stat().st_size == 0
+    with JOURNAL_PATH.open("a", encoding="utf-8-sig", newline="") as f:
+        import csv
+
+        w = csv.DictWriter(f, fieldnames=JOURNAL_COLS)
+        if new_file:
+            w.writeheader()
+        w.writerow({c: row.get(c, "") for c in JOURNAL_COLS})
+    return JOURNAL_PATH
+
+
 def _fetch_scored(session: pd.Timestamp, slot: str) -> dict:
     titles: list[str] = []
     ok = 0
@@ -324,6 +429,7 @@ def snapshot_2130(session: pd.Timestamp | str | None = None) -> dict:
     snap = _fetch_scored(session, "2130")
     snap["note"] = "21:30 熱度,隔日 08:30 比升降溫;本日開關仍看今早結論"
     save_risk(snap, SNAPSHOT_2130_PATH)
+    append_journal(snap)
     return snap
 
 
@@ -372,6 +478,7 @@ def morning_0830(
         "prev_off_headlines": [] if prev is None else (prev.get("off_headlines") or [])[:4],
     }
     save_risk(result, RISK_PATH)
+    append_journal(result)
     return result
 
 

@@ -1,9 +1,9 @@
-# 紙上交易回放 2026-02-14 → 2026-08-14（非真實券商；訊號 t 收盤、t+1 開盤成交）
+# 紙上交易回放 2026-02-15 → 2026-08-15（非真實券商；訊號 t 收盤、t+1 開盤成交）
 
 ## 2026-02-23
 開始: cash=1000000 持倉=0 pending=0 equity=1000000
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.005 twii_d3=0.0422｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.005 twii_d3=0.0422｜通過:可開新倉
 訊號 2 檔，空槽 5，新排隊 2
 排名:
 pick ticker       name           snr    rs_20      close
@@ -19,7 +19,7 @@ QUEUE BUY 2891.TW 中信金 snr=0.4023 rs=-0.0267 close=51.97 → 下一根開�
 BUY 3037.TW 欣興電子 480股 @ 409.66 snr=0.4561 budget=200000 cash=803082
 BUY 2891.TW 中信金 3840股 @ 52.16 snr=0.4023 budget=200771 cash=602484
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0275 twii_d3=0.0492｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0275 twii_d3=0.0492｜通過:可開新倉
 訊號 2 檔，空槽 3，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -33,7 +33,7 @@ QUEUE BUY 2330.TW 台積電 snr=0.4206 rs=0.0245 close=1953.40 → 下一根開�
 資金分配: 單檔上限權益 20%、閒置現金/剩餘空槽，不 all-in 單一檔
 BUY 2330.TW 台積電 100股 @ 1983.22 snr=0.4206 budget=200828 cash=403879
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0205 twii_d3=0.0538｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0205 twii_d3=0.0538｜通過:可開新倉
 訊號 6 檔，空槽 2，新排隊 2
 排名:
 pick ticker       name           snr    rs_20      close
@@ -53,7 +53,7 @@ QUEUE BUY 2395.TW 研華 snr=0.4381 rs=0.0410 close=325.99 → 下一根開盤�
 BUY 2308.TW 台達電 130股 @ 1442.46 snr=0.4406 budget=201940 cash=216092
 BUY 2395.TW 研華 630股 @ 325.01 snr=0.4381 budget=207395 cash=11044
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0 twii_d3=0.0486｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0 twii_d3=0.0486｜通過:可開新倉
 訊號 6 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -68,7 +68,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-02
 開始: cash=11044 持倉=5 pending=0 equity=1039457
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.009 twii_d3=0.0114｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.009 twii_d3=0.0114｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -109,7 +109,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-06
 開始: cash=11044 持倉=5 pending=0 equity=990047
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0022 twii_d3=-0.0211｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0022 twii_d3=-0.0211｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -130,7 +130,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-10
 開始: cash=11044 持倉=5 pending=0 equity=937931
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0206 twii_d3=-0.0268｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0206 twii_d3=-0.0268｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -139,7 +139,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-11
 開始: cash=11044 持倉=5 pending=0 equity=967542
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.041 twii_d3=0.0153｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.041 twii_d3=0.0153｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -161,7 +161,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-13
 開始: cash=11044 持倉=5 pending=0 equity=1008254
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0054 twii_d3=0.0192｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0054 twii_d3=0.0192｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -172,7 +172,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=11044 持倉=5 pending=0 equity=1020076
 QUEUE SELL 3037.TW tp (entry=409.66 H=548.88 L=503.97) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0017 twii_d3=-0.0226｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0017 twii_d3=-0.0226｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -183,7 +183,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=11044 持倉=5 pending=1 equity=1035174
 SELL 3037.TW 欣興電子 480股 @ 569.83 reason=tp cash=283354
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0148 twii_d3=0.0076｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0148 twii_d3=0.0076｜通過:可開新倉
 訊號 2 檔，空槽 1，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -197,7 +197,7 @@ QUEUE BUY 6217.TWO 中探針 snr=0.6503 rs=1.4949 close=152.00 → 下一根開�
 資金分配: 單檔上限權益 20%、閒置現金/剩餘空槽，不 all-in 單一檔
 BUY 6217.TWO 中探針 1280股 @ 167.00 snr=0.6503 budget=215080 cash=69289
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0151 twii_d3=0.0284｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0151 twii_d3=0.0284｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -219,7 +219,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-20
 開始: cash=69289 持倉=5 pending=0 equity=1078823
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0043 twii_d3=-0.0087｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0043 twii_d3=-0.0087｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -249,7 +249,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-25
 開始: cash=69289 持倉=5 pending=0 equity=1025981
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0254 twii_d3=-0.0031｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0254 twii_d3=-0.0031｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -258,7 +258,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-26
 開始: cash=69289 持倉=5 pending=0 equity=1071251
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.003 twii_d3=0.0188｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.003 twii_d3=0.0188｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -267,7 +267,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-03-27
 開始: cash=69289 持倉=5 pending=0 equity=1078039
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0068 twii_d3=0.0153｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0068 twii_d3=0.0153｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -298,7 +298,7 @@ SELL 2395.TW 研華 630股 @ 312.77 reason=trail cash=265464
 ## 2026-04-01
 開始: cash=265464 持倉=4 pending=0 equity=1018689
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0458 twii_d3=0.0019｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0458 twii_d3=0.0019｜通過:可開新倉
 訊號 0 檔，空槽 1，新排隊 0
 排名:
 (no signals)
@@ -318,7 +318,7 @@ SELL 2395.TW 研華 630股 @ 312.77 reason=trail cash=265464
 開始: cash=265464 持倉=4 pending=0 equity=1079110
 QUEUE SELL 6217.TWO tp (entry=167.00 H=211.50 L=182.00) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0202 twii_d3=0.0475｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0202 twii_d3=0.0475｜通過:可開新倉
 訊號 0 檔，空槽 1，新排隊 0
 排名:
 (no signals)
@@ -328,7 +328,7 @@ QUEUE SELL 6217.TWO tp (entry=167.00 H=211.50 L=182.00) → 下一根開盤成�
 開始: cash=265464 持倉=4 pending=1 equity=1109503
 SELL 6217.TWO 中探針 1280股 @ 215.00 reason=tp cash=539447
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0461 twii_d3=0.0478｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0461 twii_d3=0.0478｜通過:可開新倉
 訊號 1 檔，空槽 2，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -338,7 +338,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-04-09
 開始: cash=539447 持倉=3 pending=0 equity=1158451
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0029 twii_d3=0.0703｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0029 twii_d3=0.0703｜通過:可開新倉
 訊號 1 檔，空槽 2，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -351,7 +351,7 @@ QUEUE BUY 2379.TW 瑞昱 snr=0.4194 rs=0.0493 close=512.00 → 下一根開盤�
 資金分配: 單檔上限權益 20%、閒置現金/剩餘空槽，不 all-in 單一檔
 BUY 2379.TW 瑞昱 450股 @ 510.00 snr=0.4194 budget=232647 cash=309620
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.016 twii_d3=0.0658｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.016 twii_d3=0.0658｜通過:可開新倉
 訊號 1 檔，空槽 1，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -364,7 +364,7 @@ QUEUE BUY 6217.TWO 中探針 snr=0.5031 rs=1.0547 close=236.50 → 下一根開�
 資金分配: 單檔上限權益 20%、閒置現金/剩餘空槽，不 all-in 單一檔
 BUY 6217.TWO 中探針 980股 @ 237.00 snr=0.5031 budget=233343 cash=77029
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0011 twii_d3=0.02｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0011 twii_d3=0.02｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -376,7 +376,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=77029 持倉=5 pending=0 equity=1169324
 QUEUE SELL 2308.TW tp (entry=1442.46 H=1810.53 L=1740.90) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0237 twii_d3=0.0412｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0237 twii_d3=0.0412｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -386,7 +386,7 @@ QUEUE SELL 2308.TW tp (entry=1442.46 H=1810.53 L=1740.90) → 下一根開盤成
 開始: cash=77029 持倉=5 pending=1 equity=1154349
 SELL 2308.TW 台達電 130股 @ 1775.71 reason=tp cash=306850
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0117 twii_d3=0.0368｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0117 twii_d3=0.0368｜通過:可開新倉
 訊號 3 檔，空槽 1，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -401,7 +401,7 @@ QUEUE BUY 3008.TW 大立光 snr=0.4586 rs=0.1487 close=2794.48 → 下一根開�
 資金分配: 單檔上限權益 20%、閒置現金/剩餘空槽，不 all-in 單一檔
 BUY 3008.TW 大立光 80股 @ 2809.34 snr=0.4586 budget=235497 cash=81783
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0112 twii_d3=0.0472｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0112 twii_d3=0.0472｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -411,7 +411,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-04-17
 開始: cash=81783 持倉=5 pending=0 equity=1175977
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0088 twii_d3=0.014｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0088 twii_d3=0.014｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -421,7 +421,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-04-20
 開始: cash=81783 持倉=5 pending=0 equity=1165437
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0042 twii_d3=0.0064｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0042 twii_d3=0.0064｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -432,7 +432,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-04-21
 開始: cash=81783 持倉=5 pending=0 equity=1199932
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0175 twii_d3=0.0127｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0175 twii_d3=0.0127｜通過:可開新倉
 訊號 6 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -448,7 +448,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=81783 持倉=5 pending=0 equity=1217452
 QUEUE SELL 6217.TWO tp (entry=237.00 H=311.00 L=287.50) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0073 twii_d3=0.0292｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0073 twii_d3=0.0292｜通過:可開新倉
 訊號 6 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -464,7 +464,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=81783 持倉=5 pending=1 equity=1234977
 SELL 6217.TWO 中探針 980股 @ 305.00 reason=tp cash=379360
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0043 twii_d3=0.0204｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0043 twii_d3=0.0204｜通過:可開新倉
 訊號 1 檔，空槽 1，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -477,7 +477,7 @@ QUEUE BUY 2317.TW 鴻海 snr=0.4110 rs=-0.0026 close=218.49 → 下一根開盤�
 資金分配: 單檔上限權益 20%、閒置現金/剩餘空槽，不 all-in 單一檔
 BUY 2317.TW 鴻海 1110股 @ 220.44 snr=0.411 budget=247095 cash=134328
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0323 twii_d3=0.0353｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0323 twii_d3=0.0353｜通過:可開新倉
 訊號 4 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -490,7 +490,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-04-27
 開始: cash=134328 持倉=5 pending=0 equity=1229197
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0176 twii_d3=0.0459｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0176 twii_d3=0.0459｜通過:可開新倉
 訊號 3 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -502,7 +502,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-04-28
 開始: cash=134328 持倉=5 pending=0 equity=1258173
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0024 twii_d3=0.0479｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0024 twii_d3=0.0479｜通過:可開新倉
 訊號 3 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -514,7 +514,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-04-29
 開始: cash=134328 持倉=5 pending=0 equity=1252638
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0055 twii_d3=0.0095｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0055 twii_d3=0.0095｜通過:可開新倉
 訊號 3 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -526,7 +526,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-04-30
 開始: cash=134328 持倉=5 pending=0 equity=1244557
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0096 twii_d3=-0.0174｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0096 twii_d3=-0.0174｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -536,7 +536,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-04
 開始: cash=134328 持倉=5 pending=0 equity=1218536
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0457 twii_d3=0.0299｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0457 twii_d3=0.0299｜通過:可開新倉
 訊號 8 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -553,7 +553,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-05
 開始: cash=134328 持倉=5 pending=0 equity=1244050
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0016 twii_d3=0.0373｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0016 twii_d3=0.0373｜通過:可開新倉
 訊號 6 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -568,7 +568,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-06
 開始: cash=134328 持倉=5 pending=0 equity=1256585
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0091 twii_d3=0.0568｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0091 twii_d3=0.0568｜通過:可開新倉
 訊號 9 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -586,7 +586,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-07
 開始: cash=134328 持倉=5 pending=0 equity=1277470
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0193 twii_d3=0.0302｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0193 twii_d3=0.0302｜通過:可開新倉
 訊號 7 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -602,7 +602,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-08
 開始: cash=134328 持倉=5 pending=0 equity=1292735
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0079 twii_d3=0.0205｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0079 twii_d3=0.0205｜通過:可開新倉
 訊號 6 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -617,7 +617,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-11
 開始: cash=134328 持倉=5 pending=0 equity=1311162
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0045 twii_d3=0.0158｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0045 twii_d3=0.0158｜通過:可開新倉
 訊號 4 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -630,7 +630,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-12
 開始: cash=134328 持倉=5 pending=0 equity=1298178
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0026 twii_d3=-0.0008｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0026 twii_d3=-0.0008｜通過:可開新倉
 訊號 5 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -644,7 +644,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-13
 開始: cash=134328 持倉=5 pending=0 equity=1298121
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0125 twii_d3=-0.0055｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0125 twii_d3=-0.0055｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -655,7 +655,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-14
 開始: cash=134328 持倉=5 pending=0 equity=1303902
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0091 twii_d3=-0.0009｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0091 twii_d3=-0.0009｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -665,7 +665,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-15
 開始: cash=134328 持倉=5 pending=0 equity=1334006
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0139 twii_d3=-0.0173｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0139 twii_d3=-0.0173｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -675,7 +675,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-18
 開始: cash=134328 持倉=5 pending=0 equity=1345294
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0068 twii_d3=-0.0117｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0068 twii_d3=-0.0117｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -696,7 +696,7 @@ QUEUE SELL 3008.TW tp (entry=2809.34 H=3582.28 L=3294.90) → 下一根開盤成
 開始: cash=134328 持倉=5 pending=1 equity=1339967
 SELL 3008.TW 大立光 80股 @ 3299.86 reason=tp cash=397149
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0039 twii_d3=-0.028｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0039 twii_d3=-0.028｜通過:可開新倉
 訊號 0 檔，空槽 1，新排隊 0
 排名:
 (no signals)
@@ -705,7 +705,7 @@ SELL 3008.TW 大立光 80股 @ 3299.86 reason=tp cash=397149
 ## 2026-05-21
 開始: cash=397149 持倉=4 pending=0 equity=1342926
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0337 twii_d3=0.0117｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0337 twii_d3=0.0117｜通過:可開新倉
 訊號 0 檔，空槽 1，新排隊 0
 排名:
 (no signals)
@@ -714,7 +714,7 @@ SELL 3008.TW 大立光 80股 @ 3299.86 reason=tp cash=397149
 ## 2026-05-22
 開始: cash=397149 持倉=4 pending=0 equity=1357988
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0217 twii_d3=0.0521｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0217 twii_d3=0.0521｜通過:可開新倉
 訊號 1 檔，空槽 1，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -727,7 +727,7 @@ QUEUE BUY 2404.TW 漢唐 snr=0.4147 rs=0.0639 close=1119.05 → 下一根開盤�
 資金分配: 單檔上限權益 20%、閒置現金/剩餘空槽，不 all-in 單一檔
 BUY 2404.TW 漢唐 240股 @ 1148.11 snr=0.4147 budget=276676 cash=121209
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0326 twii_d3=0.0905｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0326 twii_d3=0.0905｜通過:可開新倉
 訊號 7 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -743,7 +743,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-26
 開始: cash=121209 持倉=5 pending=0 equity=1396937
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0027 twii_d3=0.0521｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0027 twii_d3=0.0521｜通過:可開新倉
 訊號 4 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -756,7 +756,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-27
 開始: cash=121209 持倉=5 pending=0 equity=1399703
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0168 twii_d3=0.0471｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0168 twii_d3=0.0471｜通過:可開新倉
 訊號 5 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -770,7 +770,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-05-28
 開始: cash=121209 持倉=5 pending=0 equity=1413783
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.014 twii_d3=-0.0002｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.014 twii_d3=-0.0002｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -780,7 +780,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=121209 持倉=5 pending=0 equity=1390187
 QUEUE SELL 2317.TW tp (entry=220.44 H=280.64 L=260.25) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0251 twii_d3=0.0277｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0251 twii_d3=0.0277｜通過:可開新倉
 訊號 3 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -793,7 +793,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=121209 持倉=5 pending=1 equity=1421177
 SELL 2317.TW 鴻海 1110股 @ 293.27 reason=tp cash=445294
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0135 twii_d3=0.0244｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0135 twii_d3=0.0244｜通過:可開新倉
 訊號 6 檔，空槽 1，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -812,7 +812,7 @@ QUEUE BUY 2317.TW 鴻海 snr=0.5841 rs=0.1763 close=285.01 → 下一根開盤�
 BUY 2317.TW 鴻海 1020股 @ 288.90 snr=0.5841 budget=296252 cash=150200
 QUEUE SELL 2379.TW tp (entry=510.00 H=653.00 L=602.00) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0048 twii_d3=0.044｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0048 twii_d3=0.044｜通過:可開新倉
 訊號 5 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -828,7 +828,7 @@ pick ticker       name           snr    rs_20      close
 SELL 2379.TW 瑞昱 450股 @ 685.00 reason=tp cash=457086
 QUEUE SELL 2891.TW tp (entry=52.16 H=67.98 L=62.00) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0198 twii_d3=0.0386｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0198 twii_d3=0.0386｜通過:可開新倉
 訊號 7 檔，空槽 1，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -859,7 +859,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-06-05
 開始: cash=405958 持倉=4 pending=0 equity=1513520
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0133 twii_d3=-0.0107｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0133 twii_d3=-0.0107｜通過:可開新倉
 訊號 2 檔，空槽 1，新排隊 1
 排名:
 pick ticker       name           snr    rs_20      close
@@ -883,7 +883,7 @@ BUY 2882.TW 國泰金 3040股 @ 94.43 snr=0.6289 budget=287514 cash=118489
 ## 2026-06-09
 開始: cash=118489 持倉=5 pending=0 equity=1428944
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0276 twii_d3=-0.0213｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0276 twii_d3=-0.0213｜通過:可開新倉
 訊號 4 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -906,7 +906,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-06-11
 開始: cash=118489 持倉=5 pending=0 equity=1426408
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0018 twii_d3=-0.0081｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0018 twii_d3=-0.0081｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -915,7 +915,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-06-12
 開始: cash=118489 持倉=5 pending=0 equity=1430327
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0236 twii_d3=-0.012｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0236 twii_d3=-0.012｜通過:可開新倉
 訊號 0 檔，空槽 0，新排隊 0
 排名:
 (no signals)
@@ -924,7 +924,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-06-15
 開始: cash=118489 持倉=5 pending=0 equity=1465378
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0278 twii_d3=0.0502｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0278 twii_d3=0.0502｜通過:可開新倉
 訊號 1 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -934,7 +934,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-06-16
 開始: cash=118489 持倉=5 pending=0 equity=1507665
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0091 twii_d3=0.0616｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0091 twii_d3=0.0616｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -945,7 +945,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-06-17
 開始: cash=118489 持倉=5 pending=0 equity=1496074
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0015 twii_d3=0.0387｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0015 twii_d3=0.0387｜通過:可開新倉
 訊號 4 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -958,7 +958,7 @@ pick ticker       name           snr    rs_20      close
 ## 2026-06-18
 開始: cash=118489 持倉=5 pending=0 equity=1521373
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0128 twii_d3=0.0235｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0128 twii_d3=0.0235｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -970,7 +970,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=118489 持倉=5 pending=0 equity=1518182
 QUEUE SELL 2330.TW tp (entry=1983.22 H=2510.00 L=2455.00) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0275 twii_d3=0.0422｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0275 twii_d3=0.0422｜通過:可開新倉
 訊號 2 檔，空槽 0，新排隊 0
 排名:
 pick ticker       name           snr    rs_20      close
@@ -982,7 +982,7 @@ pick ticker       name           snr    rs_20      close
 開始: cash=118489 持倉=5 pending=1 equity=1524003
 SELL 2330.TW 台積電 100股 @ 2510.00 reason=tp cash=368379
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0134 twii_d3=0.0267｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0134 twii_d3=0.0267｜通過:可開新倉
 訊號 0 檔，空槽 1，新排隊 0
 排名:
 (no signals)
@@ -1026,7 +1026,7 @@ QUEUE SELL 2357.TW sl (entry=861.04 H=690.90 L=658.00) → 下一根開盤成交
 開始: cash=368379 持倉=4 pending=1 equity=1467865
 SELL 2357.TW 華碩 350股 @ 659.88 reason=sl cash=598315
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0096 twii_d3=-0.0227｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0096 twii_d3=-0.0227｜通過:可開新倉
 訊號 0 檔，空槽 2，新排隊 0
 排名:
 (no signals)
@@ -1035,7 +1035,7 @@ SELL 2357.TW 華碩 350股 @ 659.88 reason=sl cash=598315
 ## 2026-06-30
 開始: cash=598315 持倉=3 pending=0 equity=1456633
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.025 twii_d3=-0.0028｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.025 twii_d3=-0.0028｜通過:可開新倉
 訊號 0 檔，空槽 2，新排隊 0
 排名:
 (no signals)
@@ -1044,7 +1044,7 @@ SELL 2357.TW 華碩 350股 @ 659.88 reason=sl cash=598315
 ## 2026-07-01
 開始: cash=598315 持倉=3 pending=0 equity=1452701
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0194 twii_d3=0.0549｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0194 twii_d3=0.0549｜通過:可開新倉
 訊號 0 檔，空槽 2，新排隊 0
 排名:
 (no signals)
@@ -1054,7 +1054,7 @@ SELL 2357.TW 華碩 350股 @ 659.88 reason=sl cash=598315
 開始: cash=598315 持倉=3 pending=0 equity=1435047
 QUEUE SELL 2882.TW trail (entry=94.43 H=95.90 L=92.60) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0058 twii_d3=0.0388｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0058 twii_d3=0.0388｜通過:可開新倉
 訊號 0 檔，空槽 2，新排隊 0
 排名:
 (no signals)
@@ -1064,7 +1064,7 @@ QUEUE SELL 2882.TW trail (entry=94.43 H=95.90 L=92.60) → 下一根開盤成交
 開始: cash=598315 持倉=3 pending=1 equity=1448388
 SELL 2882.TW 國泰金 3040股 @ 92.80 reason=trail cash=879178
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0008 twii_d3=0.0142｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0008 twii_d3=0.0142｜通過:可開新倉
 訊號 0 檔，空槽 3，新排隊 0
 排名:
 (no signals)
@@ -1073,7 +1073,7 @@ SELL 2882.TW 國泰金 3040股 @ 92.80 reason=trail cash=879178
 ## 2026-07-06
 開始: cash=879178 持倉=2 pending=0 equity=1438403
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0048 twii_d3=-0.0098｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0048 twii_d3=-0.0098｜通過:可開新倉
 訊號 0 檔，空槽 3，新排隊 0
 排名:
 (no signals)
@@ -1093,7 +1093,7 @@ SELL 2882.TW 國泰金 3040股 @ 92.80 reason=trail cash=879178
 開始: cash=879178 持倉=2 pending=0 equity=1413905
 QUEUE SELL 2404.TW trail (entry=1148.11 H=1235.31 L=1143.27) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0056 twii_d3=-0.0224｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0056 twii_d3=-0.0224｜通過:可開新倉
 訊號 0 檔，空槽 3，新排隊 0
 排名:
 (no signals)
@@ -1103,7 +1103,7 @@ QUEUE SELL 2404.TW trail (entry=1148.11 H=1235.31 L=1143.27) → 下一根開盤
 開始: cash=879178 持倉=2 pending=1 equity=1400463
 SELL 2404.TW 漢唐 240股 @ 1182.02 reason=trail cash=1161609
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0083 twii_d3=-0.0258｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0083 twii_d3=-0.0258｜通過:可開新倉
 訊號 0 檔，空槽 4，新排隊 0
 排名:
 (no signals)
@@ -1112,7 +1112,7 @@ SELL 2404.TW 漢唐 240股 @ 1182.02 reason=trail cash=1161609
 ## 2026-07-10
 開始: cash=1161609 持倉=1 pending=0 equity=1403859
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0083 twii_d3=-0.0258｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0083 twii_d3=-0.0258｜通過:可開新倉
 訊號 0 檔，空槽 4，新排隊 0
 排名:
 (no signals)
@@ -1121,7 +1121,7 @@ SELL 2404.TW 漢唐 240股 @ 1182.02 reason=trail cash=1161609
 ## 2026-07-13
 開始: cash=1161609 持倉=1 pending=0 equity=1403859
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0006 twii_d3=-0.0022｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0006 twii_d3=-0.0022｜通過:可開新倉
 訊號 0 檔，空槽 4，新排隊 0
 排名:
 (no signals)
@@ -1131,7 +1131,7 @@ SELL 2404.TW 漢唐 240股 @ 1182.02 reason=trail cash=1161609
 開始: cash=1161609 持倉=1 pending=0 equity=1402839
 QUEUE SELL 2317.TW sl (entry=288.90 H=237.00 L=230.00) → 下一根開盤成交
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0142 twii_d3=-0.0218｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0142 twii_d3=-0.0218｜通過:可開新倉
 訊號 0 檔，空槽 4，新排隊 0
 排名:
 (no signals)
@@ -1141,7 +1141,7 @@ QUEUE SELL 2317.TW sl (entry=288.90 H=237.00 L=230.00) → 下一根開盤成交
 開始: cash=1161609 持倉=1 pending=1 equity=1401819
 SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.02 twii_d3=0.0061｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.02 twii_d3=0.0061｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1150,7 +1150,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-07-16
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0001 twii_d3=0.0054｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0001 twii_d3=0.0054｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1189,7 +1189,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-07-22
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0134 twii_d3=0.0505｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0134 twii_d3=0.0505｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1198,7 +1198,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-07-23
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0006 twii_d3=0.0566｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0006 twii_d3=0.0566｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1217,7 +1217,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-07-27
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0005 twii_d3=-0.0266｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0005 twii_d3=-0.0266｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1256,7 +1256,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-07-31
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0798 twii_d3=0.0364｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0798 twii_d3=0.0364｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1265,7 +1265,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-03
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0062 twii_d3=0.0836｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0062 twii_d3=0.0836｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1274,7 +1274,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-04
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0006 twii_d3=0.0858｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0006 twii_d3=0.0858｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1283,7 +1283,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-05
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0288 twii_d3=0.0346｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0288 twii_d3=0.0346｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1292,7 +1292,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-06
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0048 twii_d3=0.0233｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0048 twii_d3=0.0233｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1301,7 +1301,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-07
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0038 twii_d3=0.02｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0038 twii_d3=0.02｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1310,7 +1310,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-10
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0159 twii_d3=0.0071｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0159 twii_d3=0.0071｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1319,7 +1319,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-11
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0043 twii_d3=0.0163｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0043 twii_d3=0.0163｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1328,7 +1328,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-12
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0088 twii_d3=0.0292｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0088 twii_d3=0.0292｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1337,7 +1337,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-13
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=0.0111 twii_d3=0.0243｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=0.0111 twii_d3=0.0243｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)
@@ -1346,7 +1346,7 @@ SELL 2317.TW 鴻海 1020股 @ 236.00 reason=sl cash=1401263
 ## 2026-08-14
 開始: cash=1401263 持倉=0 pending=0 equity=1401263
 流動性篩選通過 30/30 檔（失敗下載 0）
-風險判定 allow_new=True news=0 twii_d1=-0.0046 twii_d3=0.0153｜通過：可開新倉
+風險判定 allow_new=True news=0 twii_d1=-0.0046 twii_d3=0.0153｜通過:可開新倉
 訊號 0 檔，空槽 5，新排隊 0
 排名:
 (no signals)

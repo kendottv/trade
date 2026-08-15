@@ -61,7 +61,7 @@ from universe import (
     screen_universe,
     session_dates,
 )
-from news_risk import evaluate_risk, save_risk
+from news_risk import append_journal, evaluate_risk, save_risk
 
 log = logging.getLogger("trade.paper")
 
@@ -321,6 +321,56 @@ def manage_exits(
             )
 
 
+def queue_risk_exits(
+    acct: PaperAccount,
+    risk: dict,
+    d: pd.Timestamp,
+    notes: list[str],
+) -> None:
+    """If market-stress switch is on, flatten next open (news-stop proxy in replay).
+
+    Replay has no historical headlines; price_pause stands in for 消息面停損.
+    Does not change live unless process_day(..., flat_on_risk=True).
+    """
+    if not risk.get("price_pause"):
+        return
+    dstr = pd.Timestamp(d).strftime("%Y-%m-%d")
+    # drop all pending buys — do not open into a stress day
+    kept = []
+    n_drop = 0
+    for p in list(acct.pending):
+        if p.side == "buy":
+            n_drop += 1
+        else:
+            kept.append(p)
+    acct.pending = kept
+    if n_drop:
+        notes.append(f"風險停損：取消 {n_drop} 筆 pending buy")
+    n_new = 0
+    for pos in list(acct.positions):
+        if pos.shares <= 0:
+            continue
+        if acct.has_pending(pos.ticker, "sell"):
+            continue
+        acct.pending.append(
+            PaperPending(
+                side="sell",
+                ticker=pos.ticker,
+                name=pos.name,
+                reason="risk_stop",
+                snr=pos.entry_snr,
+                signal_date=dstr,
+            )
+        )
+        n_new += 1
+        notes.append(
+            f"QUEUE SELL {pos.ticker} risk_stop（大盤壓力 "
+            f"d1={risk.get('twii_d1')} d3={risk.get('twii_d3')}）→ 下一根開盤成交"
+        )
+    if n_new == 0 and n_drop == 0:
+        notes.append("風險停損：大盤壓力但無持倉／已在排隊出")
+
+
 def queue_entries(
     acct: PaperAccount,
     prepared: dict[str, pd.DataFrame],
@@ -391,6 +441,7 @@ def process_day(
     max_positions: int,
     failed: list[str],
     fetch_news: bool = False,
+    flat_on_risk: bool = False,
 ) -> None:
     d = pd.Timestamp(d).normalize()
     dstr = d.strftime("%Y-%m-%d")
@@ -423,6 +474,8 @@ def process_day(
         f"風險判定 allow_new={risk['allow_new_entries']} news={risk['news_score']} "
         f"twii_d1={risk['twii_d1']} twii_d3={risk['twii_d3']}｜{risk['reason']}"
     )
+    if flat_on_risk:
+        queue_risk_exits(acct, risk, d, notes)
     queue_entries(
         acct, prepared, names, passed, d, max_positions, notes,
         allow_new=bool(risk["allow_new_entries"]),
@@ -442,6 +495,16 @@ def process_day(
         f"收盤: cash={acct.cash:.0f} MV={mv:.0f} equity={eq:.0f} 持倉={held_s} pending={pend_s}"
     )
     store.append_log("\n".join(notes))
+    if fetch_news:
+        append_journal(
+            {**risk, "slot": "close"},
+            extra={
+                "cash": round(float(acct.cash), 2),
+                "equity": round(float(eq), 2),
+                "n_positions": len(acct.positions),
+                "holdings": "／".join(p.name or p.ticker for p in acct.positions),
+            },
+        )
     log.info("%s equity=%.0f cash=%.0f pos=%d pending=%d", dstr, eq, acct.cash, len(acct.positions), len(acct.pending))
 
 
@@ -574,28 +637,38 @@ def run_replay(
     max_positions: int,
     force_download: bool,
     reset: bool = True,
+    replay_dir: Path | None = None,
+    flat_on_risk: bool = False,
 ) -> None:
-    store = PaperStore(default_replay_dir())
+    root = Path(replay_dir) if replay_dir else default_replay_dir()
+    store = PaperStore(root)
     if reset and store.root.exists():
         # fresh 1M for a proof replay
         for p in store.root.glob("*"):
             if p.is_file():
                 p.unlink()
-    store = PaperStore(default_replay_dir())
+    store = PaperStore(root)
     acct = store.load_or_create(INITIAL_CAPITAL)
+    extra = "；實驗：大盤壓力日隔日開盤出清舊倉" if flat_on_risk else ""
     store.write_log_header(
-        f"紙上交易回放 {start} → {end}（非真實券商；訊號 t 收盤、t+1 開盤成交）"
+        f"紙上交易回放 {start} → {end}（非真實券商；訊號 t 收盤、t+1 開盤成交{extra}）"
     )
     prepared, names, failed = load_prepared(force_download=force_download)
     dates = session_dates(prepared, start=start, end=end)
     if len(dates) == 0:
         raise SystemExit("no session dates in replay window (check cache / TWII)")
-    log.info("replay %s → %s  days=%d  names=%d  failed=%s", start, end, len(dates), len(names), failed)
+    log.info(
+        "replay %s → %s  days=%d  names=%d  flat_on_risk=%s  dir=%s  failed=%s",
+        start, end, len(dates), len(names), flat_on_risk, store.root, failed,
+    )
     (store.root / "failed_tickers.txt").write_text(
         "\n".join(failed) + ("\n" if failed else ""), encoding="utf-8"
     )
     for d in dates:
-        process_day(d, acct, store, prepared, names, max_positions, failed, fetch_news=False)
+        process_day(
+            d, acct, store, prepared, names, max_positions, failed,
+            fetch_news=False, flat_on_risk=flat_on_risk,
+        )
     summary = summarize(store, acct)
     print_summary(summary, failed, store)
     wr = summary["win_rate"]
@@ -654,17 +727,30 @@ def main() -> None:
     ap.add_argument("--max-positions", type=int, default=MAX_POSITIONS_DEFAULT)
     ap.add_argument("--download", action="store_true", help="force yfinance refresh")
     ap.add_argument("--keep-replay", action="store_true", help="do not wipe paper/replay before replay")
+    ap.add_argument(
+        "--flat-on-risk",
+        action="store_true",
+        help="replay/live: TWII stress also exits positions next open (news-stop proxy)",
+    )
+    ap.add_argument(
+        "--replay-dir",
+        default=None,
+        help="replay output folder (default paper/replay)",
+    )
     args = ap.parse_args()
 
     if args.replay_from or args.replay_to:
         start = args.replay_from or "2026-01-01"
         end = args.replay_to or "2026-08-13"
+        rdir = Path(args.replay_dir) if args.replay_dir else None
         run_replay(
             start,
             end,
             max_positions=args.max_positions,
             force_download=args.download,
             reset=not args.keep_replay,
+            replay_dir=rdir,
+            flat_on_risk=bool(args.flat_on_risk),
         )
         return
     if args.live:
