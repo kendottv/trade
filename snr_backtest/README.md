@@ -41,7 +41,8 @@
 | --- | --- |
 | `paper_watcher.py` | **監看主程式**。08:30–22:00 待著，準時叫新聞、預警、收盤單。自己不下單。 |
 | `paper_daily.py` | **紙上進出流程**。收盤確認訊號、排隊；隔日開盤價在紙上加減股。`--live` 寫 `paper\`；`--replay` 寫 `paper\replay\`，不碰 live。 |
-| `paper_alert.py` | **盤中預警**。現價破前 20 日高就跳視窗。不成交。 |
+| `paper_alert.py` | **盤中預警**。現價破前 20 日高就提示音 + Windows 通知。不成交。`--test` 可當場試鈴聲。 |
+| `notify_alert.ps1` | **Windows 通知**。給 `paper_alert.py` 叫右下角 toast，自己不跑。 |
 | `news_risk.py` | **新聞小演算法**。去重＋權重熱度＋21:30/08:30 升降溫。只當開倉開關，不選股。每天追加 `paper\news_journal.csv`。 |
 | `signals.py` | **現行進出規則（breakout_v2）**。紙上與預警都看這支。 |
 | `picker.py` | **自動選股**。當天有訊號的，依 SNR、相對大盤強度排序，空槽才補，最多 5 檔。 |
@@ -73,7 +74,8 @@
 | `start_paper_watcher.bat` | 平日 08:30：只啟動 watcher。 |
 | `run_news_0830.bat` | **每天** 08:30 抓新聞、交叉比對。 |
 | `run_news_2130.bat` | **每天** 21:30 記熱度。 |
-| `stop_paper_watcher.bat` | 平日 22:00 關掉 watcher。 |
+| `stop_paper_watcher.bat` | 平日 22:00：先 git 備份，再關掉 watcher。 |
+| `git_daily.bat` | **每天** 21:55（關掉前）：`git add .`、commit 當天日期、`git push`。沒改動就只 push。 |
 | `run_paper_daily.bat` | 手動跑一次 `--live --download`（會 pause）。 |
 | `_run_paper_daily_silent.bat` | 平日 16:00 排程用，不要 pause。 |
 | `install_autostart.bat` | 安裝平日 08:30／16:00／22:00 排程（已取消開機自啟）。 |
@@ -111,9 +113,10 @@
 | 平日 16:00 | 排程 `TW_Paper_Account` | 收盤確認、排隊隔日單 |
 | 下一交易日開盤 | `paper_daily.py` 處理 pending | 開盤價紙上成交 |
 | **每天** 21:30 | 排程 `TW_News_2130` | 記熱度（含週末／假日） |
-| 平日 22:00 | 排程 `TW_Paper_Stop` | 關掉 watcher |
+| **每天** 21:55 | 排程 `TW_Git_Daily` | `git add .` / commit 當天日期 / `git push`（關掉前） |
+| 平日 22:00 | 排程 `TW_Paper_Stop` | 再 git 一次當備份，然後關掉 watcher |
 
-電腦當時要開著、要登入。進出只平日；**新聞七天都跑**。關 VS Code 不影響排程。  
+電腦當時要開著、要登入。進出只平日；**新聞與 git 七天都跑**。關 VS Code 不影響排程。  
 16:00 以排程為主、watcher 只補跑；新聞以每天排程為主，journal 同一天同一格不重複寫。國定假日／週末若快取已是最新交易日，live 不再空下載。
 
 ---
@@ -145,6 +148,7 @@
 ```bat
 .venv\Scripts\python paper_daily.py --live --download
 .venv\Scripts\python paper_alert.py
+.venv\Scripts\python paper_alert.py --test
 .venv\Scripts\python news_risk.py --slot 0830
 .venv\Scripts\python news_risk.py --slot 2130
 .venv\Scripts\python paper_daily.py --replay-from 2026-02-14 --replay-to 2026-08-14

@@ -1,15 +1,16 @@
 """Intraday breakout ALERTS only. Does not trade.
 
 During TW cash session (09:00-13:30 Asia/Taipei), poll last prices.
-If last > prior 20-day high (completed daily bars only), notify once per
-ticker per day. Close confirmation + next-open fill still happens in
-paper_daily.py after the close.
+If last > prior 20-day high (completed daily bars only), alarm once per
+ticker per day (beep + Windows toast). Close confirmation + next-open
+fill still happens in paper_daily.py after the close.
 """
 from __future__ import annotations
 
 import csv
 import subprocess
 import sys
+import threading
 import time
 from datetime import datetime, timedelta
 from pathlib import Path
@@ -49,21 +50,80 @@ def in_session(now: datetime) -> bool:
     return start <= now <= end
 
 
-def popup(title: str, body: str) -> None:
-    """Non-blocking Windows balloon via WScript. Does nothing if it fails."""
+NOTIFY_PS1 = ROOT / "notify_alert.ps1"
+
+
+def play_alarm() -> None:
+    """PC speaker / default device beeps. Runs in a thread so toast can show now."""
+
+    def _run() -> None:
+        try:
+            import winsound
+
+            winsound.MessageBeep(winsound.MB_ICONEXCLAMATION)
+            for _ in range(3):
+                winsound.Beep(880, 180)
+                winsound.Beep(1320, 320)
+        except Exception as e:  # noqa: BLE001 — never kill the alert loop
+            log(f"alarm sound fail: {e}")
+
+    threading.Thread(target=_run, daemon=True).start()
+
+
+def show_toast(title: str, body: str) -> bool:
+    """Windows notification center toast. Returns False if PowerShell fails."""
+    if not NOTIFY_PS1.exists():
+        log("notify_alert.ps1 missing")
+        return False
+    try:
+        p = subprocess.run(
+            [
+                "powershell",
+                "-NoProfile",
+                "-WindowStyle", "Hidden",
+                "-ExecutionPolicy", "Bypass",
+                "-File", str(NOTIFY_PS1),
+                "-Title", title,
+                "-Body", body,
+            ],
+            cwd=str(ROOT),
+            capture_output=True,
+            text=True,
+            timeout=20,
+        )
+        if p.returncode != 0:
+            err = (p.stderr or p.stdout or "").strip()[:300]
+            log(f"toast fail rc={p.returncode} {err}")
+            return False
+        return True
+    except (OSError, subprocess.TimeoutExpired) as e:
+        log(f"toast fail: {e}")
+        return False
+
+
+def show_popup(title: str, body: str, timeout: int = 30) -> None:
+    """Fallback dialog if toast is blocked. Non-blocking; auto-closes."""
     t = title.replace('"', "'")
     b = body.replace('"', "'").replace("\n", " ")
     ps = (
         "$s = New-Object -ComObject WScript.Shell; "
-        f'$s.Popup("{b}", 8, "{t}", 64)'
+        f'$s.Popup("{b}", {int(timeout)}, "{t}", 48)'
     )
     try:
         subprocess.Popen(
             ["powershell", "-NoProfile", "-WindowStyle", "Hidden", "-Command", ps],
             cwd=str(ROOT),
         )
-    except OSError:
-        pass
+    except OSError as e:
+        log(f"popup fail: {e}")
+
+
+def notify(title: str, body: str) -> None:
+    """Sound + Windows toast. Popup only if toast fails."""
+    log(f"alarm: {body}")
+    play_alarm()
+    if not show_toast(title, body):
+        show_popup(title, body, timeout=30)
 
 
 def load_fired(day: str) -> set[str]:
@@ -168,7 +228,7 @@ def scan_once(levels: dict[str, float], names: dict[str, str], fired: set[str], 
         line = f"- {now:%H:%M} {name} ({ticker}) 現價 {last:.2f} > {lvl:.2f}"
         md_rows.append(line)
         write_md(day, md_rows)
-        popup("紙上帳戶預警", note)
+        notify("紙上帳戶預警", note)
         mark_fired(day, ticker)
         fired.add(ticker)
 
@@ -217,4 +277,11 @@ def seconds_until_session(now: datetime) -> float:
 
 
 if __name__ == "__main__":
-    run_session()
+    if "--test" in sys.argv:
+        notify(
+            "紙上帳戶預警（測試）",
+            "這是測試：你應該聽到提示音，並在右下角看到 Windows 通知。不成交。",
+        )
+        time.sleep(4)
+    else:
+        run_session()

@@ -1,6 +1,6 @@
 {
   "cash": 404253.03,
-  "equity": 1980653.03,
+  "equity": 2032803.04,
   "positions": [
     {
       "ticker": "2881.TW",
@@ -34,7 +34,7 @@
     }
   ],
   "pending": [],
-  "updated_at": "2026-08-21 08:30:03+0800",
-  "last_session": "2026-08-20",
+  "updated_at": "2026-08-21 16:00:42+0800",
+  "last_session": "2026-08-21",
   "initial_cash": 1000000.0
 }
