@@ -4,7 +4,7 @@ chcp 65001 >nul
 set "HERE=%~dp0"
 set "REPO=%HERE%.."
 cd /d "%REPO%"
-if not exist "paper" mkdir "%HERE%paper"
+if not exist "%HERE%paper" mkdir "%HERE%paper"
 echo %date% %time% git_daily start cwd=%CD% >> "%HERE%paper\scheduled.log"
 if not exist ".git" (
   echo %date% %time% git_daily ERROR no .git in %CD% >> "%HERE%paper\scheduled.log"
