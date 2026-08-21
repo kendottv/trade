@@ -1,32 +1,42 @@
 {
-  "session": "2026-08-14",
+  "session": "2026-08-21",
   "slot": "0830",
-  "updated_at": "2026-08-14 16:52:41+0800",
+  "updated_at": "2026-08-21 08:30:05+0800",
   "news_fetched": true,
-  "news_score": 35,
+  "fetch_ok": 5,
+  "fetch_total": 5,
+  "algo": "heat_v1",
+  "news_score": 39,
+  "n_unique": 40,
+  "n_raw": 40,
   "off_headlines": [
-    "川普對進口無人機揮關稅大棒！台灣課15% 特定產品最高100% - 經濟日報",
-    "川普開鍘無人機最高100%關稅 台日韓被課15%-新聞內容-基金 - MoneyDJ",
-    "川普祭無人機關稅！台日韓盟友課15% 漢翔、邑錡、雷虎等攻漲停 - 民報",
-    "概念股挫咧等？川普祭「無人機關稅」台灣課15％、特定產品100％ 預計這天正式生效 - FTNN 新聞網",
+    "川普關稅掀亂流 上半年德企對美投資創3年新低-新聞內容-基金 - MoneyDJ",
+    "川普關稅預期點火！全球搶銅白熱化 LME銅現貨溢價創2021年來最高 - news.cnyes.com",
     "財經一週：川普對多晶矽課15%關稅、台股違約交割新制擬上路、金價短線急漲 - 天下雜誌",
-    "關稅大刀再度高懸！ 川普最快本周祭新政策 台灣被列調查名單 - Yahoo股市",
-    "〈台股開盤〉美國新關稅24日生效 衝擊台股跌逾800點回測4萬4與季線 - news.cnyes.com",
-    "川普關稅再起，台股先踩煞車，亞洲市場最怕的壓力是什麼？-陳逸軒 - CMoney投資網誌"
+    "川普又TACO 加拿大50%關稅生效前踩剎車-新聞內容-基金 - MoneyDJ",
+    "台灣散戶怕了！瘋狂去槓桿「比川普關稅還快」 彭博：台股進入技術性修正 - Yahoo新聞",
+    "川普301強迫勞動關稅來襲！對台灣有何影響？晶片及資通訊還是零關稅嗎？｜豐雲學堂2026 年 08 月 - sinotrade.com.tw",
+    "台積電分析美國關稅及出口管制帶來挑戰 一文看有哪些多重風險 - 知新聞",
+    "川普執政週年再提台積電 對歐關稅衝擊美股 - 新唐人亞太電視台"
   ],
   "on_headlines": [
-    "TSMC 'at front of the line' for exemption of Trump tariff: US scholar|English News - 僑新聞",
     "US-Taiwan trade deal tariffs to take effect retroactively from May 1 - Formosa News"
   ],
   "compared": true,
+  "trend": "severe",
   "news_allow": false,
   "allow_new_entries": false,
-  "prev_session": null,
-  "prev_slot": null,
-  "prev_score": null,
+  "prev_session": "2026-08-20",
+  "prev_slot": "2130",
+  "prev_score": 38,
   "twii_d1": null,
   "twii_d3": null,
   "price_pause": false,
-  "reason": "今08:30分數 35 ≥ 4（尚無昨21:30）",
-  "prev_off_headlines": []
+  "reason": "今早熱度 39 ≥ 嚴重線 12(昨21:30=38,Δ+1)仍關",
+  "prev_off_headlines": [
+    "川普關稅掀亂流 上半年德企對美投資創3年新低-新聞內容-基金 - MoneyDJ",
+    "川普關稅預期點火！全球搶銅白熱化 LME銅現貨溢價創2021年來最高 - news.cnyes.com",
+    "財經一週：川普對多晶矽課15%關稅、台股違約交割新制擬上路、金價短線急漲 - 天下雜誌",
+    "川普關稅「免驚」...台股明日開紅盤直衝3萬4？投顧董座揭「2原因」：恐開高拉回 - Yahoo股市"
+  ]
 }

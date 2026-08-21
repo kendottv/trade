@@ -303,13 +303,33 @@ def preview_trend(heat: int | None, fetched: bool) -> str:
     return "cool"
 
 
+def _journal_has(session: str, slot: str) -> bool:
+    if not JOURNAL_PATH.exists() or JOURNAL_PATH.stat().st_size == 0:
+        return False
+    import csv
+
+    try:
+        with JOURNAL_PATH.open("r", encoding="utf-8-sig", newline="") as f:
+            for row in csv.DictReader(f):
+                if str(row.get("session") or "") == session and str(row.get("slot") or "") == slot:
+                    return True
+    except OSError:
+        return False
+    return False
+
+
 def append_journal(result: dict, extra: dict | None = None) -> Path:
     """Append one daily row. Does not flatten live positions.
 
     would_flat=1 means: if we later turn on 消息面停損, this print would
     have queued exits. We only record it for now.
+    Skips if this session+slot is already in the file (watcher + 排程雙跑).
     """
     extra = extra or {}
+    session = str(result.get("session") or "")
+    slot = str(result.get("slot") or "")
+    if session and slot and _journal_has(session, slot):
+        return JOURNAL_PATH
     book = _live_book()
     book.update({k: v for k, v in extra.items() if v is not None and v != ""})
     slot = str(result.get("slot") or "")
@@ -430,6 +450,13 @@ def snapshot_2130(session: pd.Timestamp | str | None = None) -> dict:
     snap["note"] = "21:30 熱度,隔日 08:30 比升降溫;本日開關仍看今早結論"
     save_risk(snap, SNAPSHOT_2130_PATH)
     append_journal(snap)
+    try:
+        (PAPER / "last_news_2130.txt").write_text(
+            datetime.now(TAIPEI).strftime("%Y-%m-%d %H:%M:%S"),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
     return snap
 
 
@@ -479,6 +506,14 @@ def morning_0830(
     }
     save_risk(result, RISK_PATH)
     append_journal(result)
+    stamp = PAPER / "last_news_0830.txt"
+    try:
+        stamp.write_text(
+            datetime.now(TAIPEI).strftime("%Y-%m-%d %H:%M:%S"),
+            encoding="utf-8",
+        )
+    except OSError:
+        pass
     return result
 
 
@@ -508,7 +543,12 @@ def evaluate_risk(
     dstr = session.strftime("%Y-%m-%d")
     if fetch_news:
         saved = load_risk(RISK_PATH)
-        if saved and saved.get("compared") and saved.get("slot") == "0830":
+        if (
+            saved
+            and saved.get("compared")
+            and saved.get("slot") == "0830"
+            and str(saved.get("session") or "") == dstr
+        ):
             return attach_twii(saved, twii, session)
         return morning_0830(session, twii=twii)
 

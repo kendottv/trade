@@ -1,14 +1,15 @@
 @echo off
+setlocal
 chcp 65001 >nul
-cd /d "%~dp0"
-if not exist ".venv\Scripts\python.exe" (
-  echo [ERROR] 找不到 .venv
+set "HERE=%~dp0"
+cd /d "%HERE%"
+if not exist "paper" mkdir paper
+echo %date% %time% START cwd=%CD% here=%HERE% >> "paper\scheduled.log"
+if not exist "%HERE%.venv\Scripts\python.exe" (
+  echo %date% %time% ERROR no venv >> "paper\scheduled.log"
   exit /b 1
 )
-if not exist "paper" mkdir paper
-echo %date% %time% start: news 08:30 vs last 21:30 >> "paper\scheduled.log"
-".venv\Scripts\python.exe" news_risk.py --slot 0830 >> "paper\scheduled.log" 2>&1
-if errorlevel 1 echo %date% %time% news_risk 0830 failed, still starting watcher >> "paper\scheduled.log"
-".venv\Scripts\python.exe" -c "from datetime import datetime; from zoneinfo import ZoneInfo; open(r'paper\last_news_0830.txt','w',encoding='utf-8').write(datetime.now(ZoneInfo('Asia/Taipei')).strftime('%%Y-%%m-%%d %%H:%%M:%%S'))"
-start "TW Paper Account" /min ".venv\Scripts\python.exe" paper_watcher.py
-echo %date% %time% watcher launched >> "paper\scheduled.log"
+echo %date% %time% start watcher (news is daily TW_News_0830) >> "paper\scheduled.log"
+start "TW Paper Account" /min "%HERE%.venv\Scripts\python.exe" "%HERE%paper_watcher.py"
+echo %date% %time% watcher launched exit=0 >> "paper\scheduled.log"
+exit /b 0

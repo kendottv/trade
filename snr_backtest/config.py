@@ -30,7 +30,7 @@ LOTTERY_TICKER = "5314.TWO"
 # END_DATE is the *backtest* sample end only. Paper live/alert load with end_date=None.
 START_DATE = "2021-08-13"
 END_DATE = "2026-08-13"
-WARMUP_START = "2020-08-01"
+WARMUP_START = "2014-08-01"  # enough SMA/SNR warmup for a 10-year paper replay
 # Optional 3-year slice reported in comparison.md (same cached prices, separate run).
 SLICE_3Y_START = "2023-08-13"
 

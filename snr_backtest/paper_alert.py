@@ -120,17 +120,26 @@ def last_price(ticker: str) -> float | None:
 def build_levels() -> dict[str, float]:
     names = candidate_tickers()
     prices, _failed = load_prices(list(names) + ["^TWII"], force_download=False)
-    screened = screen_universe(prices, names)
+    twii = prices.get("^TWII")
+    if twii is not None and len(twii):
+        asof = pd.Timestamp(twii.index.max()).normalize()
+    else:
+        asof = pd.Timestamp(datetime.now(TZ).date())
+    passed, _table = screen_universe(prices, names, asof)
     levels: dict[str, float] = {}
-    for ticker in screened:
+    for ticker in passed:
         df = prices.get(ticker)
         if df is None or df.empty:
             continue
-        sig = add_signal_columns(df)
-        # last COMPLETED daily bar's prior_high is the level we watch today
-        if "prior_high_20" not in sig.columns or sig["prior_high_20"].dropna().empty:
+        hist = df[df.index <= asof]
+        if hist.empty or "High" not in hist.columns:
             continue
-        lvl = float(sig["prior_high_20"].iloc[-1])
+        # Watch max of the last 20 *completed* highs (includes yesterday).
+        # prior_high_20 on yesterday's row excludes yesterday — one day too stale.
+        highs = hist["High"].astype(float).tail(LOOKBACK)
+        if highs.empty:
+            continue
+        lvl = float(highs.max())
         if lvl > 0:
             levels[ticker] = lvl
     return levels
@@ -146,7 +155,7 @@ def scan_once(levels: dict[str, float], names: dict[str, str], fired: set[str], 
         if last is None or last <= lvl:
             continue
         name = display_name(ticker, names)
-        note = f"{name} 盤中 {last:.2f} 破 20日高 {lvl:.2f}（預警，未進場）"
+        note = f"{name} 盤中 {last:.2f} 破 20日高 {lvl:.2f}（預警未進場；Yahoo 報價可能延遲）"
         log(note)
         append_csv({
             "time": now.strftime("%Y-%m-%d %H:%M:%S"),
@@ -174,7 +183,10 @@ def run_session() -> None:
         levels = build_levels()
     except Exception as e:
         log(f"build_levels fail: {e}")
-        return
+        raise SystemExit(1) from e
+    if not levels:
+        log("build_levels empty")
+        raise SystemExit(1)
     log(f"watching {len(levels)} names")
     fired = load_fired(day)
     md_rows: list[str] = []

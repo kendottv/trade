@@ -1,0 +1,5 @@
+﻿time,ticker,name,last,prior_high_20,note
+2026-08-20 09:21:40,5314.TWO,世紀,23.6500,21.5000,intraday_alert_no_fill
+2026-08-21 09:00:00,5314.TWO,世紀,23.6500,23.6500,intraday_alert_no_fill
+2026-08-21 10:30:55,2881.TW,富邦金,133.0000,132.5000,intraday_alert_no_fill
+2026-08-21 11:16:58,3008.TW,大立光,5745.0000,5720.0000,intraday_alert_no_fill

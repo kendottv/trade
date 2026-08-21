@@ -18,10 +18,14 @@ import argparse
 import logging
 import sys
 from collections import Counter
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
+LIVE_STAMP = ROOT / "paper" / "last_live_run.txt"
+TZ = ZoneInfo("Asia/Taipei")
 
 import pandas as pd
 
@@ -686,17 +690,49 @@ def run_replay(
     (store.root / "replay_summary.md").write_text("\n".join(lines), encoding="utf-8")
 
 
+def _mark_live_stamp() -> None:
+    LIVE_STAMP.parent.mkdir(parents=True, exist_ok=True)
+    LIVE_STAMP.write_text(datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
+
+
 def run_live(max_positions: int, force_download: bool) -> None:
     store = PaperStore(default_live_dir())
     acct = store.load_or_create(INITIAL_CAPITAL)
     store.write_log_header("紙上交易（非真實券商）— live")
-    prepared, names, failed = load_prepared(force_download=force_download)
+    now = datetime.now(TZ)
+    today = pd.Timestamp(now.date()).normalize()
+
+    prepared, names, failed = load_prepared(force_download=False)
     dates = session_dates(prepared)
-    if len(dates) == 0:
-        raise SystemExit("no bars available")
-    latest = dates[-1]
+    latest = dates[-1] if len(dates) else None
+    last = pd.Timestamp(acct.last_session).normalize() if acct.last_session else None
+    cache_ahead = bool(latest is not None and (last is None or last < latest))
+    maybe_new_bar = (
+        force_download
+        and now.weekday() < 5
+        and now.hour >= 15
+        and (last is None or last < today)
+        and not cache_ahead
+    )
+    if maybe_new_bar:
+        log.info("live: cache has no new session, downloading (post-15:00 weekday)")
+        prepared, names, failed = load_prepared(force_download=True)
+        dates = session_dates(prepared)
+        latest = dates[-1] if len(dates) else None
+        cache_ahead = bool(latest is not None and (last is None or last < latest))
+    elif force_download and cache_ahead:
+        log.info("live: cache already has unprocessed days, skip extra download")
+    elif not cache_ahead:
+        log.info(
+            "live skip: no new session (last=%s latest=%s today=%s) — holiday/weekend or already done",
+            acct.last_session, None if latest is None else latest.date(), today.date(),
+        )
+        print_summary(summarize(store, acct), failed, store)
+        store.save_account(acct)
+        _mark_live_stamp()
+        return
+
     if acct.last_session is None:
-        # first live run: only the latest session (mostly queues pending buys)
         to_run = [latest]
         log.info("first live run → latest session %s", latest.date())
     else:
@@ -706,6 +742,7 @@ def run_live(max_positions: int, force_download: bool) -> None:
             log.info("live up to date (last_session=%s latest=%s)", acct.last_session, latest.date())
             print_summary(summarize(store, acct), failed, store)
             store.save_account(acct)
+            _mark_live_stamp()
             return
     (store.root / "failed_tickers.txt").write_text(
         "\n".join(failed) + ("\n" if failed else ""), encoding="utf-8"
@@ -713,6 +750,7 @@ def run_live(max_positions: int, force_download: bool) -> None:
     for d in to_run:
         process_day(d, acct, store, prepared, names, max_positions, failed, fetch_news=True)
     print_summary(summarize(store, acct), failed, store)
+    _mark_live_stamp()
 
 
 def main() -> None:

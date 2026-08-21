@@ -1,10 +1,9 @@
 """Keep the paper account current after the Grok Bot trial ends.
 
-Weekdays 08:30: start bat fetches news (08:30 vs last 21:30), then this watcher.
-On start: news --slot 0830 if not done, then catch up --live if needed.
+Weekdays 08:30: start watcher (news is daily TW_News_0830 / TW_News_2130).
+On start: catch up --live from cache if missed days (no 08:30 download).
 Weekdays 09:00-13:30: intraday breakout ALERTS (no fills).
-Weekdays 21:30: news --slot 2130 (score for tomorrow's cross-check).
-Weekdays 16:00: paper_daily.py --live (close confirm + next-open queue).
+Weekdays 16:00: backup live if TW_Paper_Account stamp not today.
 Weekdays 22:00: exit (scheduled stop_paper_watcher.bat is the backup).
 Logs to paper/watcher.log. Not a broker.
 """
@@ -113,7 +112,7 @@ def seconds_until_next(now: datetime) -> float:
         day = (t + timedelta(days=i)).replace(second=0, microsecond=0)
         if day.weekday() >= 5:
             continue
-        for h, m in ((8, 30), (9, 0), (16, 0), (21, 30), (22, 0)):
+        for h, m in ((9, 0), (16, 0), (22, 0)):
             slot = day.replace(hour=h, minute=m)
             if slot > now:
                 candidates.append(slot)
@@ -128,11 +127,6 @@ def main() -> None:
     if past_stop(now):
         log("watcher stop (off hours; weekday 08:30–22:00)")
         return
-    if not already_ran_today(NEWS_0830_STAMP, now):
-        run_news("0830")
-        mark(NEWS_0830_STAMP, datetime.now(TZ))
-    else:
-        log("already ran 08:30 news today, skip")
     if not already_ran_today(STAMP, now):
         run_live()
         mark(STAMP, datetime.now(TZ))
@@ -145,12 +139,11 @@ def main() -> None:
             log("watcher stop (22:00)")
             return
         if in_session(now) and not already_ran_today(ALERT_STAMP, now):
-            run_alerts()
-            mark(ALERT_STAMP, datetime.now(TZ))
-            continue
-        if past_news_2130(now) and not already_ran_today(NEWS_2130_STAMP, now):
-            run_news("2130")
-            mark(NEWS_2130_STAMP, datetime.now(TZ))
+            rc = run_alerts()
+            if rc == 0:
+                mark(ALERT_STAMP, datetime.now(TZ))
+            else:
+                log(f"alert failed rc={rc}, will retry")
             continue
         if now.weekday() < 5 and now.hour >= 16 and not already_ran_today(STAMP, now):
             run_live()
