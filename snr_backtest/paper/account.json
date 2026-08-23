@@ -1,40 +1,9 @@
 {
-  "cash": 404253.03,
-  "equity": 2032803.04,
-  "positions": [
-    {
-      "ticker": "2881.TW",
-      "name": "富邦金",
-      "shares": 6000,
-      "avg_price": 111.7095,
-      "entry_date": "2026-06-03",
-      "entry_snr": 0.6246,
-      "time_stop_count": 0,
-      "trail_armed": true
-    },
-    {
-      "ticker": "2882.TW",
-      "name": "國泰金",
-      "shares": 4000,
-      "avg_price": 98.4828,
-      "entry_date": "2026-06-10",
-      "entry_snr": 0.654,
-      "time_stop_count": 0,
-      "trail_armed": true
-    },
-    {
-      "ticker": "2886.TW",
-      "name": "兆豐金",
-      "shares": 9000,
-      "avg_price": 41.8887,
-      "entry_date": "2026-06-10",
-      "entry_snr": 0.4703,
-      "time_stop_count": 0,
-      "trail_armed": true
-    }
-  ],
+  "cash": 1598559.3,
+  "equity": 1598559.3,
+  "positions": [],
   "pending": [],
-  "updated_at": "2026-08-21 16:00:42+0800",
+  "updated_at": "2026-08-23 22:41:41+0800",
   "last_session": "2026-08-21",
   "initial_cash": 1000000.0
 }

@@ -1,9 +1,10 @@
 """Intraday breakout ALERTS only. Does not trade.
 
 During TW cash session (09:00-13:30 Asia/Taipei), poll last prices.
-If last > prior 20-day high (completed daily bars only), alarm once per
-ticker per day (beep + Windows toast). Close confirmation + next-open
-fill still happens in paper_daily.py after the close.
+If last (or today's 1m high) > prior 20-day high, alarm once per ticker
+per day (beep + Windows toast). After a split/減資, the 20-day high is
+taken only from bars after the gap. Close confirmation + next-open fill
+still happens in paper_daily.py after the close.
 """
 from __future__ import annotations
 
@@ -33,6 +34,8 @@ LOG = PAPER / "watcher.log"
 POLL_SEC = 90
 SESSION_START = (9, 0)
 SESSION_END = (13, 35)
+# Wider than TW 10% limit — catches 分割／減資, not 漲停.
+SPLIT_GAP = 0.22
 
 
 def log(msg: str) -> None:
@@ -158,23 +161,66 @@ def write_md(day: str, rows: list[str]) -> None:
 
 def last_price(ticker: str) -> float | None:
     try:
-        import yfinance as yf
-        t = yf.Ticker(ticker)
-        fi = getattr(t, "fast_info", None)
-        if fi is not None:
-            for key in ("lastPrice", "last_price", "regularMarketPrice"):
-                try:
-                    v = fi[key] if not isinstance(fi, dict) else fi.get(key)
-                except Exception:
-                    v = getattr(fi, key, None) if not isinstance(fi, dict) else None
-                if v is not None and float(v) > 0:
-                    return float(v)
-        hist = t.history(period="1d", interval="1m")
-        if hist is not None and not hist.empty and "Close" in hist.columns:
-            return float(hist["Close"].iloc[-1])
+        from quotes import get_feed
+
+        q = get_feed().last(ticker)
+        if q is not None and q.last > 0:
+            return float(q.last)
     except Exception as e:
         log(f"last_price {ticker} fail: {e}")
     return None
+
+
+def live_print(ticker: str, lvl: float) -> tuple[float | None, str]:
+    """Last price, then today's 1m high if last is still stuck at the 20-day high.
+
+    Consecutive 漲停 + delayed Yahoo last often equals yesterday's close, which
+    is already the 20-day high — 1m high is the only way to see today's limit.
+    """
+    last = last_price(ticker)
+    if last is not None and last > lvl:
+        return last, "last"
+    try:
+        from quotes import get_feed
+
+        bar = get_feed().session_bar(ticker)
+        if bar and bar.get("High") and float(bar["High"]) > 0:
+            hi = float(bar["High"])
+            px = max(last or 0.0, hi)
+            if px > lvl:
+                return px, "1m_high"
+            if last is not None:
+                return last, "last"
+            return hi, "1m_high"
+    except Exception as e:
+        log(f"live_print {ticker} fail: {e}")
+    return last, "last"
+
+
+def lookback_high(hist: pd.DataFrame, n: int = LOOKBACK) -> float | None:
+    """Max of the last n completed highs. If a split-like gap sits in the
+    window, only use bars after that gap (so 分割前 200 元不會擋住現在 26 元).
+    """
+    if hist is None or hist.empty or "High" not in hist.columns:
+        return None
+    h = hist.copy()
+    h.index = pd.to_datetime(h.index).normalize()
+    h = h[~h.index.duplicated(keep="last")].sort_index()
+    window = h.tail(max(int(n) * 2, 40))
+    if "Close" in window.columns and len(window) >= 3:
+        close = window["Close"].astype(float)
+        gap = (close / close.shift(1) - 1.0).abs()
+        splits = gap[gap > SPLIT_GAP]
+        if len(splits):
+            after = splits.index[-1]
+            post = h[h.index > after]
+            if len(post) >= 2:
+                window = post
+    highs = window["High"].astype(float).tail(int(n))
+    if highs.empty:
+        return None
+    lvl = float(highs.max())
+    return lvl if lvl > 0 else None
 
 
 def build_levels() -> dict[str, float]:
@@ -194,13 +240,8 @@ def build_levels() -> dict[str, float]:
         hist = df[df.index <= asof]
         if hist.empty or "High" not in hist.columns:
             continue
-        # Watch max of the last 20 *completed* highs (includes yesterday).
-        # prior_high_20 on yesterday's row excludes yesterday — one day too stale.
-        highs = hist["High"].astype(float).tail(LOOKBACK)
-        if highs.empty:
-            continue
-        lvl = float(highs.max())
-        if lvl > 0:
+        lvl = lookback_high(hist, LOOKBACK)
+        if lvl is not None:
             levels[ticker] = lvl
     return levels
 
@@ -211,11 +252,15 @@ def scan_once(levels: dict[str, float], names: dict[str, str], fired: set[str], 
     for ticker, lvl in levels.items():
         if ticker in fired:
             continue
-        last = last_price(ticker)
+        last, src = live_print(ticker, lvl)
         if last is None or last <= lvl:
             continue
         name = display_name(ticker, names)
-        note = f"{name} 盤中 {last:.2f} 破 20日高 {lvl:.2f}（預警未進場；Yahoo 報價可能延遲）"
+        src_bit = "；盤中1分K" if src == "1m_high" else ""
+        note = (
+            f"{name} 盤中 {last:.2f} 破 20日高 {lvl:.2f}"
+            f"（預警未進場；Yahoo 報價可能延遲{src_bit}）"
+        )
         log(note)
         append_csv({
             "time": now.strftime("%Y-%m-%d %H:%M:%S"),

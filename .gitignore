@@ -16,3 +16,4 @@ desktop.ini
 # logs that churn every sleep tick
 snr_backtest/paper/watcher.log
 snr_backtest/paper/scheduled.log
+snr_backtest/paper/broker_secrets.json

@@ -82,3 +82,30 @@ BREAKOUT_V2_TRAIL_ARM = 0.12  # arm trail once unrealized >= 12% vs fill
 BREAKOUT_V2_TRAIL_LOOKBACK = 15  # then exit next open if close < prior 15-day low
 BREAKOUT_V2_SNR_SMA = 5
 TWII_SMA = 60
+
+# Paper book: max concurrent names. Dashboard may overlay this.
+MAX_POSITIONS = 5
+
+# Snapshot *before* paper/ui_settings.json overlay (dashboard writes that file).
+STRATEGY_DEFAULTS = {
+    "BREAKOUT_V2_SNR_MIN": BREAKOUT_V2_SNR_MIN,
+    "BREAKOUT_LOOKBACK": BREAKOUT_LOOKBACK,
+    "BREAKOUT_TP": BREAKOUT_TP,
+    "BREAKOUT_SL": BREAKOUT_SL,
+    "BREAKOUT_TIME_STOP_DAYS": BREAKOUT_TIME_STOP_DAYS,
+    "BREAKOUT_V2_TWII_FILTER": BREAKOUT_V2_TWII_FILTER,
+    "BREAKOUT_V2_TRAIL": BREAKOUT_V2_TRAIL,
+    "BREAKOUT_V2_TRAIL_ARM": BREAKOUT_V2_TRAIL_ARM,
+    "BREAKOUT_V2_TRAIL_LOOKBACK": BREAKOUT_V2_TRAIL_LOOKBACK,
+    "TWII_SMA": TWII_SMA,
+    "PAPER_MAX_WEIGHT": PAPER_MAX_WEIGHT,
+    "PAPER_LOT_SIZE": PAPER_LOT_SIZE,
+    "MAX_POSITIONS": MAX_POSITIONS,
+}
+
+try:
+    from ui_settings import apply_strategy_to_module
+
+    apply_strategy_to_module(globals(), STRATEGY_DEFAULTS)
+except Exception:
+    pass

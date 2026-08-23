@@ -50,6 +50,11 @@ class PaperPending:
     reason: str
     snr: float | None = None
     signal_date: str = ""
+    target_weight: float | None = None
+    name_heat: float | None = None
+    name_trend: str = ""
+    name_lock: bool = False
+    size_note: str = ""
 
 
 @dataclass
@@ -129,6 +134,11 @@ def account_to_dict(acct):
                 "reason": p.reason,
                 "snr": (None if p.snr is None else round(float(p.snr), 4)),
                 "signal_date": p.signal_date,
+                "target_weight": p.target_weight,
+                "name_heat": p.name_heat,
+                "name_trend": p.name_trend,
+                "name_lock": bool(p.name_lock),
+                "size_note": p.size_note,
             }
             for p in acct.pending
         ],
@@ -160,6 +170,13 @@ def account_from_dict(raw):
             reason=p.get("reason", ""),
             snr=(None if p.get("snr") in (None, "") else float(p["snr"])),
             signal_date=str(p.get("signal_date") or ""),
+            target_weight=(
+                None if p.get("target_weight") in (None, "") else float(p["target_weight"])
+            ),
+            name_heat=(None if p.get("name_heat") in (None, "") else float(p["name_heat"])),
+            name_trend=str(p.get("name_trend") or ""),
+            name_lock=bool(p.get("name_lock") or False),
+            size_note=str(p.get("size_note") or ""),
         )
         for p in raw.get("pending") or []
     ]

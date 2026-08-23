@@ -24,10 +24,6 @@ EXTRA_TICKERS: dict[str, str] = {
     "2303.TW": "聯電",
     "2382.TW": "廣達",
     "2412.TW": "中華電",
-    "2881.TW": "富邦金",
-    "2882.TW": "國泰金",
-    "2891.TW": "中信金",
-    "2886.TW": "兆豐金",
     "3711.TW": "日月光投控",
     "3008.TW": "大立光",
     "2395.TW": "研華",
@@ -40,31 +36,62 @@ EXTRA_TICKERS: dict[str, str] = {
     "2301.TW": "光寶科",
 }
 
+# 金控／銀行：監測與新倉都不看。舊倉仍用 TP/SL，不從這裡強制平倉。
+BANK_TICKERS: dict[str, str] = {
+    "2881.TW": "富邦金",
+    "2882.TW": "國泰金",
+    "2891.TW": "中信金",
+    "2886.TW": "兆豐金",
+}
+
 MIN_BARS = 80
 MIN_CLOSE = 10.0
 MIN_AVG_TURNOVER = 50_000_000.0  # NT$ per day, last 20 sessions
 TURNOVER_WINDOW = 20
 
 
-def candidate_tickers() -> dict[str, str]:
-    """Original 10 first, then extras. Original names win on collision."""
-    out = dict(EXTRA_TICKERS)
-    out.update(ORIGINAL_TICKERS)
-    # stable order: original 10 then extras
+def _drop_banks(names: dict[str, str]) -> dict[str, str]:
+    return {t: n for t, n in names.items() if t not in BANK_TICKERS}
+
+
+def default_catalog() -> dict[str, str]:
+    """Built-in names, no banks. Dashboard watchlist can narrow or extend this."""
     ordered: dict[str, str] = {}
     for t, n in ORIGINAL_TICKERS.items():
         ordered[t] = n
     for t, n in EXTRA_TICKERS.items():
         if t not in ordered:
             ordered[t] = n
-    return ordered
+    return _drop_banks(ordered)
+
+
+def catalog_without_banks() -> dict[str, str]:
+    return default_catalog()
+
+
+def candidate_tickers() -> dict[str, str]:
+    """Watchlist from the dashboard if saved, else the built-in catalog.
+
+    Banks are always stripped so alerts and new entries never see them.
+    """
+    try:
+        from ui_settings import load_watchlist
+
+        watch = load_watchlist()
+    except Exception:
+        watch = None
+    if watch:
+        return _drop_banks(dict(watch))
+    return default_catalog()
 
 
 def display_name(ticker: str, names: dict[str, str] | None = None) -> str:
     if ticker == INDEX_TICKER:
         return INDEX_NAME
     names = names or candidate_tickers()
-    return names.get(ticker, ticker)
+    if ticker in names:
+        return names[ticker]
+    return default_catalog().get(ticker) or BANK_TICKERS.get(ticker, ticker)
 
 
 def load_prices(

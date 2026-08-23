@@ -21,11 +21,11 @@
 1. Kaufman **SNR（訊噪比）** 過濾趨勢品質。  
    SNR = `|收盤_t − 收盤_{t-20}| / Σ|每日漲跌|`。n=20。高＝趨勢乾淨。
 2. **breakout_v2** 進出（見 `signals.py`）。
-3. 約 30 檔流動台股自動選股，最多同時 5 檔。
+3. 約 26 檔流動台股自動選股（不含金控／銀行），最多同時 5 檔。
 4. 紙上帳戶每天收盤後跟著行情走，隔日開盤成交。
-5. 消息面只當「能不能開新倉」的開關，不拿新聞挑個股。
+5. 消息面：**關稅熱度減碼**（20%→10%→5%→2%）；**戰爭級詞／盤崩／新聞全失敗才硬關**。個股 RSS 再往下調。不拿新聞挑股，也不用新聞平倉。
 
-進場（全部要過）：收盤破前 20 日高 + SNR_20 ≥ 0.40 + 大盤在 SMA60 上 + 新聞交叉比對允許。  
+進場：收盤破前 20 日高 + SNR_20 ≥ 0.40 + 大盤在 SMA60 上。新聞不再一刀切關門（戰爭級／盤崩除外），只決定買權益的 20%／10%／5%／2%。  
 出場：停利 +25%／停損 −20%；連 3 日收在前 20 日低下方；移動停利（先漲 +12% 後武裝，再收破前 15 日低）。  
 紙上零股單位 10 股；單檔最多權益 20%，不 all-in。
 
@@ -43,11 +43,15 @@
 | `paper_daily.py` | **紙上進出流程**。收盤確認訊號、排隊；隔日開盤價在紙上加減股。`--live` 寫 `paper\`；`--replay` 寫 `paper\replay\`，不碰 live。 |
 | `paper_alert.py` | **盤中預警**。現價破前 20 日高就提示音 + Windows 通知。不成交。`--test` 可當場試鈴聲。 |
 | `notify_alert.ps1` | **Windows 通知**。給 `paper_alert.py` 叫右下角 toast，自己不跑。 |
-| `news_risk.py` | **新聞小演算法**。去重＋權重熱度＋21:30/08:30 升降溫。只當開倉開關，不選股。每天追加 `paper\news_journal.csv`。 |
+| `news_risk.py` | **新聞小演算法**。去重＋權重熱度＋21:30/08:30。關稅減碼；戰爭級／盤崩／RSS 失敗才硬關。個股 RSS 在 16:00。 |
+| `size_risk.py` | **新開倉買幾股**。大盤檔位 × 個股檔位 → 權益 20/10/5/2%。舊倉不動。寫 `paper\size_journal.csv`。 |
 | `signals.py` | **現行進出規則（breakout_v2）**。紙上與預警都看這支。 |
 | `picker.py` | **自動選股**。當天有訊號的，依 SNR、相對大盤強度排序，空槽才補，最多 5 檔。 |
-| `universe.py` | **股票池 + 流動性篩選**。約 30 檔名單；均成交金額、股價、歷史長度不夠就剔除。 |
+| `universe.py` | **股票池 + 流動性篩選**。電子／傳產為主，不含金控；均成交金額、股價、歷史長度不夠就剔除。 |
 | `paper_account.py` | **紙上帳戶存檔**。讀寫 `account.json`、`ledger.csv`、`equity.csv`、`daily_log.md`。 |
+| `dashboard.py` | **視覺化面板**。損益、新聞、監看名單、策略。平日 09:00–13:30 加權每 20 秒更新。不成交。 |
+| `quotes.py` | **行情來源**。現在 Yahoo（延遲）；永豐 Shioaji 只留接點，不登入、不下單。預警也走這裡。 |
+| `ui_settings.py` | 面板設定檔讀寫。監看名單／策略覆寫給下次 16:00／09:00／08:30 用。 |
 | `broker.py` | **成交試算**。手續費 0.1425%（最低 20 元）、賣出證交稅 0.3%、零股單位。不是券商。 |
 
 ### 參數與資料
@@ -76,6 +80,7 @@
 | `run_news_2130.bat` | **每天** 21:30 記熱度。 |
 | `stop_paper_watcher.bat` | 平日 22:00：先 git 備份，再關掉 watcher。 |
 | `git_daily.bat` | **每天** 21:55（關掉前）：`git add .`、commit 當天日期、`git push`。沒改動就只 push。 |
+| `start_dashboard.bat` | 打開視覺化面板（瀏覽器 http://localhost:8501）。 |
 | `run_paper_daily.bat` | 手動跑一次 `--live --download`（會 pause）。 |
 | `_run_paper_daily_silent.bat` | 平日 16:00 排程用，不要 pause。 |
 | `install_autostart.bat` | 安裝平日 08:30／16:00／22:00 排程（已取消開機自啟）。 |
@@ -93,6 +98,10 @@
 | `paper\news_risk.json` | 今早 08:30 交叉比對結論。 |
 | `paper\news_snapshot_2130.json` | 昨晚 21:30 成績，給明早比。 |
 | `paper\news_journal.csv` | 每天 08:30／21:30／16:00 熱度與「若當時砍倉」標記（只記錄、不真砍）。 |
+| `paper\size_journal.csv` | 每檔訊號的目標權重／個股熱度／舊開關會不會擋。 |
+| `paper\name_news\` | 16:00 該檔 RSS 標題快照。 |
+| `paper\ui_settings.json` | 面板存的監看名單／策略／新聞門檻。沒有這個檔就用程式內建。 |
+| `paper\broker_secrets.example.json` | 之後永豐 API 的範本。複製成 `broker_secrets.json` 再填。現在不要登入。 |
 | `paper\replay\` | 回放結果，**不會覆蓋 live**。 |
 | `data\` | Yahoo 行情快取。 |
 | `reports\` | 五年回測產出。 |
@@ -110,6 +119,7 @@
 | **每天** 08:30 | 排程 `TW_News_0830` | 抓新聞、對上一筆 21:30（含週末／假日） |
 | 平日 08:30 | 排程 `TW_Paper_Start` | 啟動 watcher（新聞另由每天那支負責） |
 | 平日 09:00–13:30 | `paper_alert.py` | 破高預警，不下單 |
+| 平日 09:00–13:30 | 面板開著 | 加權 K 線／1 分線每 20 秒拉 `quotes.py` |
 | 平日 16:00 | 排程 `TW_Paper_Account` | 收盤確認、排隊隔日單 |
 | 下一交易日開盤 | `paper_daily.py` 處理 pending | 開盤價紙上成交 |
 | **每天** 21:30 | 排程 `TW_News_2130` | 記熱度（含週末／假日） |
@@ -149,6 +159,7 @@
 .venv\Scripts\python paper_daily.py --live --download
 .venv\Scripts\python paper_alert.py
 .venv\Scripts\python paper_alert.py --test
+start_dashboard.bat
 .venv\Scripts\python news_risk.py --slot 0830
 .venv\Scripts\python news_risk.py --slot 2130
 .venv\Scripts\python paper_daily.py --replay-from 2026-02-14 --replay-to 2026-08-14

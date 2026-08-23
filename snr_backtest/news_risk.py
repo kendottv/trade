@@ -111,8 +111,42 @@ WEIGHTS: list[tuple[str, int]] = [
     ("利多", -1),
     ("鴿派", -2),
     ("暫緩", -1),
+    ("taco", -2),
+    ("踩剎車", -2),
+    ("談妥", -1),
+    ("降至", -1),
+    ("調降", -1),
+    ("降低關稅", -2),
     ("關稅", 1),
 ]
+
+# Bare 關稅/tariff is noise when the same title is about a cut, pause, or deal.
+_TARIFF_GENERIC = ("關稅", "tariff")
+_TARIFF_COOL = (
+    "taco",
+    "踩剎車",
+    "降至",
+    "調降",
+    "降低關稅",
+    "取消關稅",
+    "pause tariff",
+    "豁免",
+    "暫緩",
+    "談妥",
+    "協議",
+    "違憲",
+    "exemption",
+    "trade deal",
+)
+
+# Explainer / clickbait: no event, do not score.
+_COMMENTARY = (
+    "一文看",
+    "一文看懂",
+    "有哪些風險",
+    "有哪些多重風險",
+    "什麼是關稅",
+)
 
 TITLE_HEAT_CAP = 4  # one headline cannot add more than this
 HOT = 6  # below this = cool enough to open
@@ -120,6 +154,19 @@ SEVERE = 12  # still this hot → stay closed even if cooling
 COOLING_DROP = 3  # need at least this much overnight drop to count as cooling
 D1_PAUSE = -0.015
 D3_PAUSE = -0.03
+
+try:
+    from ui_settings import load_news_overlay
+
+    _news_ov = load_news_overlay()
+    if "HOT" in _news_ov:
+        HOT = int(_news_ov["HOT"])
+    if "SEVERE" in _news_ov:
+        SEVERE = int(_news_ov["SEVERE"])
+    if "COOLING_DROP" in _news_ov:
+        COOLING_DROP = int(_news_ov["COOLING_DROP"])
+except Exception:
+    pass
 
 _PUBLISHER = re.compile(r"\s+[-–—|]\s+\S+\s*$")
 _NOISE = re.compile(r"[^\w\u4e00-\u9fff]+", re.UNICODE)
@@ -159,10 +206,15 @@ def headline_heat(title: str) -> tuple[int, list[str], list[str]]:
     WEIGHTS list order is ignored.
     """
     key = normalize_title(title)
+    if any(c in key for c in _COMMENTARY):
+        return 0, [], []
     found: list[tuple[str, int]] = []
     for phrase, w in WEIGHTS:
         if phrase_in_title(key, phrase):
             found.append((phrase, w))
+    cool_tariff = any(phrase_in_title(key, c) for c in _TARIFF_COOL)
+    if cool_tariff:
+        found = [(p, w) for p, w in found if p.lower() not in _TARIFF_GENERIC]
     kept: list[tuple[str, int]] = []
     for phrase, w in found:
         p = phrase.lower()
@@ -197,9 +249,11 @@ def score_titles(titles: list[str]) -> dict:
         unique.append(t)
         h, off, on = headline_heat(t)
         heat += h
-        if off:
+        # Classify by net heat, not "any risk word". A deal/cut title can
+        # contain 關稅 and 協議; it must not sit in both lists.
+        if h > 0:
             off_hits.append(t)
-        if on:
+        elif h < 0:
             on_hits.append(t)
     return {
         "news_score": int(heat),
@@ -207,7 +261,102 @@ def score_titles(titles: list[str]) -> dict:
         "n_raw": len(titles),
         "off_headlines": off_hits[:8],
         "on_headlines": on_hits[:8],
+        "unique_titles": unique[:40],
     }
+
+
+def has_war_event(titles: list[str] | None) -> tuple[bool, str]:
+    """True if any title has a war-class phrase (not a high tariff score)."""
+    from size_risk import WAR_PHRASES
+
+    for t in titles or []:
+        key = normalize_title(t)
+        for phrase in WAR_PHRASES:
+            if phrase_in_title(key, phrase):
+                return True, t
+    return False, ""
+
+
+def _mentions_name(title: str, name: str, ticker: str) -> bool:
+    key = normalize_title(title)
+    n = normalize_title(name or "")
+    if n and n in key:
+        return True
+    code = (ticker or "").split(".")[0].lower()
+    return bool(code) and code in key
+
+
+def has_name_lock(titles: list[str] | None, name: str, ticker: str) -> tuple[bool, str]:
+    from size_risk import NAME_LOCK_PHRASES
+
+    for t in titles or []:
+        if not _mentions_name(t, name, ticker):
+            continue
+        key = normalize_title(t)
+        for phrase in NAME_LOCK_PHRASES:
+            if phrase_in_title(key, phrase):
+                return True, t
+    return False, ""
+
+
+def _save_name_news(payload: dict) -> None:
+    folder = PAPER / "name_news"
+    folder.mkdir(parents=True, exist_ok=True)
+    ticker = str(payload.get("ticker") or "x").replace(".", "_").replace("^", "")
+    session = str(payload.get("session") or "na")
+    path = folder / f"{session}_{ticker}.json"
+    try:
+        path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def name_heat(ticker: str, name: str, session=None) -> dict:
+    """Live RSS for one name. Used at 16:00 when a breakout is queued."""
+    session = pd.Timestamp(session or datetime.now(TAIPEI).date()).normalize()
+    dstr = session.strftime("%Y-%m-%d")
+    queries: list[str] = []
+    if name:
+        queries.extend([str(name), f"{name} 利空", f"{name} 關稅"])
+    code = (ticker or "").split(".")[0]
+    if code:
+        queries.append(f"{code} Taiwan")
+    titles: list[str] = []
+    ok = 0
+    for q in queries:
+        got = _fetch_rss(q)
+        if got:
+            ok += 1
+        titles.extend(got)
+    scored = score_titles(titles)
+    fetched = ok > 0
+    heat = int(scored.get("news_score") or 0)
+    trend = preview_trend(heat, fetched)
+    if not fetched:
+        trend = "unknown"
+    war, war_t = has_war_event(scored.get("unique_titles") or titles)
+    nlock, nlock_t = has_name_lock(scored.get("unique_titles") or titles, name, ticker)
+    out = {
+        "session": dstr,
+        "ticker": ticker,
+        "name": name,
+        "updated_at": _now_iso(),
+        "news_fetched": fetched,
+        "fetch_ok": ok,
+        "fetch_total": len(queries),
+        "news_score": heat,
+        "trend": trend,
+        "war_lock": war,
+        "name_lock": nlock,
+        "lock": bool(war or nlock),
+        "lock_title": war_t or nlock_t,
+        "n_unique": scored.get("n_unique", 0),
+        "n_raw": scored.get("n_raw", 0),
+        "off_headlines": scored.get("off_headlines") or [],
+        "on_headlines": scored.get("on_headlines") or [],
+    }
+    _save_name_news(out)
+    return out
 
 
 def _fetch_rss(query: str, n: int = 8) -> list[str]:
@@ -485,16 +634,33 @@ def morning_0830(
     else:
         news_pause, trend, news_reason = decide_news(int(curr["news_score"]), prev_heat)
 
+    from size_risk import macro_size_weight
+
+    war_lock, war_title = has_war_event(curr.get("unique_titles") or curr.get("off_headlines"))
+    unknown = trend == "unknown" or not curr.get("news_fetched", False)
+    lock_new = bool(unknown or war_lock or px["price_pause"])
+    size_weight = macro_size_weight(trend, lock_new)
+    old_switch = bool(news_pause or px["price_pause"])
+
     reasons = [news_reason]
+    if war_lock:
+        reasons.append(f"戰爭級硬關:{war_title[:40]}")
     if px["price_pause"]:
         reasons.append(f"大盤壓力 d1={px['d1']} d3={px['d3']}")
+    if not lock_new:
+        reasons.append(f"新倉檔位 {size_weight:.0%}")
     news_allow = not news_pause
     result = {
         **curr,
         "compared": True,
         "trend": trend,
         "news_allow": news_allow,
-        "allow_new_entries": bool(news_allow and not px["price_pause"]),
+        "lock_new": lock_new,
+        "war_lock": war_lock,
+        "war_title": war_title,
+        "size_weight": size_weight,
+        "old_switch_would_block": old_switch,
+        "allow_new_entries": (not lock_new),
         "prev_session": None if prev is None else prev.get("session"),
         "prev_slot": None if prev is None else prev.get("slot"),
         "prev_score": prev_heat,
@@ -519,13 +685,25 @@ def morning_0830(
 
 def attach_twii(decision: dict, twii: pd.DataFrame | None, session: pd.Timestamp) -> dict:
     """Reuse the 08:30 decision; only refresh TWII stress at the close."""
+    from size_risk import macro_size_weight
+
     out = dict(decision)
     px = twii_stress(twii, session)
-    news_allow = bool(out.get("news_allow", out.get("allow_new_entries", True)))
+    news_allow = bool(out.get("news_allow", True))
+    scanned_war, war_t = has_war_event(out.get("unique_titles") or out.get("off_headlines"))
+    war_lock = bool(out.get("war_lock")) or scanned_war
+    if war_t and not out.get("war_title"):
+        out["war_title"] = war_t
+    out["war_lock"] = war_lock
+    unknown = str(out.get("trend") or "") == "unknown" or not out.get("news_fetched", True)
+    lock_new = bool(war_lock or unknown or px["price_pause"])
     out["twii_d1"] = px["d1"]
     out["twii_d3"] = px["d3"]
     out["price_pause"] = px["price_pause"]
-    out["allow_new_entries"] = bool(news_allow and not px["price_pause"])
+    out["lock_new"] = lock_new
+    out["size_weight"] = macro_size_weight(str(out.get("trend") or "cool"), lock_new)
+    out["allow_new_entries"] = not lock_new
+    out["old_switch_would_block"] = bool((not news_allow) or px["price_pause"])
     reason = str(out.get("reason") or "")
     price_bit = f"大盤壓力 d1={px['d1']} d3={px['d3']}"
     if px["price_pause"] and price_bit not in reason:
@@ -553,18 +731,24 @@ def evaluate_risk(
         return morning_0830(session, twii=twii)
 
     px = twii_stress(twii, session)
-    allow = not px["price_pause"]
+    lock_new = bool(px["price_pause"])
+    allow = not lock_new
     reasons = []
     if px["price_pause"]:
         reasons.append(f"大盤壓力 d1={px['d1']} d3={px['d3']}")
     if not reasons:
-        reasons.append("通過:可開新倉")
+        reasons.append("回放無新聞標題:滿額檔位 20%")
     return {
         "session": dstr,
         "updated_at": _now_iso(),
         "allow_new_entries": allow,
+        "lock_new": lock_new,
+        "war_lock": False,
+        "size_weight": 0.0 if lock_new else 0.20,
+        "old_switch_would_block": lock_new,
         "news_fetched": False,
         "news_score": 0,
+        "trend": "cool",
         "twii_d1": px["d1"],
         "twii_d3": px["d3"],
         "price_pause": px["price_pause"],
@@ -603,6 +787,11 @@ if __name__ == "__main__":
         h, off, on = headline_heat("政府宣布全面性關稅措施")
         assert h == 2 and off == ["全面性關稅"] and on == [], (h, off, on)
 
+        ok_w, _ = has_war_event(["台海爆發軍事衝突導彈封鎖 - 範例"])
+        assert ok_w
+        ok_t, _ = has_war_event(["川普對台加徵關稅 - 經濟日報"])
+        assert not ok_t
+
         h, off, on = headline_heat("Fed signals pause tariff plan")
         assert h == -2 and on == ["pause tariff"], (h, off, on)
 
@@ -628,6 +817,30 @@ if __name__ == "__main__":
         assert pause is True and trend == "severe", (pause, trend)
         pause, trend, _ = decide_news(5, None)
         assert pause is False and trend == "cool", (pause, trend)
+
+        h, off, on = headline_heat(
+            "川普稱美加協議「幾乎談妥」 汽車關稅可望由25%降至15%"
+        )
+        assert h < 0 and "關稅" not in off, (h, off, on)
+        h, off, on = headline_heat("川普又TACO 加拿大50%關稅生效前踩剎車")
+        assert h < 0 and "關稅" not in off, (h, off, on)
+        h, off, on = headline_heat(
+            "台積電分析美國關稅及出口管制帶來挑戰 一文看有哪些多重風險"
+        )
+        assert h == 0, (h, off, on)
+        h, off, on = headline_heat(
+            "川普關稅違憲！他酸「台積電白送了」：買了天價保險無法退費"
+        )
+        assert h <= 0 and "關稅" not in off, (h, off, on)
+        scored = score_titles(
+            [
+                "川普稱美加協議「幾乎談妥」 汽車關稅可望由25%降至15% - Yahoo股市",
+                "川普又TACO 加拿大50%關稅生效前踩剎車-新聞內容-基金 - MoneyDJ",
+            ]
+        )
+        assert scored["off_headlines"] == [], scored
+        assert scored["news_score"] < 0, scored
+
         print("self-test ok", s)
     elif args.slot == "2130":
         print(json.dumps(snapshot_2130(), ensure_ascii=False, indent=2))

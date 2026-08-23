@@ -35,6 +35,7 @@ from config import (
     COMMISSION_RATE,
     INDEX_TICKER,
     INITIAL_CAPITAL,
+    MAX_POSITIONS,
     PAPER_LOT_SIZE,
     PAPER_MAX_WEIGHT,
     SELL_TAX_RATE,
@@ -58,18 +59,21 @@ from signals import (
     tp_sl_hit,
 )
 from universe import (
+    BANK_TICKERS,
     candidate_tickers,
+    catalog_without_banks,
     display_name,
     load_prices,
     save_universe_csv,
     screen_universe,
     session_dates,
 )
-from news_risk import append_journal, evaluate_risk, save_risk
+from news_risk import append_journal, evaluate_risk, name_heat, save_risk
+from size_risk import apply_name, append_size_journal, target_budget
 
 log = logging.getLogger("trade.paper")
 
-MAX_POSITIONS_DEFAULT = 5
+MAX_POSITIONS_DEFAULT = int(MAX_POSITIONS)
 
 
 def _bar(df: pd.DataFrame, d: pd.Timestamp) -> pd.Series | None:
@@ -198,8 +202,8 @@ def fill_pending_buys(
         return
 
     notes.append(
-        f"資金分配: 單檔上限權益 {PAPER_MAX_WEIGHT:.0%}、"
-        f"閒置現金/剩餘空槽，不 all-in 單一檔"
+        f"資金分配: 新聞減碼後的目標權重、單檔上限 {PAPER_MAX_WEIGHT:.0%}、"
+        f"10 股為單位，不 all-in"
     )
     for pend in fillable:
         if len(acct.positions) >= max_positions:
@@ -210,9 +214,15 @@ def fill_pending_buys(
         o = float(row["Open"])
         slots_left = max(1, max_positions - len(acct.positions))
         _, equity = mark_to_market(acct, prepared, d)
-        cap_weight = float(equity) * float(PAPER_MAX_WEIGHT)
-        cap_slot = float(acct.cash) / slots_left
-        budget = min(float(acct.cash), cap_weight, cap_slot)
+        w = pend.target_weight
+        if w is None:
+            w = float(PAPER_MAX_WEIGHT)
+        if float(w) <= 0:
+            notes.append(f"PENDING_BUY 權重 0，跳過: {pend.ticker} {pend.size_note}")
+            continue
+        budget = target_budget(
+            float(acct.cash), float(equity), slots_left, float(w), float(PAPER_MAX_WEIGHT),
+        )
         fill = buy_fill(budget, o, PAPER_LOT_SIZE, COMMISSION_RATE, COMMISSION_MIN)
         if fill is None:
             notes.append(
@@ -250,7 +260,8 @@ def fill_pending_buys(
         )
         notes.append(
             f"BUY {pend.ticker} {pend.name} {fill.shares}股 @ {fill.price:.2f} "
-            f"snr={snr_val} budget={budget:.0f} cash={acct.cash:.0f}"
+            f"snr={snr_val} weight={float(w):.0%} budget={budget:.0f} cash={acct.cash:.0f}"
+            + (f" {pend.size_note}" if pend.size_note else "")
         )
 
     acct.pending = others + waiting
@@ -384,6 +395,9 @@ def queue_entries(
     max_positions: int,
     notes: list[str],
     allow_new: bool = True,
+    fetch_news: bool = False,
+    risk: dict | None = None,
+    store: PaperStore | None = None,
 ) -> list[dict]:
     dstr = pd.Timestamp(d).strftime("%Y-%m-%d")
     signal_rows: list[dict] = []
@@ -410,29 +424,84 @@ def queue_entries(
     pending_all = acct.pending_tickers()
     n_slots = max(0, max_positions - len(acct.positions) - len(acct.pending_tickers("buy")))
     # do not add names already held or already pending (buy or sell)
+    risk = risk or {}
     if not allow_new:
-        notes.append("風險開關：今日暫停開新倉（舊倉照停利停損）")
+        notes.append("風險硬關：今日暫停開新倉（戰爭級／盤崩／無新聞資料；舊倉照停利停損）")
         n_slots = 0
     picked = rank_candidates(signal_rows, held=held, pending=pending_all, max_new=n_slots)
     picked_set = {r["ticker"] for r in picked}
     notes.append(f"訊號 {len(signal_rows)} 檔，空槽 {n_slots}，新排隊 {len(picked)}")
     notes.append("排名:\n" + format_rank_table(signal_rows, picked_set))
+    macro_w = float(risk.get("size_weight") if risk.get("size_weight") is not None else PAPER_MAX_WEIGHT)
+    from datetime import datetime, timezone, timedelta
 
-    for r in picked:
-        acct.pending.append(
-            PaperPending(
-                side="buy",
-                ticker=r["ticker"],
-                name=r["name"],
-                reason=STRATEGY_NAME,
-                snr=r["snr"],
-                signal_date=dstr,
+    taipei = timezone(timedelta(hours=8))
+    now_iso = datetime.now(taipei).strftime("%Y-%m-%d %H:%M:%S%z")
+    journal_root = store.root if store is not None else None
+
+    for r in signal_rows:
+        nh: dict = {}
+        if fetch_news and r["ticker"] in picked_set:
+            try:
+                nh = name_heat(r["ticker"], r["name"], d)
+            except Exception as exc:  # noqa: BLE001
+                notes.append(f"個股新聞失敗 {r['ticker']}: {exc}")
+                nh = {}
+        name_trend = str(nh.get("trend") or "cool")
+        name_lock = bool(nh.get("lock"))
+        tw = apply_name(macro_w, name_trend, name_lock)
+        size_note = (
+            f"macro={risk.get('trend')}/{macro_w:.0%} "
+            f"name={name_trend}/{nh.get('news_score', '')} "
+            f"→{tw:.0%}"
+        )
+        if r["ticker"] in picked_set and tw > 0:
+            acct.pending.append(
+                PaperPending(
+                    side="buy",
+                    ticker=r["ticker"],
+                    name=r["name"],
+                    reason=STRATEGY_NAME,
+                    snr=r["snr"],
+                    signal_date=dstr,
+                    target_weight=tw,
+                    name_heat=(None if nh.get("news_score") in (None, "") else float(nh["news_score"])),
+                    name_trend=name_trend,
+                    name_lock=name_lock,
+                    size_note=size_note,
+                )
             )
-        )
-        notes.append(
-            f"QUEUE BUY {r['ticker']} {r['name']} snr={r['snr']:.4f} rs={r['rs']:.4f} "
-            f"close={r['close']:.2f} → 下一根開盤成交"
-        )
+            notes.append(
+                f"QUEUE BUY {r['ticker']} {r['name']} snr={r['snr']:.4f} "
+                f"weight={tw:.0%} {size_note} close={r['close']:.2f} → 下一根開盤成交"
+            )
+        elif r["ticker"] in picked_set and tw <= 0:
+            notes.append(f"QUEUE SKIP {r['ticker']} {r['name']} 個股硬關 {size_note}")
+        try:
+            append_size_journal(
+                {
+                    "logged_at": now_iso,
+                    "session": dstr,
+                    "ticker": r["ticker"],
+                    "name": r["name"],
+                    "macro_trend": risk.get("trend", ""),
+                    "macro_heat": risk.get("news_score", ""),
+                    "macro_weight": macro_w,
+                    "war_lock": int(bool(risk.get("war_lock"))),
+                    "old_switch_would_block": int(bool(risk.get("old_switch_would_block"))),
+                    "lock_new": int(bool(risk.get("lock_new"))),
+                    "name_heat": nh.get("news_score", ""),
+                    "name_trend": name_trend if nh else "",
+                    "name_lock": int(name_lock),
+                    "target_weight": tw,
+                    "shares": "",
+                    "budget": "",
+                    "note": size_note,
+                },
+                root=journal_root,
+            )
+        except Exception:
+            pass
     return signal_rows
 
 
@@ -475,14 +544,17 @@ def process_day(
     risk = evaluate_risk(d, twii=twii, fetch_news=fetch_news)
     save_risk(risk, store.root / "news_risk.json")
     notes.append(
-        f"風險判定 allow_new={risk['allow_new_entries']} news={risk['news_score']} "
-        f"twii_d1={risk['twii_d1']} twii_d3={risk['twii_d3']}｜{risk['reason']}"
+        f"風險判定 lock_new={risk.get('lock_new')} size={risk.get('size_weight')} "
+        f"news={risk['news_score']} twii_d1={risk['twii_d1']} twii_d3={risk['twii_d3']}｜{risk['reason']}"
     )
     if flat_on_risk:
         queue_risk_exits(acct, risk, d, notes)
     queue_entries(
         acct, prepared, names, passed, d, max_positions, notes,
-        allow_new=bool(risk["allow_new_entries"]),
+        allow_new=not bool(risk.get("lock_new", not risk.get("allow_new_entries", True))),
+        fetch_news=fetch_news,
+        risk=risk,
+        store=store,
     )
 
     # 4. Mark to market at D close
@@ -626,9 +698,16 @@ def print_summary(summary: dict, failed: list[str], store: PaperStore) -> None:
     print("====================================")
 
 
-def load_prepared(force_download: bool = False) -> tuple[dict, dict, list[str]]:
-    names = candidate_tickers()
-    tickers = list(names.keys()) + [INDEX_TICKER]
+def load_prepared(
+    force_download: bool = False,
+    extra_tickers: list[str] | None = None,
+    names: dict[str, str] | None = None,
+) -> tuple[dict, dict, list[str]]:
+    names = dict(names) if names is not None else candidate_tickers()
+    tickers: list[str] = []
+    for t in list(names.keys()) + list(extra_tickers or []) + [INDEX_TICKER]:
+        if t and t not in tickers:
+            tickers.append(t)
     # Do not clip to backtest END_DATE — paper must follow new sessions.
     prices, failed = load_prices(tickers, force_download=force_download, end_date=None)
     prepared = prepare_all(prices)
@@ -643,6 +722,7 @@ def run_replay(
     reset: bool = True,
     replay_dir: Path | None = None,
     flat_on_risk: bool = False,
+    exclude_banks: bool = False,
 ) -> None:
     root = Path(replay_dir) if replay_dir else default_replay_dir()
     store = PaperStore(root)
@@ -654,10 +734,18 @@ def run_replay(
     store = PaperStore(root)
     acct = store.load_or_create(INITIAL_CAPITAL)
     extra = "；實驗：大盤壓力日隔日開盤出清舊倉" if flat_on_risk else ""
+    names_ov = catalog_without_banks() if exclude_banks else None
+    if exclude_banks:
+        dropped = "、".join(f"{n}({t})" for t, n in BANK_TICKERS.items())
+        extra += f"；不含銀行股：{dropped}"
+        log.info("replay exclude banks: %s", sorted(BANK_TICKERS))
     store.write_log_header(
         f"紙上交易回放 {start} → {end}（非真實券商；訊號 t 收盤、t+1 開盤成交{extra}）"
     )
-    prepared, names, failed = load_prepared(force_download=force_download)
+    extra = [p.ticker for p in acct.positions] + [p.ticker for p in acct.pending]
+    prepared, names, failed = load_prepared(
+        force_download=force_download, extra_tickers=extra, names=names_ov,
+    )
     dates = session_dates(prepared, start=start, end=end)
     if len(dates) == 0:
         raise SystemExit("no session dates in replay window (check cache / TWII)")
@@ -702,7 +790,8 @@ def run_live(max_positions: int, force_download: bool) -> None:
     now = datetime.now(TZ)
     today = pd.Timestamp(now.date()).normalize()
 
-    prepared, names, failed = load_prepared(force_download=False)
+    extra = [p.ticker for p in acct.positions] + [p.ticker for p in acct.pending]
+    prepared, names, failed = load_prepared(force_download=False, extra_tickers=extra)
     dates = session_dates(prepared)
     latest = dates[-1] if len(dates) else None
     last = pd.Timestamp(acct.last_session).normalize() if acct.last_session else None
@@ -716,7 +805,9 @@ def run_live(max_positions: int, force_download: bool) -> None:
     )
     if maybe_new_bar:
         log.info("live: cache has no new session, downloading (post-15:00 weekday)")
-        prepared, names, failed = load_prepared(force_download=True)
+        prepared, names, failed = load_prepared(
+            force_download=True, extra_tickers=extra,
+        )
         dates = session_dates(prepared)
         latest = dates[-1] if len(dates) else None
         cache_ahead = bool(latest is not None and (last is None or last < latest))
@@ -775,9 +866,16 @@ def main() -> None:
         default=None,
         help="replay output folder (default paper/replay)",
     )
+    ap.add_argument(
+        "--exclude-banks",
+        action="store_true",
+        help="replay only: drop 富邦金/國泰金/中信金/兆豐金. Does not change live.",
+    )
     args = ap.parse_args()
 
     if args.replay_from or args.replay_to:
+        if args.live:
+            raise SystemExit("--exclude-banks / replay 不要跟 --live 一起跑")
         start = args.replay_from or "2026-01-01"
         end = args.replay_to or "2026-08-13"
         rdir = Path(args.replay_dir) if args.replay_dir else None
@@ -789,9 +887,12 @@ def main() -> None:
             reset=not args.keep_replay,
             replay_dir=rdir,
             flat_on_risk=bool(args.flat_on_risk),
+            exclude_banks=bool(args.exclude_banks),
         )
         return
     if args.live:
+        if args.exclude_banks:
+            raise SystemExit("--exclude-banks 只用於回放，避免改到 live 持股")
         run_live(max_positions=args.max_positions, force_download=args.download)
         return
     ap.print_help()
