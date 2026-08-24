@@ -1710,3 +1710,12 @@ SELL 2317.TW 鴻海 1140股 @ 236.00 reason=sl cash=1598559
 (no signals)
 收盤: cash=1598559 MV=0 equity=1598559 持倉=(空手) pending=(無)
 
+## 2026-08-24
+開始: cash=1598559 持倉=0 pending=0 equity=1598559
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False size=0.02 news=24 twii_d1=-0.0102 twii_d3=0.001｜今早熱度 24 ≥ 嚴重線 12(昨21:30=37,Δ-13)仍關；新倉檔位 2%
+訊號 0 檔，空槽 10，新排隊 0
+排名:
+(no signals)
+收盤: cash=1598559 MV=0 equity=1598559 持倉=(空手) pending=(無)
+
