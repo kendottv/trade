@@ -1,6 +1,5 @@
 @echo off
 setlocal
-chcp 65001 >nul
 set "HERE=%~dp0"
 cd /d "%HERE%"
 if not exist "paper" mkdir paper
@@ -9,7 +8,7 @@ if not exist "%HERE%.venv\Scripts\python.exe" (
   echo %date% %time% ERROR no venv >> "paper\scheduled.log"
   exit /b 1
 )
-echo %date% %time% start watcher (news is daily TW_News_0830) >> "paper\scheduled.log"
+echo %date% %time% start watcher >> "paper\scheduled.log"
 start "TW Paper Account" /min "%HERE%.venv\Scripts\python.exe" "%HERE%paper_watcher.py"
 echo %date% %time% watcher launched exit=0 >> "paper\scheduled.log"
 exit /b 0

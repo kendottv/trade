@@ -159,6 +159,31 @@ def write_md(day: str, rows: list[str]) -> None:
     ALERT_MD.write_text(body, encoding="utf-8")
 
 
+def load_md_rows(day: str) -> list[str]:
+    """Rebuild today's markdown from alerts.csv so a watcher restart does not wipe the panel."""
+    rows: list[str] = []
+    if not ALERT_CSV.exists():
+        return rows
+    try:
+        with ALERT_CSV.open("r", encoding="utf-8-sig", newline="") as f:
+            for row in csv.DictReader(f):
+                t = str(row.get("time") or "")
+                if not t.startswith(day):
+                    continue
+                hhmm = t[11:16] if len(t) >= 16 else t
+                name = row.get("name") or ""
+                ticker = row.get("ticker") or ""
+                try:
+                    last = float(row.get("last") or 0)
+                    lvl = float(row.get("prior_high_20") or 0)
+                except ValueError:
+                    continue
+                rows.append(f"- {hhmm} {name} ({ticker}) 現價 {last:.2f} > {lvl:.2f}")
+    except OSError:
+        return rows
+    return rows
+
+
 def last_price(ticker: str) -> float | None:
     try:
         from quotes import get_feed
@@ -294,7 +319,7 @@ def run_session() -> None:
         raise SystemExit(1)
     log(f"watching {len(levels)} names")
     fired = load_fired(day)
-    md_rows: list[str] = []
+    md_rows = load_md_rows(day)
     write_md(day, md_rows)
     while in_session(datetime.now(TZ)):
         try:

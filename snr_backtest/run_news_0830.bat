@@ -1,6 +1,5 @@
 @echo off
 setlocal
-chcp 65001 >nul
 set "HERE=%~dp0"
 cd /d "%HERE%"
 if not exist "paper" mkdir paper

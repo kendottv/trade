@@ -11,6 +11,8 @@ Paper fills stay t close / t+1 open in paper_daily.py.
 """
 from __future__ import annotations
 
+import contextlib
+import io
 import json
 import os
 import time
@@ -31,6 +33,31 @@ INDEX_SHIOAJI = "TSE001"
 SESSION_START = (9, 0)
 SESSION_END = (13, 30)
 POLL_SEC = 15
+
+_YF_QUIET = False
+
+
+def _quiet_yfinance() -> None:
+    """Yahoo often prints 'possibly delisted' when a fetch is empty. Not true."""
+    global _YF_QUIET
+    if _YF_QUIET:
+        return
+    _YF_QUIET = True
+    import logging
+    import warnings
+
+    logging.getLogger("yfinance").setLevel(logging.CRITICAL)
+    logging.getLogger("yfinance.scrapers").setLevel(logging.CRITICAL)
+    warnings.filterwarnings("ignore", message=".*possibly delisted.*")
+    warnings.filterwarnings("ignore", message=".*no price data found.*")
+
+
+@contextlib.contextmanager
+def _yf_silent():
+    _quiet_yfinance()
+    buf = io.StringIO()
+    with contextlib.redirect_stderr(buf):
+        yield
 
 
 @dataclass(frozen=True)
@@ -130,34 +157,36 @@ class YahooFeed:
             try:
                 import yfinance as yf
 
-                t = yf.Ticker(ticker)
                 last = None
                 prev = None
                 o = h = l = None
                 ts = None
-                fi = getattr(t, "fast_info", None)
-                if fi is not None:
-                    def _get(obj, *keys):
-                        for k in keys:
-                            try:
-                                v = obj[k] if not isinstance(obj, dict) else obj.get(k)
-                            except Exception:
-                                v = getattr(obj, k, None) if not isinstance(obj, dict) else None
-                            if v is not None:
+                hist = None
+                with _yf_silent():
+                    t = yf.Ticker(ticker)
+                    fi = getattr(t, "fast_info", None)
+                    if fi is not None:
+                        def _get(obj, *keys):
+                            for k in keys:
                                 try:
-                                    f = float(v)
-                                except (TypeError, ValueError):
-                                    continue
-                                if f > 0:
-                                    return f
-                        return None
+                                    v = obj[k] if not isinstance(obj, dict) else obj.get(k)
+                                except Exception:
+                                    v = getattr(obj, k, None) if not isinstance(obj, dict) else None
+                                if v is not None:
+                                    try:
+                                        f = float(v)
+                                    except (TypeError, ValueError):
+                                        continue
+                                    if f > 0:
+                                        return f
+                            return None
 
-                    last = _get(fi, "lastPrice", "last_price", "regularMarketPrice")
-                    prev = _get(fi, "previousClose", "previous_close")
-                    o = _get(fi, "open", "regularMarketOpen")
-                    h = _get(fi, "dayHigh", "day_high")
-                    l = _get(fi, "dayLow", "day_low")
-                hist = t.history(period="1d", interval="1m")
+                        last = _get(fi, "lastPrice", "last_price", "regularMarketPrice")
+                        prev = _get(fi, "previousClose", "previous_close")
+                        o = _get(fi, "open", "regularMarketOpen")
+                        h = _get(fi, "dayHigh", "day_high")
+                        l = _get(fi, "dayLow", "day_low")
+                    hist = t.history(period="1d", interval="1m")
                 if hist is not None and not hist.empty and "Close" in hist.columns:
                     hist = hist.copy()
                     hist.index = _to_taipei_naive(hist.index)
@@ -193,7 +222,8 @@ class YahooFeed:
             try:
                 import yfinance as yf
 
-                hist = yf.Ticker(ticker).history(period="1d", interval="1m")
+                with _yf_silent():
+                    hist = yf.Ticker(ticker).history(period="1d", interval="1m")
             except Exception:
                 return pd.DataFrame()
             if hist is None or hist.empty:

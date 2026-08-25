@@ -8,7 +8,7 @@ from __future__ import annotations
 
 import json
 import sys
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -280,9 +280,25 @@ with tab_over:
         twii_live_panel(int(strat.get("TWII_SMA") or 60))
     with right:
         st.subheader("今天預警")
-        md = _text(ALERTS_MD)
-        if md:
-            st.markdown(md)
+        day = now_taipei().strftime("%Y-%m-%d")
+        acsv = _csv(ALERTS)
+        today_alerts = pd.DataFrame()
+        if not acsv.empty and "time" in acsv.columns:
+            today_alerts = acsv[acsv["time"].astype(str).str.startswith(day)]
+        if not today_alerts.empty:
+            st.caption("尚未收盤確認，不會進場。")
+            for _, r in today_alerts.iterrows():
+                t = str(r.get("time") or "")
+                hhmm = t[11:16] if len(t) >= 16 else t
+                try:
+                    last = float(r.get("last") or 0)
+                    lvl = float(r.get("prior_high_20") or 0)
+                except (TypeError, ValueError):
+                    continue
+                st.markdown(
+                    f"- {hhmm} {r.get('name', '')} ({r.get('ticker', '')}) "
+                    f"現價 {last:.2f} > {lvl:.2f}"
+                )
         else:
             st.caption("今天還沒有破高預警。")
         pending = acct.get("pending") or []

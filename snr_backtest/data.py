@@ -104,7 +104,13 @@ def _download_one(ticker: str, end_date: str | None = END_DATE) -> pd.DataFrame:
     )
     if end:
         kwargs["end"] = end
-    df = yf.download(ticker, **kwargs)
+    try:
+        from quotes import _yf_silent
+
+        with _yf_silent():
+            df = yf.download(ticker, **kwargs)
+    except Exception:
+        df = yf.download(ticker, **kwargs)
     return _clip_end(flatten_ohlcv(df, ticker), end_date)
 
 
