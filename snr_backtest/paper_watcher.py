@@ -16,11 +16,14 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
+import proc_lock
+
 ROOT = Path(__file__).resolve().parent
 PY = ROOT / ".venv" / "Scripts" / "python.exe"
 if not PY.exists():
     PY = Path(sys.executable)
 LOG = ROOT / "paper" / "watcher.log"
+LOCK = ROOT / "paper" / "watcher.lock"
 TZ = ZoneInfo("Asia/Taipei")
 STAMP = ROOT / "paper" / "last_live_run.txt"
 ALERT_STAMP = ROOT / "paper" / "last_alert_session.txt"
@@ -122,6 +125,9 @@ def seconds_until_next(now: datetime) -> float:
 
 
 def main() -> None:
+    if not proc_lock.acquire(LOCK):
+        log("watcher already running, exit")
+        return
     log("watcher start")
     now = datetime.now(TZ)
     if past_stop(now):

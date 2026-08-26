@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>紙上帳戶面板</title>
+  <link rel="stylesheet" href="/static/app.css" />
+  <script src="https://unpkg.com/lightweight-charts@4.2.0/dist/lightweight-charts.standalone.production.js"></script>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>紙上帳戶面板</h1>
+      <p class="sub">不成交、不是券商。預警與排隊 WebSocket 即時更新。</p>
+    </div>
+    <div class="status">
+      <span id="wsDot" class="dot off"></span>
+      <span id="clock">—</span>
+    </div>
+  </header>
+  <section class="metrics" id="metrics"></section>
+  <nav class="tabs">
+    <button data-tab="over" class="on">總覽</button>
+    <button data-tab="pnl">損益</button>
+    <button data-tab="news">新聞</button>
+    <button data-tab="watch">監看名單</button>
+    <button data-tab="strat">策略</button>
+  </nav>
+
+  <section id="tab-over" class="tab on">
+    <div class="grid2">
+      <div class="card">
+        <div class="card-h">
+          <h2>加權指數</h2>
+          <div class="periods" id="periods">
+            <button data-n="22">1個月</button>
+            <button data-n="66">3個月</button>
+            <button data-n="132" class="on">半年</button>
+            <button data-n="252">1年</button>
+            <button data-n="0">全部</button>
+          </div>
+        </div>
+        <p class="cap" id="twiiCap"></p>
+        <div class="ohlc" id="twiiOhlc"></div>
+        <div id="twiiChart" class="chart"></div>
+      </div>
+      <div class="card">
+        <h2>今天預警</h2>
+        <p class="cap">尚未收盤確認，不會進場。</p>
+        <div id="alerts" class="list"></div>
+        <h2>排隊（隔日開盤）</h2>
+        <div id="pending" class="list"></div>
+      </div>
+    </div>
+    <div class="card">
+      <h2>目前持股</h2>
+      <div id="positions"></div>
+    </div>
+    <div class="card stamps" id="stamps"></div>
+    <p class="reason" id="reason"></p>
+  </section>
+
+  <section id="tab-pnl" class="tab">
+    <div class="card">
+      <h2>帳戶權益曲線</h2>
+      <div id="eqChart" class="chart sm"></div>
+    </div>
+    <div class="card">
+      <h2>成交紀錄</h2>
+      <div id="ledger"></div>
+    </div>
+  </section>
+
+  <section id="tab-news" class="tab">
+    <div class="grid2">
+      <div class="card">
+        <h2>今早 08:30</h2>
+        <p id="newsHead" class="cap"></p>
+        <h3>偏空／風險</h3>
+        <ul id="newsOff"></ul>
+        <h3>偏多／降溫</h3>
+        <ul id="newsOn"></ul>
+      </div>
+      <div class="card">
+        <h2>昨晚 21:30</h2>
+        <p id="snapHead" class="cap"></p>
+        <ul id="snapOff"></ul>
+      </div>
+    </div>
+    <div class="card">
+      <h2>新聞日誌</h2>
+      <div id="journal"></div>
+    </div>
+  </section>
+
+  <section id="tab-watch" class="tab">
+    <div class="card">
+      <h2>監看哪些股票</h2>
+      <p class="cap">銀行／金控不監測。存檔後下次 09:00／16:00 才生效。</p>
+      <p id="heldBanks" class="warn"></p>
+      <div id="watchTable"></div>
+      <div class="row">
+        <input id="addTicker" placeholder="2330.TW" />
+        <input id="addName" placeholder="名稱可空白" />
+        <button id="btnAdd" class="primary">加入</button>
+        <button id="btnSaveWatch" class="primary">儲存監看名單</button>
+        <button id="btnResetWatch">恢復內建名單</button>
+      </div>
+      <p id="watchMsg" class="cap"></p>
+    </div>
+  </section>
+
+  <section id="tab-strat" class="tab">
+    <div class="card">
+      <h2>策略參數</h2>
+      <p class="cap">不要為了這週沒進場就放寬 SNR。新聞只減碼；戰爭級才硬關。</p>
+      <div class="form" id="stratForm"></div>
+      <div class="row">
+        <button id="btnSaveStrat" class="primary">儲存策略</button>
+        <button id="btnResetStrat">全部恢復程式預設</button>
+      </div>
+      <p id="stratMsg" class="cap"></p>
+    </div>
+  </section>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

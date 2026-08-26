@@ -5,7 +5,7 @@
 這不是券商下單。現金／持股／損益只寫在 `snr_backtest\paper\`。  
 現行系統全在 `snr_backtest\`。根目錄舊的 `trade.py`、`trade2.py`、各股 `*_trades.csv` **已刪除**。
 
-最後更新：2026-08-14。
+最後更新：2026-08-26。
 
 ---
 
@@ -49,7 +49,8 @@
 | `picker.py` | **自動選股**。當天有訊號的，依 SNR、相對大盤強度排序，空槽才補，最多 5 檔。 |
 | `universe.py` | **股票池 + 流動性篩選**。電子／傳產為主，不含金控；均成交金額、股價、歷史長度不夠就剔除。 |
 | `paper_account.py` | **紙上帳戶存檔**。讀寫 `account.json`、`ledger.csv`、`equity.csv`、`daily_log.md`。 |
-| `dashboard.py` | **視覺化面板**。損益、新聞、監看名單、策略。平日 09:00–13:30 加權每 20 秒更新。不成交。 |
+| `webapp.py` | **HTML 面板後端**（FastAPI + WebSocket）。預警／排隊／帳戶檔一改就推到瀏覽器。不成交。舊的 `dashboard.py`（Streamlit）已不用。 |
+| `web\` | 面板前端：`index.html`、`app.css`、`app.js`。 |
 | `quotes.py` | **行情來源**。現在 Yahoo（延遲）；永豐 Shioaji 只留接點，不登入、不下單。預警也走這裡。 |
 | `ui_settings.py` | 面板設定檔讀寫。監看名單／策略覆寫給下次 16:00／09:00／08:30 用。 |
 | `broker.py` | **成交試算**。手續費 0.1425%（最低 20 元）、賣出證交稅 0.3%、零股單位。不是券商。 |
@@ -75,12 +76,13 @@
 
 | 檔案 | 幹嘛 |
 | --- | --- |
-| `start_paper_watcher.bat` | 平日 08:30：只啟動 watcher。 |
+| `start_paper_watcher.bat` | 平日 08:30：先清掉舊的 watcher／alert，再用 `.venv` 開一份。 |
+| `_kill_paper_jobs.bat` | 關掉所有 `paper_watcher.py`／`paper_alert.py`（含 conda 轉呼叫的那一行）。 |
 | `run_news_0830.bat` | **每天** 08:30 抓新聞、交叉比對。 |
 | `run_news_2130.bat` | **每天** 21:30 記熱度。 |
 | `stop_paper_watcher.bat` | 平日 22:00：先 git 備份，再關掉 watcher。 |
 | `git_daily.bat` | **每天** 21:55（關掉前）：`git add .`、commit 當天日期、`git push`。沒改動就只 push。 |
-| `start_dashboard.bat` | 打開視覺化面板（瀏覽器 http://localhost:8501）。 |
+| `start_dashboard.bat` | 打開 HTML 面板（http://127.0.0.1:8501），預警／排隊即時更新。 |
 | `run_paper_daily.bat` | 手動跑一次 `--live --download`（會 pause）。 |
 | `_run_paper_daily_silent.bat` | 平日 16:00 排程用，不要 pause。 |
 | `install_autostart.bat` | 安裝平日 08:30／16:00／22:00 排程（已取消開機自啟）。 |
@@ -106,7 +108,7 @@
 | `data\` | Yahoo 行情快取。 |
 | `reports\` | 五年回測產出。 |
 | `.venv\` | 本機 Python 3.12。 |
-| `requirements.txt` | pandas numpy yfinance matplotlib pyarrow。 |
+| `requirements.txt` | pandas numpy yfinance matplotlib pyarrow fastapi uvicorn websockets。 |
 
 ---
 
@@ -119,7 +121,7 @@
 | **每天** 08:30 | 排程 `TW_News_0830` | 抓新聞、對上一筆 21:30（含週末／假日） |
 | 平日 08:30 | 排程 `TW_Paper_Start` | 啟動 watcher（新聞另由每天那支負責） |
 | 平日 09:00–13:30 | `paper_alert.py` | 破高預警，不下單 |
-| 平日 09:00–13:30 | 面板開著 | 加權 K 線／1 分線每 20 秒拉 `quotes.py` |
+| 平日 09:00–13:30 | 面板開著 | HTML＋WebSocket：預警／排隊檔一改就推；盤中加權約 5 秒 |
 | 平日 16:00 | 排程 `TW_Paper_Account` | 收盤確認、排隊隔日單 |
 | 下一交易日開盤 | `paper_daily.py` 處理 pending | 開盤價紙上成交 |
 | **每天** 21:30 | 排程 `TW_News_2130` | 記熱度（含週末／假日） |
@@ -131,21 +133,17 @@
 
 ---
 
-## 4. 消息面（小演算法 `heat_v1`）
+## 4. 消息面（`heat_v1` + `size_risk`）
 
-不選股。只回答：今天能不能開新倉？細節在 `news_risk.py`。
+不選股、不平倉。只決定**新開倉買權益的幾成**。細節在 `news_risk.py`、`size_risk.py`。
 
-1. Google News 抓標題 → **去重**（不同網站同一則只算一次）
-2. **權重熱度**：戰爭／封鎖 3、制裁 2、普通關稅 1；豁免／降息會扣。長詞蓋短詞（與詞庫順序無關）。英文用整詞，`warning` 不會被當成 `war`
-3. 單則標題最多貢獻 ±4，避免八則「川普關稅」爆分數
-4. **每天** 21:30 記熱度；隔天 08:30 再算一次看升降溫（週末／假日也抓，因為假日一樣會有新聞）
-   - 今早熱度 **< 6** → 涼，可開
-   - 熱度 6～11 但比昨晚 **降 ≥ 3** → 降溫，可開
-   - 熱度 ≥ 12，或仍熱且沒降 → 關
-5. 再加：TWII 1 日 ≤ −1.5% 或 3 日 ≤ −3%
-6. 沒有昨 21:30 就只看今早。週一對上週五晚上
-7. Replay 不抓標題，只看大盤跌幅
-8. 每天寫入 `paper\news_journal.csv`（熱度、升降溫、會不會開新倉、`would_flat`＝若有消息面停損會不會砍舊倉）。**現在不真的砍倉**，過幾個月用這份再決定。
+1. Google News 抓標題 → **去重**（不同網站同一則只算一次）。
+2. **權重熱度**：戰爭／封鎖 3、制裁 2、普通關稅 1；豁免／降息會扣。長詞蓋短詞。英文用整詞，`warning` 不會被當成 `war`。單則最多 ±4。
+3. **每天** 21:30 記熱度；隔天 08:30 再算一次看升降溫（週末／假日也抓）。
+4. **關稅熱度 → 減碼，不是一刀切關門**：cool 20%／cooling 10%／hot 5%／severe 2%（再與單檔上限 20% 取小）。個股 RSS 偏熱再往下調一或兩檔。
+5. **硬關（0 股、不能買）**只在：戰爭級詞、TWII 1 日 ≤ −1.5% 或 3 日 ≤ −3%、新聞全抓失敗、該檔標題出現出口管制／禁運／制裁。分數 ≥ 12 **不再**當硬關。
+6. `old_switch_would_block`、`would_flat` 只寫進 journal，**現在不真砍倉**。過幾個月用 `news_journal.csv`／`size_journal.csv` 再 A/B。
+7. Replay／多年回測抓不到當時標題，所以**沒有新聞減碼**，只看價格規則。
 
 舊倉照停利／停損／移動停利。
 
@@ -171,11 +169,14 @@ start_dashboard.bat
 
 ---
 
-## 6. 現況快照（2026-08-14 22:00）
+## 6. 現況快照（2026-08-26）
 
-- live：富邦金／國泰金／兆豐金，權益約 **2,013,403**，`last_session=2026-08-14`。trail 已武裝。
-- 08-14 收盤 0 檔訊號。新聞分數高（關稅）→ 暫停開新倉。
-- 21:30 成績 31 已存。週一 08:30 交叉比對。
+- live 已重跑 2026 YTD（不含金控）。目前**空手**，現金／權益約 **1,598,559**，`last_session=2026-08-25`。
+- 監看與新倉**不含**富邦金／國泰金／中信金／兆豐金。舊規則回測若出現銀行，只作出場、不再開。
+- 面板是 `webapp.py`＋`web\`（FastAPI／WebSocket），不是 Streamlit。開 `start_dashboard.bat` → http://127.0.0.1:8501 。
+- 08-26 新聞熱度 31、trend severe、檔位 **2%**、未硬關。舊開關今天會是關（只記 journal）。
+- 08-26 盤中預警：世紀、大立光、光寶科、緯穎。預警不成交。
+- 排程只有一套：`TW_News_0830`／`TW_News_2130`／`TW_Paper_Start`／`TW_Paper_Account`／`TW_Git_Daily`／`TW_Paper_Stop`。一律走 `snr_backtest\.venv`。conda 工作管理員可能顯示兩行 python，那是 venv 轉呼叫，不是兩套程式。
 - 半年 replay（現行零股+20%）：100 萬 → **1,401,263**，14 筆、勝率 71.4%。見 `paper\replay\week_summary.md`。
 - **5 年／10 年紙上組合**（同一規則、無標題新聞）：見 `paper\replay_long.md`。5 年 100 萬→**311.9 萬**、勝率 64.7%、CAGR 約 26%、最大回撤 −26%（同期大盤 +172%、MDD −32%）。10 年→**668.5 萬**、勝率 63.5%、CAGR 約 21%、MDD −21%（大盤 +403%、MDD −32%）。對股票池等權買進持有報酬較差、回撤較小。
 - 五年十檔等權成績仍在 `reports\`（舊規則 1 張）。
@@ -184,6 +185,7 @@ start_dashboard.bat
 
 ## 7. 注意
 
-- 要有網路（Yahoo、Google News）。報價可能延遲。
+- 要有網路（Yahoo、Google News）。報價可能延遲約 15 分鐘。
 - 紙上 ≠ 實盤。世紀單檔會扭曲五年報酬。2021–2026 是半導體大多頭。
+- 只用 `snr_backtest\.venv` 跑 watcher／alert／面板。不要另外用 miniconda 再開一份。
 

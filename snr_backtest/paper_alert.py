@@ -22,6 +22,7 @@ import pandas as pd
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
 
+import proc_lock
 from signals import LOOKBACK, add_signal_columns
 from universe import candidate_tickers, display_name, load_prices, screen_universe
 
@@ -31,6 +32,7 @@ ALERT_CSV = PAPER / "alerts.csv"
 ALERT_MD = PAPER / "alerts_today.md"
 FIRED = PAPER / "alerts_fired.txt"
 LOG = PAPER / "watcher.log"
+LOCK = PAPER / "alert.lock"
 POLL_SEC = 90
 SESSION_START = (9, 0)
 SESSION_END = (13, 35)
@@ -354,4 +356,7 @@ if __name__ == "__main__":
         )
         time.sleep(4)
     else:
+        if not proc_lock.acquire(LOCK):
+            log("alert already running, exit")
+            raise SystemExit(0)
         run_session()

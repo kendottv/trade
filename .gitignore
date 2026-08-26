@@ -17,3 +17,5 @@ desktop.ini
 snr_backtest/paper/watcher.log
 snr_backtest/paper/scheduled.log
 snr_backtest/paper/broker_secrets.json
+snr_backtest/paper/watcher.lock
+snr_backtest/paper/alert.lock

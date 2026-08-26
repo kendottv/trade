@@ -3,5 +3,6 @@ numpy
 yfinance
 matplotlib
 pyarrow
-streamlit
-plotly
+fastapi
+uvicorn
+websockets
