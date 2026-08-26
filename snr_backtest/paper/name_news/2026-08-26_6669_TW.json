@@ -1,0 +1,26 @@
+{
+  "session": "2026-08-26",
+  "ticker": "6669.TW",
+  "name": "緯穎",
+  "updated_at": "2026-08-26 17:35:21+0800",
+  "news_fetched": true,
+  "fetch_ok": 3,
+  "fetch_total": 4,
+  "news_score": 6,
+  "trend": "hot",
+  "war_lock": false,
+  "name_lock": false,
+  "lock": false,
+  "lock_title": "",
+  "n_unique": 23,
+  "n_raw": 24,
+  "off_headlines": [
+    "台美關稅15％》逐步擺脫壓力緯創、緯穎、英業達、鴻海德州產線年內放量- 日報 - 工商時報",
+    "緯穎董座決策快狠準！洪麗寗把製造搬進美國關稅壁壘內 - 遠見雜誌",
+    "整理包／電子五哥、鴻海成半導體關稅大贏家？一表看6大伺服器組裝等台廠美國布局| 整理包| 專題 - 經濟日報",
+    "關稅失效！這兩大族群準備噴出 - news.cnyes.com",
+    "川普預告將提高加、墨關稅！緯穎、英業達...多家台廠恐受衝擊 - Smart自學網",
+    "緯穎墨西哥廠遭川普關稅「三天狠課3200萬美元」 董座洪麗寗：AI是國安議題、不去美國不行 - 鏡週刊Mirror Media"
+  ],
+  "on_headlines": []
+}

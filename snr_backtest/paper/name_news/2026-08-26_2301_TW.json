@@ -1,0 +1,19 @@
+{
+  "session": "2026-08-26",
+  "ticker": "2301.TW",
+  "name": "光寶科",
+  "updated_at": "2026-08-26 17:35:25+0800",
+  "news_fetched": true,
+  "fetch_ok": 3,
+  "fetch_total": 4,
+  "news_score": 0,
+  "trend": "cool",
+  "war_lock": false,
+  "name_lock": false,
+  "lock": false,
+  "lock_title": "",
+  "n_unique": 24,
+  "n_raw": 24,
+  "off_headlines": [],
+  "on_headlines": []
+}

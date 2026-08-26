@@ -2,8 +2,61 @@
   "cash": 1598559.3,
   "equity": 1598559.3,
   "positions": [],
-  "pending": [],
-  "updated_at": "2026-08-26 08:30:03+0800",
-  "last_session": "2026-08-25",
+  "pending": [
+    {
+      "side": "buy",
+      "ticker": "5314.TWO",
+      "name": "世紀",
+      "reason": "breakout_v2",
+      "snr": 0.8954,
+      "signal_date": "2026-08-26",
+      "target_weight": 0.02,
+      "name_heat": 3.0,
+      "name_trend": "cool",
+      "name_lock": false,
+      "size_note": "macro=severe/2% name=cool/3 →2%"
+    },
+    {
+      "side": "buy",
+      "ticker": "3008.TW",
+      "name": "大立光",
+      "reason": "breakout_v2",
+      "snr": 0.6072,
+      "signal_date": "2026-08-26",
+      "target_weight": 0.02,
+      "name_heat": 2.0,
+      "name_trend": "cool",
+      "name_lock": false,
+      "size_note": "macro=severe/2% name=cool/2 →2%"
+    },
+    {
+      "side": "buy",
+      "ticker": "6669.TW",
+      "name": "緯穎",
+      "reason": "breakout_v2",
+      "snr": 0.4609,
+      "signal_date": "2026-08-26",
+      "target_weight": 0.02,
+      "name_heat": 6.0,
+      "name_trend": "hot",
+      "name_lock": false,
+      "size_note": "macro=severe/2% name=hot/6 →2%"
+    },
+    {
+      "side": "buy",
+      "ticker": "2301.TW",
+      "name": "光寶科",
+      "reason": "breakout_v2",
+      "snr": 0.6147,
+      "signal_date": "2026-08-26",
+      "target_weight": 0.02,
+      "name_heat": 0.0,
+      "name_trend": "cool",
+      "name_lock": false,
+      "size_note": "macro=severe/2% name=cool/0 →2%"
+    }
+  ],
+  "updated_at": "2026-08-26 17:35:25+0800",
+  "last_session": "2026-08-26",
   "initial_cash": 1000000.0
 }

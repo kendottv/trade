@@ -49,7 +49,8 @@
 | `picker.py` | **自動選股**。當天有訊號的，依 SNR、相對大盤強度排序，空槽才補，最多 5 檔。 |
 | `universe.py` | **股票池 + 流動性篩選**。電子／傳產為主，不含金控；均成交金額、股價、歷史長度不夠就剔除。 |
 | `paper_account.py` | **紙上帳戶存檔**。讀寫 `account.json`、`ledger.csv`、`equity.csv`、`daily_log.md`。 |
-| `webapp.py` | **HTML 面板後端**（FastAPI + WebSocket）。預警／排隊／帳戶檔一改就推到瀏覽器。不成交。舊的 `dashboard.py`（Streamlit）已不用。 |
+| `webapp.py` | **HTML 面板後端**（FastAPI + WebSocket）。預警／排隊／帳戶檔一改就推到瀏覽器。不成交。 |
+| `dashboard.py` | **已停用**。若再被叫到會直接退出，請用 `start_dashboard.bat`。 |
 | `web\` | 面板前端：`index.html`、`app.css`、`app.js`。 |
 | `quotes.py` | **行情來源**。現在 Yahoo（延遲）；永豐 Shioaji 只留接點，不登入、不下單。預警也走這裡。 |
 | `ui_settings.py` | 面板設定檔讀寫。監看名單／策略覆寫給下次 16:00／09:00／08:30 用。 |

@@ -63,9 +63,20 @@ def add_signal_columns(df: pd.DataFrame, twii: pd.DataFrame | None = None) -> pd
     out["turnover"] = c.astype(float) * out["Volume"].astype(float)
     out["avg_turnover_20"] = out["turnover"].rolling(TURNOVER_N, min_periods=TURNOVER_N).mean()
     if twii is not None and "Close" in twii.columns and len(twii):
-        twii_c = twii["Close"].astype(float).reindex(out.index)
-        twii_sma = twii_c.rolling(TWII_SMA, min_periods=TWII_SMA).mean()
-        twii_ret = twii_c / twii_c.shift(n) - 1.0
+        # SMA on the TWII calendar first. Reindex-then-roll leaves NaN holes on
+        # stock calendars (TWO vs TW) so twii_ok was False even above SMA60.
+        raw = twii["Close"].astype(float).copy()
+        raw.index = pd.to_datetime(raw.index).normalize()
+        raw = raw[~raw.index.duplicated(keep="last")].sort_index()
+        sma = raw.rolling(int(TWII_SMA), min_periods=int(TWII_SMA)).mean()
+        ret = raw / raw.shift(n) - 1.0
+        want = pd.DatetimeIndex(pd.to_datetime(out.index).normalize())
+        twii_c = raw.reindex(want).ffill(limit=3)
+        twii_sma = sma.reindex(want).ffill(limit=3)
+        twii_ret = ret.reindex(want).ffill(limit=3)
+        twii_c.index = out.index
+        twii_sma.index = out.index
+        twii_ret.index = out.index
         out["twii_close"] = twii_c
         out["twii_sma_60"] = twii_sma
         out["twii_ok"] = twii_c > twii_sma

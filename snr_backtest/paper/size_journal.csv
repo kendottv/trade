@@ -1,0 +1,5 @@
+﻿logged_at,session,ticker,name,macro_trend,macro_heat,macro_weight,war_lock,old_switch_would_block,lock_new,name_heat,name_trend,name_lock,target_weight,shares,budget,note
+2026-08-26 17:35:11+0800,2026-08-26,5314.TWO,世紀,severe,31,0.02,0,1,0,3,cool,0,0.02,,,macro=severe/2% name=cool/3 →2%
+2026-08-26 17:35:11+0800,2026-08-26,3008.TW,大立光,severe,31,0.02,0,1,0,2,cool,0,0.02,,,macro=severe/2% name=cool/2 →2%
+2026-08-26 17:35:11+0800,2026-08-26,6669.TW,緯穎,severe,31,0.02,0,1,0,6,hot,0,0.02,,,macro=severe/2% name=hot/6 →2%
+2026-08-26 17:35:11+0800,2026-08-26,2301.TW,光寶科,severe,31,0.02,0,1,0,0,cool,0,0.02,,,macro=severe/2% name=cool/0 →2%

@@ -1,7 +1,7 @@
 {
   "session": "2026-08-26",
   "slot": "0830",
-  "updated_at": "2026-08-26 08:30:05+0800",
+  "updated_at": "2026-08-26 17:35:11+0800",
   "news_fetched": true,
   "fetch_ok": 5,
   "fetch_total": 5,
@@ -79,8 +79,8 @@
   "prev_session": "2026-08-25",
   "prev_slot": "2130",
   "prev_score": 26,
-  "twii_d1": null,
-  "twii_d3": null,
+  "twii_d1": 0.0147,
+  "twii_d3": 0.0135,
   "price_pause": false,
   "reason": "今早熱度 31 ≥ 嚴重線 12(昨21:30=26,Δ+5)仍關；新倉檔位 2%",
   "prev_off_headlines": [

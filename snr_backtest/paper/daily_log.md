@@ -1728,3 +1728,29 @@ SELL 2317.TW 鴻海 1140股 @ 236.00 reason=sl cash=1598559
 (no signals)
 收盤: cash=1598559 MV=0 equity=1598559 持倉=(空手) pending=(無)
 
+## 2026-08-26
+開始: cash=1598559 持倉=0 pending=0 equity=1598559
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False size=0.02 news=31 twii_d1=0.0147 twii_d3=0.0135｜今早熱度 31 ≥ 嚴重線 12(昨21:30=26,Δ+5)仍關；新倉檔位 2%
+訊號 0 檔，空槽 10，新排隊 0
+排名:
+(no signals)
+收盤: cash=1598559 MV=0 equity=1598559 持倉=(空手) pending=(無)
+
+## 2026-08-26
+開始: cash=1598559 持倉=0 pending=0 equity=1598559
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False size=0.02 news=31 twii_d1=0.0147 twii_d3=0.0135｜今早熱度 31 ≥ 嚴重線 12(昨21:30=26,Δ+5)仍關；新倉檔位 2%
+訊號 4 檔，空槽 10，新排隊 4
+排名:
+pick ticker       name           snr    rs_20      close
+*    5314.TWO     世紀          0.8954   1.7107      34.55
+*    3008.TW      大立光         0.6072   0.5040    6290.00
+*    6669.TW      緯穎          0.4609   0.1766    6785.00
+*    2301.TW      光寶科         0.6147   0.5301     307.00
+QUEUE BUY 5314.TWO 世紀 snr=0.8954 weight=2% macro=severe/2% name=cool/3 →2% close=34.55 → 下一根開盤成交
+QUEUE BUY 3008.TW 大立光 snr=0.6072 weight=2% macro=severe/2% name=cool/2 →2% close=6290.00 → 下一根開盤成交
+QUEUE BUY 6669.TW 緯穎 snr=0.4609 weight=2% macro=severe/2% name=hot/6 →2% close=6785.00 → 下一根開盤成交
+QUEUE BUY 2301.TW 光寶科 snr=0.6147 weight=2% macro=severe/2% name=cool/0 →2% close=307.00 → 下一根開盤成交
+收盤: cash=1598559 MV=0 equity=1598559 持倉=(空手) pending=buy:5314.TWO/breakout_v2, buy:3008.TW/breakout_v2, buy:6669.TW/breakout_v2, buy:2301.TW/breakout_v2
+
