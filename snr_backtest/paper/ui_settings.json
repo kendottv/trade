@@ -40,7 +40,7 @@
     "BREAKOUT_V2_TRAIL_LOOKBACK": 15,
     "TWII_SMA": 60,
     "PAPER_MAX_WEIGHT": 0.2,
-    "PAPER_LOT_SIZE": 10,
+    "PAPER_LOT_SIZE": 5,
     "MAX_POSITIONS": 10
   },
   "news": {

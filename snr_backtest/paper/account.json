@@ -1,62 +1,44 @@
 {
-  "cash": 1598559.3,
-  "equity": 1598559.3,
-  "positions": [],
-  "pending": [
+  "cash": 1535699.85,
+  "equity": 1597719.85,
+  "positions": [
     {
-      "side": "buy",
       "ticker": "5314.TWO",
       "name": "世紀",
-      "reason": "breakout_v2",
-      "snr": 0.8954,
-      "signal_date": "2026-08-26",
-      "target_weight": 0.02,
-      "name_heat": 3.0,
-      "name_trend": "cool",
-      "name_lock": false,
-      "size_note": "macro=severe/2% name=cool/3 →2%"
+      "shares": 840,
+      "avg_price": 38.0,
+      "entry_date": "2026-08-27",
+      "entry_snr": 0.8954,
+      "time_stop_count": 0,
+      "trail_armed": false
     },
+    {
+      "ticker": "2301.TW",
+      "name": "光寶科",
+      "shares": 100,
+      "avg_price": 308.5,
+      "entry_date": "2026-08-27",
+      "entry_snr": 0.6147,
+      "time_stop_count": 0,
+      "trail_armed": false
+    }
+  ],
+  "pending": [
     {
       "side": "buy",
       "ticker": "3008.TW",
       "name": "大立光",
       "reason": "breakout_v2",
-      "snr": 0.6072,
-      "signal_date": "2026-08-26",
+      "snr": 0.708,
+      "signal_date": "2026-08-27",
       "target_weight": 0.02,
-      "name_heat": 2.0,
+      "name_heat": 1.0,
       "name_trend": "cool",
       "name_lock": false,
-      "size_note": "macro=severe/2% name=cool/2 →2%"
-    },
-    {
-      "side": "buy",
-      "ticker": "6669.TW",
-      "name": "緯穎",
-      "reason": "breakout_v2",
-      "snr": 0.4609,
-      "signal_date": "2026-08-26",
-      "target_weight": 0.02,
-      "name_heat": 6.0,
-      "name_trend": "hot",
-      "name_lock": false,
-      "size_note": "macro=severe/2% name=hot/6 →2%"
-    },
-    {
-      "side": "buy",
-      "ticker": "2301.TW",
-      "name": "光寶科",
-      "reason": "breakout_v2",
-      "snr": 0.6147,
-      "signal_date": "2026-08-26",
-      "target_weight": 0.02,
-      "name_heat": 0.0,
-      "name_trend": "cool",
-      "name_lock": false,
-      "size_note": "macro=severe/2% name=cool/0 →2%"
+      "size_note": "macro=severe/2% name=cool/1 →2%"
     }
   ],
-  "updated_at": "2026-08-26 17:35:25+0800",
-  "last_session": "2026-08-26",
+  "updated_at": "2026-08-27 16:00:11+0800",
+  "last_session": "2026-08-27",
   "initial_cash": 1000000.0
 }

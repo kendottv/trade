@@ -1,6 +1,6 @@
 """Taiwan cash-equity costs and lot rounding.
 
-Shares must be a multiple of lot_size (backtest 1000; paper 10).
+Shares must be a multiple of lot_size (backtest 1000; paper 5).
 If cash cannot buy one unit after commission, skip and keep cash.
 """
 

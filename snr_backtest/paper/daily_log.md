@@ -1754,3 +1754,25 @@ QUEUE BUY 6669.TW 緯穎 snr=0.4609 weight=2% macro=severe/2% name=hot/6 →2% c
 QUEUE BUY 2301.TW 光寶科 snr=0.6147 weight=2% macro=severe/2% name=cool/0 →2% close=307.00 → 下一根開盤成交
 收盤: cash=1598559 MV=0 equity=1598559 持倉=(空手) pending=buy:5314.TWO/breakout_v2, buy:3008.TW/breakout_v2, buy:6669.TW/breakout_v2, buy:2301.TW/breakout_v2
 
+## 2026-08-27 開盤成交（pending）
+開盤價 5314.TWO 世紀 38.00
+開盤價 3008.TW 大立光 6615.00
+開盤價 6669.TW 緯穎 6770.00
+開盤價 2301.TW 光寶科 308.50
+資金分配: 新聞減碼後的目標權重、單檔上限 20%、10 股為單位，不 all-in
+BUY 5314.TWO 世紀 840股 @ 38.00 snr=0.8954 weight=2% budget=31971 cash=1566594 macro=severe/2% name=cool/3 →2%
+PENDING_BUY 買不起10股，現金留存: 3008.TW alloc=31970 open=6615.00
+PENDING_BUY 買不起10股，現金留存: 6669.TW alloc=31970 open=6770.00
+BUY 2301.TW 光寶科 100股 @ 308.50 snr=0.6147 weight=2% budget=31970 cash=1535700 macro=severe/2% name=cool/0 →2%
+
+## 2026-08-27
+開始: cash=1535700 持倉=2 pending=0 equity=1598470
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False size=0.02 news=30 twii_d1=0.0031 twii_d3=0.0271｜今早熱度 30 ≥ 嚴重線 12(昨21:30=26,Δ+4)仍關；新倉檔位 2%
+訊號 1 檔，空槽 8，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    3008.TW      大立光         0.7080   0.7271    6915.00
+QUEUE BUY 3008.TW 大立光 snr=0.7080 weight=2% macro=severe/2% name=cool/1 →2% close=6915.00 → 下一根開盤成交
+收盤: cash=1535700 MV=62020 equity=1597720 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5 pending=buy:3008.TW/breakout_v2
+

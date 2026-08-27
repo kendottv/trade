@@ -20,7 +20,15 @@ from pydantic import BaseModel, Field
 
 from config import INDEX_TICKER, INITIAL_CAPITAL, STRATEGY_DEFAULTS
 from data import get_price, load_cache
-from quotes import INDEX_YAHOO, apply_session_bar, get_feed, in_cash_session, now_taipei
+from quotes import (
+    INDEX_YAHOO,
+    apply_session_bar,
+    get_feed,
+    in_cash_session,
+    in_txf_night,
+    now_taipei,
+    txf_night_payload,
+)
 from ui_settings import (
     TICKER_RE,
     effective_news,
@@ -282,6 +290,7 @@ def build_state() -> dict[str, Any]:
             "n2130": _text(PAPER / "last_news_2130.txt"),
         },
         "twii": twii_payload(int(strat.get("TWII_SMA") or 60)),
+        "txf_night": txf_night_payload(),
         "equity_curve": eq_curve,
         "ledger": _csv_rows(PAPER / "ledger.csv", 30),
         "journal": _csv_rows(PAPER / "news_journal.csv", 40),
@@ -309,7 +318,7 @@ async def broadcaster() -> None:
         await asyncio.sleep(1.0)
         sig = _mtimes()
         now = datetime.now().timestamp()
-        interval = 5.0 if in_cash_session() else 10.0
+        interval = 5.0 if (in_cash_session() or in_txf_night()) else 10.0
         due = sig != last or (now - last_push >= interval)
         if not due or not clients:
             continue

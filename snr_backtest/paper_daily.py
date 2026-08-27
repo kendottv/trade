@@ -238,7 +238,7 @@ def fill_pending_buys(
 
     notes.append(
         f"資金分配: 新聞減碼後的目標權重、單檔上限 {PAPER_MAX_WEIGHT:.0%}、"
-        f"10 股為單位，不 all-in"
+        f"{PAPER_LOT_SIZE} 股為單位，不 all-in"
     )
     for pend in fillable:
         if len(acct.positions) >= max_positions:

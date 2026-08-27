@@ -43,7 +43,7 @@ OOS_END = "2026-08-13"
 INITIAL_CAPITAL = 1_000_000.0
 LOT_SIZE = 1000  # 回測：1 張
 # 紙上零股單位（10／50／100 都可以）。買得到幾單位就買幾單位。
-PAPER_LOT_SIZE = 10
+PAPER_LOT_SIZE = 5
 # 單檔最多佔組合權益的比例。當天只出 1 檔訊號也不把現金 all-in。
 PAPER_MAX_WEIGHT = 0.20
 

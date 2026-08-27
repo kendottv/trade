@@ -18,7 +18,7 @@ import os
 import threading
 import time
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -32,6 +32,7 @@ SECRETS_PATH = PAPER / "broker_secrets.json"
 TZ = ZoneInfo("Asia/Taipei")
 INDEX_YAHOO = "^TWII"
 INDEX_SHIOAJI = "IX0001"  # 發行量加權股價指數（舊代碼 TSE001 在 contracts v2 已不用）
+TXF_FRONT = "TXFR1"  # 臺股期貨近月 alias
 
 SESSION_START = (9, 0)
 SESSION_END = (13, 30)
@@ -91,6 +92,30 @@ def in_cash_session(now: datetime | None = None) -> bool:
     start = now.replace(hour=SESSION_START[0], minute=SESSION_START[1], second=0, microsecond=0)
     end = now.replace(hour=SESSION_END[0], minute=SESSION_END[1], second=0, microsecond=0)
     return start <= now <= end
+
+
+def txf_night_bounds(now: datetime | None = None) -> tuple[datetime, datetime] | None:
+    """Current or most recent TX night window (15:00–next 05:00). None if none today."""
+    now = now or now_taipei()
+    if now.hour < 5:
+        start_day = (now - timedelta(days=1)).date()
+    else:
+        start_day = now.date()
+    wd = start_day.weekday()
+    if wd >= 5:
+        return None
+    start = datetime(start_day.year, start_day.month, start_day.day, 15, 0, 0, tzinfo=TZ)
+    end = start + timedelta(hours=14)
+    return start, end
+
+
+def in_txf_night(now: datetime | None = None) -> bool:
+    now = now or now_taipei()
+    bounds = txf_night_bounds(now)
+    if bounds is None:
+        return False
+    start, end = bounds
+    return start <= now < end
 
 
 def _shioaji_keys(sec: dict | None = None) -> tuple[str, str]:
@@ -420,6 +445,10 @@ class ShioajiFeed:
             api.set_on_quote_idx_v1_callback(_cb)
         except Exception as exc:
             log.warning("shioaji idx callback: %s", exc)
+        try:
+            api.set_on_tick_fop_v1_callback(_cb)
+        except Exception as exc:
+            log.warning("shioaji fop callback: %s", exc)
 
     def contract(self, ticker: str):
         self.connect()
@@ -458,7 +487,9 @@ class ShioajiFeed:
             self.connect()
             self._subscribe(ticker)
         except Exception as exc:
-            log.warning("shioaji last fallback yahoo (%s): %s", ticker, exc)
+            log.warning("shioaji last (%s): %s", ticker, exc)
+            if str(ticker).upper().startswith("TX"):
+                return None
             return self._yahoo.last(ticker)
         hit = self._ticks.get(code) or self._ticks.get(ticker)
         if hit is not None:
@@ -566,9 +597,12 @@ class ShioajiFeed:
 
     @staticmethod
     def to_contract_id(ticker: str) -> str:
-        if ticker in (INDEX_YAHOO, "TWII", INDEX_SHIOAJI, "^TWII"):
+        t = str(ticker or "")
+        if t in (INDEX_YAHOO, "TWII", INDEX_SHIOAJI, "^TWII"):
             return INDEX_SHIOAJI
-        return str(ticker).split(".")[0]
+        if t.upper().startswith("TX"):
+            return t.upper()
+        return t.split(".")[0]
 
 
 class QuoteFeed:
@@ -633,6 +667,160 @@ def get_feed() -> QuoteFeed:
         if _feed is None:
             _feed = QuoteFeed()
         return _feed
+
+
+def _txf_kbars_index(kb) -> pd.DatetimeIndex | None:
+    ts_list = list(getattr(kb, "ts", None) or [])
+    if not ts_list:
+        return None
+    idx = pd.to_datetime(ts_list, unit="ns")
+    if getattr(idx, "tz", None) is None:
+        idx = idx.tz_localize(TZ)
+    else:
+        idx = idx.tz_convert(TZ)
+    return idx
+
+
+def _txf_session_closes(kb, start: datetime, end: datetime) -> list[float]:
+    idx = _txf_kbars_index(kb)
+    if idx is None:
+        return []
+    closes = list(kb.Close)
+    out: list[float] = []
+    for i, ts in enumerate(idx):
+        ts = ts.to_pydatetime()
+        if start <= ts < end:
+            out.append(float(closes[i]))
+    return out
+
+
+def _txf_session_ohlc(kb, start: datetime, end: datetime) -> dict | None:
+    idx = _txf_kbars_index(kb)
+    if idx is None:
+        return None
+    opens, highs, lows, closes = list(kb.Open), list(kb.High), list(kb.Low), list(kb.Close)
+    night_o: list[float] = []
+    night_h: list[float] = []
+    night_l: list[float] = []
+    night_c: list[float] = []
+    line = []
+    last_ts = None
+    for i, ts in enumerate(idx):
+        ts = ts.to_pydatetime()
+        if ts < start or ts > end:
+            continue
+        o, h, l, cl = float(opens[i]), float(highs[i]), float(lows[i]), float(closes[i])
+        night_o.append(o)
+        night_h.append(h)
+        night_l.append(l)
+        night_c.append(cl)
+        last_ts = ts
+        if (not line) or (ts.minute % 5 == 0):
+            line.append({"time": int(ts.timestamp()), "value": cl})
+    if not night_c:
+        return None
+    return {
+        "open": night_o[0],
+        "high": max(night_h),
+        "low": min(night_l),
+        "close": night_c[-1],
+        "line": line,
+        "asof": last_ts.strftime("%H:%M:%S") if last_ts else "",
+    }
+
+
+def txf_night_payload() -> dict:
+    """大台近月盤後（夜盤）報價。不成交。沒有 Shioaji 就不拿現貨加權充數。"""
+    now = now_taipei()
+    live = in_txf_night(now)
+    out: dict = {
+        "ok": False,
+        "code": TXF_FRONT,
+        "name": "臺股期貨近月",
+        "month": "",
+        "status": "盤後中" if live else "未開",
+        "last": None, "open": None, "high": None, "low": None, "close": None,
+        "chg": None, "chg_pct": None, "ref": None, "asof": "",
+        "line": [],
+        "note": "",
+    }
+    bounds = txf_night_bounds(now)
+    if bounds is None:
+        out["status"] = "未開"
+        out["note"] = "今晚沒有盤後"
+        return out
+    start, end = bounds
+    if now >= end:
+        out["status"] = "已收"
+    elif now < start:
+        out["status"] = "未開"
+    feed = get_feed()
+    if getattr(feed, "name", "") != "shioaji":
+        out["note"] = "沒有盤後報價"
+        return out
+    impl = feed.impl
+    try:
+        impl.connect()
+        c = impl.contract(TXF_FRONT)
+        if c is None:
+            out["note"] = "沒有盤後報價"
+            return out
+        info = None
+        try:
+            info = impl.api.contracts.info(c)
+        except Exception:
+            info = None
+        if info is not None:
+            out["name"] = str(getattr(info, "name", "") or out["name"])
+            out["month"] = str(getattr(info, "delivery_month", "") or "")
+            ref = _num(info, "reference")
+            if ref:
+                out["ref"] = ref
+        if now < start:
+            out["status"] = "未開"
+            out["ok"] = True
+            return out
+        prev_d = (start - timedelta(days=1)).date()
+        while prev_d.weekday() >= 5:
+            prev_d -= timedelta(days=1)
+        prev_start = datetime(prev_d.year, prev_d.month, prev_d.day, 15, 0, tzinfo=TZ)
+        prev_end = prev_start + timedelta(hours=14)
+        kb_span = impl.api.kbars(
+            c,
+            start=prev_start.strftime("%Y-%m-%d"),
+            end=now.strftime("%Y-%m-%d"),
+        )
+        prev_closes = _txf_session_closes(kb_span, prev_start, prev_end)
+        if prev_closes:
+            out["ref"] = prev_closes[-1]
+        q = impl.last(TXF_FRONT)
+        if q is not None and q.last:
+            out["last"] = q.last
+            out["close"] = q.last
+        night = _txf_session_ohlc(kb_span, start, min(now, end))
+        if night:
+            out["open"] = night["open"]
+            out["high"] = night["high"]
+            out["low"] = night["low"]
+            out["close"] = night["close"]
+            if out["last"] is None:
+                out["last"] = night["close"]
+            out["line"] = night["line"]
+            if night["asof"]:
+                out["asof"] = night["asof"]
+        last = out["last"]
+        ref = out["ref"]
+        if last and ref:
+            out["chg"] = last - ref
+            out["chg_pct"] = (last - ref) / ref * 100
+        if out["last"]:
+            out["ok"] = True
+        else:
+            out["note"] = "沒有盤後報價"
+    except Exception as exc:
+        log.warning("txf night: %s", exc)
+        out["note"] = "沒有盤後報價"
+    return out
 
 
 def ping() -> dict:

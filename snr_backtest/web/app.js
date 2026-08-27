@@ -1,6 +1,6 @@
 const $ = (id) => document.getElementById(id);
 let state = null;
-let twiiChart, candleSeries, smaSeries, eqChart, eqSeries;
+let twiiChart, candleSeries, smaSeries, eqChart, eqSeries, txfChart, txfSeries;
 let twiiN = 132;
 let lastAlertKey = "";
 
@@ -91,7 +91,20 @@ function render(s) {
     `<div class="cell"><span>最高</span><b class="up">${fmt(tw.high, 2)}</b></div>` +
     `<div class="cell"><span>最低</span><b class="dn">${fmt(tw.low, 2)}</b></div>` +
     `<div class="cell"><span>${closeLab}</span><b>${fmt(tw.close != null ? tw.close : tw.last, 2)}</b></div>`;
+  const tx = s.txf_night || {};
+  $("txfCode").textContent = [tx.name, tx.month].filter(Boolean).join(" ");
+  const txChg = (tx.chg || 0) >= 0 ? "up" : "dn";
+  $("txfCap").innerHTML = tx.ok
+    ? `<span class="${txChg}">${signed(tx.chg, 0)}（${signed(tx.chg_pct, 2)}%）</span>　昨收 ${fmt(tx.ref, 0)}　${tx.asof || ""}　${tx.status || ""}`
+    : (tx.note || "沒有盤後報價");
+  $("txfOhlc").innerHTML = tx.ok
+    ? `<div class="cell"><span>開盤</span><b>${fmt(tx.open, 0)}</b></div>` +
+      `<div class="cell"><span>最高</span><b class="up">${fmt(tx.high, 0)}</b></div>` +
+      `<div class="cell"><span>最低</span><b class="dn">${fmt(tx.low, 0)}</b></div>` +
+      `<div class="cell"><span>現價</span><b>${fmt(tx.last != null ? tx.last : tx.close, 0)}</b></div>`
+    : "";
   drawTwii(tw);
+  drawTxf(s.txf_night || {});
   drawEq(s.equity_curve || []);
 
   $("newsHead").textContent = `熱度 ${s.heat ?? "—"}　趨勢 ${s.trend}　${s.lock_new ? "硬關" : "檔位 " + sizeLabel}`;
@@ -145,6 +158,23 @@ function drawTwii(tw) {
   smaSeries.setData(c.filter((x) => x.sma != null).map((x) => ({ time: x.time, value: x.sma })));
 }
 
+function drawTxf(tx) {
+  const el = $("txfChart");
+  if (!el || !window.LightweightCharts) return;
+  if (!txfChart) {
+    txfChart = LightweightCharts.createChart(el, {
+      layout: { background: { color: "#161b22" }, textColor: "#8b949e" },
+      grid: { vertLines: { color: "#222" }, horzLines: { color: "#222" } },
+      timeScale: { timeVisible: true, secondsVisible: false, borderColor: "#30363d" },
+      width: el.clientWidth,
+      height: 220,
+    });
+    txfSeries = txfChart.addLineSeries({ color: "#f9a825", lineWidth: 2 });
+  }
+  const line = (tx.line || []).filter((p) => p.time && p.value != null);
+  txfSeries.setData(line);
+}
+
 function drawEq(rows) {
   const el = $("eqChart");
   if (!window.LightweightCharts || !rows.length) return;
@@ -162,6 +192,7 @@ function drawEq(rows) {
 
 function resizeCharts() {
   if (twiiChart) twiiChart.applyOptions({ width: $("twiiChart").clientWidth });
+  if (txfChart) txfChart.applyOptions({ width: $("txfChart").clientWidth });
   if (eqChart) eqChart.applyOptions({ width: $("eqChart").clientWidth });
 }
 window.addEventListener("resize", resizeCharts);
