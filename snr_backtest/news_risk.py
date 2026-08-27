@@ -29,6 +29,7 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -760,6 +761,12 @@ def evaluate_risk(
 
 if __name__ == "__main__":
     import argparse
+
+    try:
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+        sys.stderr.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
 
     ap = argparse.ArgumentParser(description="TW paper news heat (not a broker)")
     ap.add_argument("--slot", choices=("0830", "2130"), default="0830")

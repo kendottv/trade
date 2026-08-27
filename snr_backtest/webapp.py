@@ -101,6 +101,20 @@ def last_close(ticker: str) -> tuple[float | None, str]:
     return float(close.iloc[-1]), str(__import__("pandas").Timestamp(close.index.max()).date())
 
 
+def last_mark(ticker: str) -> tuple[float | None, str]:
+    """Live last if Yahoo has it; else last daily close. Not a broker fill."""
+    try:
+        q = get_feed().last(ticker)
+    except Exception:
+        q = None
+    if q is not None and q.last:
+        ts = ""
+        if q.ts:
+            ts = q.ts.strftime("%H:%M:%S") if in_cash_session() else q.ts.strftime("%Y-%m-%d %H:%M")
+        return float(q.last), ts
+    return last_close(ticker)
+
+
 def twii_payload(sma_n: int) -> dict[str, Any]:
     import pandas as pd
 
@@ -111,7 +125,7 @@ def twii_payload(sma_n: int) -> dict[str, Any]:
     out: dict[str, Any] = {
         "last": None, "open": None, "high": None, "low": None, "close": None,
         "chg": None, "chg_pct": None, "asof": "",
-        "status": "盤後", "source": "Yahoo", "above": None, "sma_n": sma_n,
+        "status": "盤後", "source": "", "above": None, "sma_n": sma_n,
         "candles": [],
     }
     if df is None or df.empty:
@@ -125,7 +139,7 @@ def twii_payload(sma_n: int) -> dict[str, Any]:
     feed = get_feed()
     live = in_cash_session()
     out["status"] = "盤中" if live else "盤後"
-    out["source"] = "Yahoo"
+    out["source"] = ""
     if live:
         q = feed.last(INDEX_YAHOO)
         bar = feed.session_bar(INDEX_YAHOO)
@@ -185,10 +199,8 @@ def build_state() -> dict[str, Any]:
     }
     strat = effective_strategy(STRATEGY_DEFAULTS)
     news_th = effective_news()
-    equity = float(acct.get("equity") or INITIAL_CAPITAL)
     cash = float(acct.get("cash") or 0)
     initial = float(acct.get("initial_cash") or INITIAL_CAPITAL)
-    pnl = equity - initial
     day = now_taipei().strftime("%Y-%m-%d")
     alerts = []
     for row in _csv_rows(PAPER / "alerts.csv"):
@@ -196,13 +208,15 @@ def build_state() -> dict[str, Any]:
         if t.startswith(day):
             alerts.append(row)
     positions = []
+    mv_sum = 0.0
     for p in acct.get("positions") or []:
         ticker = p.get("ticker")
         shares = int(p.get("shares") or 0)
         avg = float(p.get("avg_price") or 0)
-        last, asof = last_close(ticker)
+        last, asof = last_mark(ticker)
         last = last if last is not None else avg
         mv = last * shares
+        mv_sum += mv
         upnl = (last - avg) * shares
         upct = (last / avg - 1.0) * 100 if avg else 0.0
         positions.append({
@@ -218,6 +232,8 @@ def build_state() -> dict[str, Any]:
             "trail": bool(p.get("trail_armed")),
             "asof": asof,
         })
+    equity = cash + mv_sum if positions else float(acct.get("equity") or cash)
+    pnl = equity - initial
     watch_rows = []
     seen = set()
     for t, n in catalog.items():

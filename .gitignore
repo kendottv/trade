@@ -19,3 +19,6 @@ snr_backtest/paper/scheduled.log
 snr_backtest/paper/broker_secrets.json
 snr_backtest/paper/watcher.lock
 snr_backtest/paper/alert.lock
+snr_backtest/paper/last_open_fill.txt
+shioaji.log
+snr_backtest/shioaji.log

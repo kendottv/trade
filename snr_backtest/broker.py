@@ -19,6 +19,53 @@ class Fill:
     cash_delta: float  # negative for buy, positive for sell (net)
 
 
+def tw_tick(price: float) -> float:
+    """TWSE/TPEx listed tick. Not warrants / ETFs with special bands."""
+    p = abs(float(price))
+    if p < 10:
+        return 0.01
+    if p < 50:
+        return 0.05
+    if p < 100:
+        return 0.1
+    if p < 500:
+        return 0.5
+    if p < 1000:
+        return 1.0
+    if p < 5000:
+        return 5.0
+    return 10.0
+
+
+def round_tick(price: float) -> float:
+    t = tw_tick(price)
+    if t <= 0:
+        return float(price)
+    return round(float(price) / t) * t
+
+
+def limit_up_price(prev_close: float) -> float:
+    return round_tick(float(prev_close) * 1.10)
+
+
+def limit_down_price(prev_close: float) -> float:
+    return round_tick(float(prev_close) * 0.90)
+
+
+def at_limit_up(open_px: float, prev_close: float | None) -> bool:
+    if not prev_close or prev_close <= 0 or open_px <= 0:
+        return False
+    cap = limit_up_price(prev_close)
+    return abs(float(open_px) - cap) <= tw_tick(open_px) * 0.51 + 1e-9
+
+
+def at_limit_down(open_px: float, prev_close: float | None) -> bool:
+    if not prev_close or prev_close <= 0 or open_px <= 0:
+        return False
+    floor = limit_down_price(prev_close)
+    return abs(float(open_px) - floor) <= tw_tick(open_px) * 0.51 + 1e-9
+
+
 def commission_on(notional: float, rate: float, min_comm: float) -> float:
     if notional <= 0:
         return 0.0

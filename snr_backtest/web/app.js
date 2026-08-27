@@ -45,7 +45,7 @@ function render(s) {
   $("metrics").innerHTML =
     metric("權益", fmt(s.equity, 0), signed(s.pnl, 0) + "（" + signed(s.pnl_pct, 1) + "%）", pnlCls) +
     metric("現金", fmt(s.cash, 0), "") +
-    metric("持股", s.n_pos + " 檔", "session " + s.session) +
+    metric("持股", s.n_pos + " 檔", s.live ? "盤中估價" : ("收盤確認 " + s.session)) +
     metric("新聞熱度", s.heat == null ? "—" : s.heat, s.trend) +
     metric("新倉檔位", sizeLabel, s.lock_new ? "戰爭／盤崩／無資料" : "關稅減碼");
 
@@ -70,9 +70,13 @@ function render(s) {
   if (!pos.length) {
     $("positions").innerHTML = '<p class="empty">目前空手。</p>';
   } else {
-    $("positions").innerHTML = `<table><thead><tr><th>代號</th><th>名稱</th><th>股數</th><th>成本</th><th>收盤</th><th>市值</th><th>未實現</th><th>報酬%</th><th>進場</th></tr></thead><tbody>` +
-      pos.map((p) => `<tr><td>${p.ticker}</td><td>${p.name}</td><td>${p.shares}</td><td>${fmt(p.avg, 2)}</td><td>${fmt(p.last, 2)}</td><td>${fmt(p.mv, 0)}</td><td class="${p.upnl>=0?"up":"dn"}">${signed(p.upnl,0)}</td><td class="${p.upct>=0?"up":"dn"}">${signed(p.upct,1)}</td><td>${p.entry_date}</td></tr>`).join("") +
+    const pxLab = s.live ? "現價" : "收盤";
+    $("positions").innerHTML = `<table><thead><tr><th>代號</th><th>名稱</th><th>股數</th><th>成本</th><th>${pxLab}</th><th>市值</th><th>未實現</th><th>報酬%</th><th>進場</th></tr></thead><tbody>` +
+      pos.map((p) => `<tr><td>${p.ticker}</td><td>${p.name}</td><td>${p.shares}</td><td>${fmt(p.avg, 2)}</td><td>${fmt(p.last, 2)}${p.asof ? `<div class="cap">${p.asof}</div>` : ""}</td><td>${fmt(p.mv, 0)}</td><td class="${p.upnl>=0?"up":"dn"}">${signed(p.upnl,0)}</td><td class="${p.upct>=0?"up":"dn"}">${signed(p.upct,1)}</td><td>${p.entry_date}</td></tr>`).join("") +
       `</tbody></table>`;
+    $("posCap").textContent = s.live
+      ? "盤中現價。成本是今天開盤成交價，不是昨天收盤。"
+      : "用最近收盤估；今天開盤買的，盤中請看現價。";
   }
   const st = s.stamps || {};
   $("stamps").innerHTML = `<p class="cap">收盤單 ${st.live || "—"}　預警 ${st.alert || "—"}　新聞 08:30 ${st.n0830 || "—"}　21:30 ${st.n2130 || "—"}</p>`;

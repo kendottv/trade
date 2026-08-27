@@ -12,6 +12,7 @@ from __future__ import annotations
 import subprocess
 import sys
 import time
+import json
 from datetime import datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
@@ -27,6 +28,7 @@ LOCK = ROOT / "paper" / "watcher.lock"
 TZ = ZoneInfo("Asia/Taipei")
 STAMP = ROOT / "paper" / "last_live_run.txt"
 ALERT_STAMP = ROOT / "paper" / "last_alert_session.txt"
+OPEN_STAMP = ROOT / "paper" / "last_open_fill.txt"
 NEWS_0830_STAMP = ROOT / "paper" / "last_news_0830.txt"
 NEWS_2130_STAMP = ROOT / "paper" / "last_news_2130.txt"
 
@@ -67,6 +69,23 @@ def run_live() -> int:
     p = subprocess.run(cmd, cwd=str(ROOT))
     log(f"live exit {p.returncode}")
     return p.returncode
+
+
+def run_opens() -> int:
+    cmd = [str(PY), str(ROOT / "paper_daily.py"), "--opens"]
+    log("run: " + " ".join(cmd))
+    p = subprocess.run(cmd, cwd=str(ROOT))
+    log(f"open-fill exit {p.returncode}")
+    return p.returncode
+
+
+def last_session_date() -> str:
+    path = ROOT / "paper" / "account.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+        return str(data.get("last_session") or "")[:10]
+    except (OSError, json.JSONDecodeError):
+        return ""
 
 
 def run_alerts() -> int:
@@ -144,6 +163,14 @@ def main() -> None:
         if past_stop(now):
             log("watcher stop (22:00)")
             return
+        if in_session(now) and not already_ran_today(OPEN_STAMP, now):
+            rc = run_opens()
+            if rc == 0:
+                mark(OPEN_STAMP, datetime.now(TZ))
+            else:
+                log(f"open-fill failed rc={rc}, will retry")
+                time.sleep(60)
+            continue
         if in_session(now) and not already_ran_today(ALERT_STAMP, now):
             rc = run_alerts()
             if rc == 0:
@@ -151,10 +178,15 @@ def main() -> None:
             else:
                 log(f"alert failed rc={rc}, will retry")
             continue
-        if now.weekday() < 5 and now.hour >= 16 and not already_ran_today(STAMP, now):
-            run_live()
-            mark(STAMP, now)
-            continue
+        if now.weekday() < 5 and now.hour >= 16:
+            last = last_session_date()
+            if last < now.strftime("%Y-%m-%d"):
+                run_live()
+                if last_session_date() < now.strftime("%Y-%m-%d"):
+                    log("close bar not in cache yet")
+                    time.sleep(300)
+                    continue
+                mark(STAMP, now)
         wait = seconds_until_next(now)
         log(f"sleep {wait:.0f}s")
         time.sleep(min(wait, 600.0))

@@ -29,7 +29,7 @@ TZ = ZoneInfo("Asia/Taipei")
 
 import pandas as pd
 
-from broker import buy_fill, sell_fill
+from broker import at_limit_down, at_limit_up, buy_fill, sell_fill
 from config import (
     COMMISSION_MIN,
     COMMISSION_RATE,
@@ -74,6 +74,33 @@ from size_risk import apply_name, append_size_journal, target_budget
 log = logging.getLogger("trade.paper")
 
 MAX_POSITIONS_DEFAULT = int(MAX_POSITIONS)
+
+
+def _prev_close(df: pd.DataFrame | None, d: pd.Timestamp, ticker: str | None = None) -> float | None:
+    d = pd.Timestamp(d).normalize()
+
+    def _from(frame: pd.DataFrame | None) -> float | None:
+        if frame is None or frame.empty or "Close" not in frame.columns:
+            return None
+        s = frame["Close"].copy()
+        s.index = pd.to_datetime(s.index).normalize()
+        s = s[~s.index.duplicated(keep="last")].sort_index().dropna()
+        s = s[s.index < d]
+        if s.empty:
+            return None
+        return float(s.iloc[-1])
+
+    px = _from(df)
+    if px is not None:
+        return px
+    if not ticker:
+        return None
+    try:
+        from data import load_cache
+
+        return _from(load_cache(ticker, end_date=None))
+    except Exception:
+        return None
 
 
 def _bar(df: pd.DataFrame, d: pd.Timestamp) -> pd.Series | None:
@@ -137,6 +164,14 @@ def fill_pending_sells(
             notes.append(f"PENDING_SELL 無持倉已丟棄: {pend.ticker}")
             continue
         o = float(row["Open"])
+        prev = _prev_close(df, d, pend.ticker)
+        if at_limit_down(o, prev):
+            still.append(pend)
+            notes.append(
+                f"PENDING_SELL 開盤跌停不成交（跟盤，改掛明天）: {pend.ticker} "
+                f"open={o:.2f} prev={prev:.2f}"
+            )
+            continue
         fill = sell_fill(pos.shares, o, COMMISSION_RATE, COMMISSION_MIN, SELL_TAX_RATE)
         acct.cash = acct.cash + fill.cash_delta
         acct.drop_position(pend.ticker)
@@ -212,6 +247,13 @@ def fill_pending_buys(
         df = prepared[pend.ticker]
         row = _bar(df, d)
         o = float(row["Open"])
+        prev = _prev_close(df, d, pend.ticker)
+        if at_limit_up(o, prev):
+            notes.append(
+                f"PENDING_BUY 開盤漲停不成交（跟盤，不追價）: {pend.ticker} "
+                f"open={o:.2f} prev={prev:.2f}"
+            )
+            continue
         slots_left = max(1, max_positions - len(acct.positions))
         _, equity = mark_to_market(acct, prepared, d)
         w = pend.target_weight
@@ -783,6 +825,94 @@ def _mark_live_stamp() -> None:
     LIVE_STAMP.write_text(datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
 
 
+OPEN_STAMP = ROOT / "paper" / "last_open_fill.txt"
+
+
+def _today_open_price(ticker: str) -> float | None:
+    from quotes import get_feed
+
+    feed = get_feed()
+    bar = feed.session_bar(ticker)
+    if bar and bar.get("Open"):
+        px = float(bar["Open"])
+        if px > 0:
+            return px
+    q = feed.last(ticker)
+    if q is not None and q.open and float(q.open) > 0:
+        return float(q.open)
+    return None
+
+
+def _open_bar_frame(day: pd.Timestamp, price: float) -> pd.DataFrame:
+    d = pd.Timestamp(day).normalize()
+    px = float(price)
+    return pd.DataFrame(
+        {"Open": [px], "High": [px], "Low": [px], "Close": [px]},
+        index=[d],
+    )
+
+
+def run_open_fills(max_positions: int) -> int:
+    """Fill yesterday's pending at today's open. Does not confirm new signals.
+
+    Daily Yahoo cache has no t+1 bar at 08:30. Use 1-minute / live open instead.
+    last_session stays yesterday so 16:00 can still process the close.
+    """
+    store = PaperStore(default_live_dir())
+    acct = store.load_or_create(INITIAL_CAPITAL)
+    now = datetime.now(TZ)
+    today = pd.Timestamp(now.date()).normalize()
+    if now.weekday() >= 5:
+        log.info("open-fill skip: weekend")
+        return 0
+    if not acct.pending:
+        log.info("open-fill skip: no pending")
+        return 0
+    last = pd.Timestamp(acct.last_session).normalize() if acct.last_session else None
+    if last is not None and last >= today:
+        log.info("open-fill skip: last_session already %s", acct.last_session)
+        return 0
+    if OPEN_STAMP.exists() and OPEN_STAMP.read_text(encoding="utf-8").strip()[:10] == today.strftime("%Y-%m-%d"):
+        log.info("open-fill skip: already filled opens today")
+        return 0
+
+    try:
+        from ui_settings import effective_strategy
+        from config import STRATEGY_DEFAULTS
+
+        overlay = effective_strategy(STRATEGY_DEFAULTS)
+        max_positions = int(overlay.get("MAX_POSITIONS") or max_positions)
+    except Exception:
+        pass
+
+    notes: list[str] = [f"## {today.strftime('%Y-%m-%d')} 開盤成交（pending）"]
+    prepared: dict[str, pd.DataFrame] = {}
+    missing = 0
+    for pend in list(acct.pending):
+        px = _today_open_price(pend.ticker)
+        if px is None:
+            notes.append(f"OPEN 還沒有開盤價: {pend.ticker} {pend.name}")
+            missing += 1
+            continue
+        prepared[pend.ticker] = _open_bar_frame(today, px)
+        notes.append(f"開盤價 {pend.ticker} {pend.name} {px:.2f}")
+    fill_pending_sells(acct, prepared, today, store, notes)
+    fill_pending_buys(acct, prepared, today, store, max_positions, notes)
+    _, eq = mark_to_market(acct, prepared, today)
+    acct.equity = eq
+    store.save_account(acct)
+    store.append_log("\n".join(notes) + "\n")
+    if missing:
+        log.info("open-fill waiting on %d quotes", missing)
+        return 1
+    OPEN_STAMP.write_text(now.strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
+    log.info(
+        "open-fill done pos=%d pending=%d cash=%.0f",
+        len(acct.positions), len(acct.pending), acct.cash,
+    )
+    return 0
+
+
 def run_live(max_positions: int, force_download: bool) -> None:
     store = PaperStore(default_live_dir())
     acct = store.load_or_create(INITIAL_CAPITAL)
@@ -851,10 +981,11 @@ def main() -> None:
     )
     ap = argparse.ArgumentParser(description="Taiwan paper trader (NOT a real broker)")
     ap.add_argument("--live", action="store_true", help="update paper/account.json for latest session")
+    ap.add_argument("--opens", action="store_true", help="fill pending at today's live open only")
     ap.add_argument("--replay-from", dest="replay_from", default=None)
     ap.add_argument("--replay-to", dest="replay_to", default=None)
     ap.add_argument("--max-positions", type=int, default=MAX_POSITIONS_DEFAULT)
-    ap.add_argument("--download", action="store_true", help="force yfinance refresh")
+    ap.add_argument("--download", action="store_true", help="refresh live bars (Shioaji if logged in)")
     ap.add_argument("--keep-replay", action="store_true", help="do not wipe paper/replay before replay")
     ap.add_argument(
         "--flat-on-risk",
@@ -890,6 +1021,8 @@ def main() -> None:
             exclude_banks=bool(args.exclude_banks),
         )
         return
+    if args.opens:
+        raise SystemExit(run_open_fills(max_positions=args.max_positions))
     if args.live:
         if args.exclude_banks:
             raise SystemExit("--exclude-banks 只用於回放，避免改到 live 持股")

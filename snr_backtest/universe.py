@@ -108,6 +108,13 @@ def load_prices(
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     prices: dict[str, pd.DataFrame] = {}
     failed: list[str] = []
+    if end_date is None:
+        try:
+            from data import overlay_shioaji
+
+            overlay_shioaji(tickers)
+        except Exception as exc:  # noqa: BLE001
+            log.warning("shioaji overlay batch skip: %s", exc)
     for ticker in tickers:
         df = None
         if not force_download:

@@ -13,6 +13,7 @@
 
 - **中期波段（日 K）**。
 - 訊號在 **t 收盤**，成交在 **t+1 開盤**。盤中只預警、不成交。
+- 紙上跟盤：開盤**漲停的買單當買不到**（不掛漲停價硬塞）；開盤**跌停的賣單留到隔日**。不是券商委託。
 
 ---
 
@@ -52,7 +53,7 @@
 | `webapp.py` | **HTML 面板後端**（FastAPI + WebSocket）。預警／排隊／帳戶檔一改就推到瀏覽器。不成交。 |
 | `dashboard.py` | **已停用**。若再被叫到會直接退出，請用 `start_dashboard.bat`。 |
 | `web\` | 面板前端：`index.html`、`app.css`、`app.js`。 |
-| `quotes.py` | **行情來源**。現在 Yahoo（延遲）；永豐 Shioaji 只留接點，不登入、不下單。預警也走這裡。 |
+| `quotes.py` | **行情來源**。永豐模擬報價（無 Key 才 Yahoo）。強制 `simulation=true`，沒有 `place_order`。 |
 | `ui_settings.py` | 面板設定檔讀寫。監看名單／策略覆寫給下次 16:00／09:00／08:30 用。 |
 | `broker.py` | **成交試算**。手續費 0.1425%（最低 20 元）、賣出證交稅 0.3%、零股單位。不是券商。 |
 
@@ -61,7 +62,7 @@
 | 檔案 | 幹嘛 |
 | --- | --- |
 | `config.py` | 所有參數：SNR 門檻、停利停損、`PAPER_LOT_SIZE`、`PAPER_MAX_WEIGHT`、回測日期、成本。改規則先改這裡。 |
-| `data.py` | 從 Yahoo 下載日 K，快取到 `data\`（parquet/csv）。回測會切在 `END_DATE`；紙上不切。 |
+| `data.py` | 日 K 快取。紙上近期用永豐覆蓋；多年歷史第一次可能從 Yahoo 補。回測切 `END_DATE`。 |
 
 ### 回測／研究（不影響紙上倉）
 
@@ -159,6 +160,7 @@
 .venv\Scripts\python paper_alert.py
 .venv\Scripts\python paper_alert.py --test
 start_dashboard.bat
+.venv\Scripts\python quotes.py
 .venv\Scripts\python news_risk.py --slot 0830
 .venv\Scripts\python news_risk.py --slot 2130
 .venv\Scripts\python paper_daily.py --replay-from 2026-02-14 --replay-to 2026-08-14

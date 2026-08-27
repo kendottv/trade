@@ -1,12 +1,15 @@
-"""Download and cache OHLCV from yfinance. Flatten MultiIndex columns.
+"""OHLCV cache.
 
-Cache lives under data/ as both parquet and csv so reruns do not hit the network.
-If a ticker fails, log a warning and continue.
+Live paper overlays recent daily bars from 永豐 Shioaji (simulation quotes).
+Long history still comes from Yahoo once, then Shioaji patches new sessions.
+Backtests that pass end_date stay on the cached sample.
 """
 
 from __future__ import annotations
 
 import logging
+import time
+from datetime import date, timedelta
 from pathlib import Path
 
 import pandas as pd
@@ -16,6 +19,7 @@ from config import DATA_DIR, END_DATE, INDEX_TICKER, TICKERS, WARMUP_START
 log = logging.getLogger("trade.data")
 
 OHLCV = ["Open", "High", "Low", "Close", "Volume"]
+_SJ_DQ: dict[date, tuple[float, dict[str, tuple]]] = {}
 
 
 def _safe_stem(ticker: str) -> str:
@@ -134,28 +138,185 @@ def load_cache(ticker: str, end_date: str | None = END_DATE) -> pd.DataFrame | N
     return None
 
 
+def _upsert_bar(df: pd.DataFrame | None, day, open_, high, low, close, volume=0.0) -> pd.DataFrame:
+    ts = pd.Timestamp(day).normalize()
+    row = {
+        "Open": float(open_),
+        "High": float(high),
+        "Low": float(low),
+        "Close": float(close),
+        "Volume": float(volume or 0),
+    }
+    if df is None or df.empty:
+        out = pd.DataFrame([row], index=[ts])
+    else:
+        out = df.copy()
+        out.index = pd.to_datetime(out.index).normalize()
+        for col in OHLCV:
+            if col not in out.columns:
+                out[col] = pd.NA
+        out.loc[ts, list(row.keys())] = list(row.values())
+        out = out.sort_index()
+        out = out[~out.index.duplicated(keep="last")]
+    return out
+
+
+def _ticker_code(ticker: str) -> str:
+    t = str(ticker).upper()
+    if t in ("^TWII", "TWII", "IX0001", "TSE001"):
+        return "IX0001"
+    return t.split(".")[0]
+
+
+def overlay_shioaji(tickers: list[str], lookback_days: int = 10) -> dict[str, pd.DataFrame]:
+    """Patch recent completed sessions onto cache from Shioaji. No orders.
+
+    Before 15:00 do not write *today* (intraday 1m is not the official close).
+    """
+    from quotes import INDEX_YAHOO, get_feed, now_taipei
+
+    feed = get_feed()
+    if getattr(feed, "name", "") != "shioaji" or not hasattr(feed.impl, "api"):
+        return {}
+    api = feed.impl.api
+    now = now_taipei()
+    today = now.date()
+    days: list[date] = []
+    d = today
+    while len(days) < lookback_days:
+        if d.weekday() < 5:
+            if d < today or now.hour >= 15:
+                days.append(d)
+        d -= timedelta(days=1)
+        if (today - d).days > 21:
+            break
+    wanted = {str(t): _ticker_code(t) for t in tickers if t}
+    by_code: dict[str, str] = {}
+    for t, c in wanted.items():
+        by_code.setdefault(c, t)
+    patched: dict[str, pd.DataFrame] = {}
+
+    quotes_by_day: dict[date, dict[str, tuple]] = {}
+    now_ts = time.time()
+    for day in days:
+        hit = _SJ_DQ.get(day)
+        if hit and now_ts - hit[0] < 300:
+            quotes_by_day[day] = hit[1]
+            continue
+        try:
+            dq = api.daily_quotes(date=day)
+        except Exception as exc:
+            log.warning("shioaji daily_quotes %s: %s", day, exc)
+            continue
+        n = len(getattr(dq, "Code", []) or [])
+        if n <= 0:
+            continue
+        codes = list(dq.Code)
+        table: dict[str, tuple] = {}
+        for i, code in enumerate(codes):
+            c = str(code)
+            try:
+                table[c] = (
+                    float(dq.Open[i]),
+                    float(dq.High[i]),
+                    float(dq.Low[i]),
+                    float(dq.Close[i]),
+                    float(dq.Volume[i] if getattr(dq, "Volume", None) is not None else 0),
+                )
+            except (TypeError, ValueError, IndexError):
+                continue
+        _SJ_DQ[day] = (now_ts, table)
+        quotes_by_day[day] = table
+
+    for ticker, code in wanted.items():
+        cached = load_cache(ticker, end_date=None)
+        df = cached
+        changed = False
+        if code == "IX0001" or ticker in (INDEX_YAHOO, "^TWII", INDEX_TICKER):
+            start = (min(days) if days else today).isoformat()
+            end = (max(days) if days else today).isoformat()
+            try:
+                contract = feed.impl.contract(INDEX_YAHOO)
+                kb = api.kbars(contract, start=start, end=end) if contract is not None else None
+            except Exception as exc:
+                log.warning("shioaji kbars TWII: %s", exc)
+                kb = None
+            if kb is not None and getattr(kb, "Close", None):
+                kdf = pd.DataFrame(
+                    {
+                        "Open": kb.Open,
+                        "High": kb.High,
+                        "Low": kb.Low,
+                        "Close": kb.Close,
+                        "Volume": getattr(kb, "Volume", [0] * len(kb.Close)),
+                    },
+                    index=pd.to_datetime(kb.ts),
+                )
+                kdf.index = pd.to_datetime(kdf.index).tz_localize(None)
+                daily = kdf.resample("1D").agg(
+                    {"Open": "first", "High": "max", "Low": "min", "Close": "last", "Volume": "sum"}
+                ).dropna(how="any")
+                for ts, row in daily.iterrows():
+                    dd = pd.Timestamp(ts).date()
+                    if dd not in days:
+                        continue
+                    df = _upsert_bar(df, ts, row["Open"], row["High"], row["Low"], row["Close"], row["Volume"])
+                    changed = True
+        else:
+            for day, table in quotes_by_day.items():
+                bar = table.get(code)
+                if not bar:
+                    continue
+                df = _upsert_bar(df, day, *bar)
+                changed = True
+        if changed and df is not None and not df.empty:
+            save_cache(ticker, df)
+            patched[ticker] = df
+            log.info(
+                "shioaji overlay %s rows=%d last=%s",
+                ticker, len(df), df.index.max().date(),
+            )
+    return patched
+
+
 def get_price(
     ticker: str,
     force_download: bool = False,
     end_date: str | None = END_DATE,
 ) -> pd.DataFrame | None:
-    if not force_download:
-        cached = load_cache(ticker, end_date=end_date)
+    cached = load_cache(ticker, end_date=end_date)
+    paper = end_date is None
+    if paper and force_download:
+        try:
+            overlay_shioaji([ticker])
+            cached = load_cache(ticker, end_date=None)
+        except Exception as exc:
+            log.warning("shioaji overlay skip %s: %s", ticker, exc)
         if cached is not None and len(cached) > 0:
-            log.info(
-                "cache hit %s  rows=%d  %s → %s",
-                ticker, len(cached), cached.index.min().date(), cached.index.max().date(),
-            )
             return cached
+    if not force_download and cached is not None and len(cached) > 0:
+        log.info(
+            "cache hit %s  rows=%d  %s → %s",
+            ticker, len(cached), cached.index.min().date(), cached.index.max().date(),
+        )
+        return cached
     try:
         df = _download_one(ticker, end_date=end_date)
     except Exception as exc:  # noqa: BLE001 — network / yfinance is messy
         log.warning("download FAILED %s: %s", ticker, exc)
-        return None
+        return cached
     if df is None or df.empty:
         log.warning("download empty %s", ticker)
-        return None
+        return cached
     save_cache(ticker, df)
+    if paper:
+        try:
+            overlay_shioaji([ticker])
+            again = load_cache(ticker, end_date=None)
+            if again is not None and not again.empty:
+                df = again
+        except Exception:
+            pass
     log.info(
         "downloaded %s  rows=%d  %s → %s",
         ticker, len(df), df.index.min().date(), df.index.max().date(),
