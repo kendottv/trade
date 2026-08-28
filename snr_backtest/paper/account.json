@@ -1,6 +1,6 @@
 {
   "cash": 1535699.85,
-  "equity": 1597719.85,
+  "equity": 1596177.85,
   "positions": [
     {
       "ticker": "5314.TWO",
@@ -29,16 +29,29 @@
       "ticker": "3008.TW",
       "name": "大立光",
       "reason": "breakout_v2",
-      "snr": 0.708,
-      "signal_date": "2026-08-27",
+      "snr": 0.6969,
+      "signal_date": "2026-08-28",
       "target_weight": 0.02,
-      "name_heat": 1.0,
+      "name_heat": 2.0,
       "name_trend": "cool",
       "name_lock": false,
-      "size_note": "macro=severe/2% name=cool/1 →2%"
+      "size_note": "macro=severe/2% name=cool/2 →2%"
+    },
+    {
+      "side": "buy",
+      "ticker": "6669.TW",
+      "name": "緯穎",
+      "reason": "breakout_v2",
+      "snr": 0.5535,
+      "signal_date": "2026-08-28",
+      "target_weight": 0.02,
+      "name_heat": 5.0,
+      "name_trend": "cool",
+      "name_lock": false,
+      "size_note": "macro=severe/2% name=cool/5 →2%"
     }
   ],
-  "updated_at": "2026-08-27 16:00:11+0800",
-  "last_session": "2026-08-27",
+  "updated_at": "2026-08-28 16:00:16+0800",
+  "last_session": "2026-08-28",
   "initial_cash": 1000000.0
 }
