@@ -1,0 +1,25 @@
+{
+  "session": "2026-08-31",
+  "ticker": "3008.TW",
+  "name": "大立光",
+  "updated_at": "2026-08-31 16:00:11+0800",
+  "news_fetched": true,
+  "fetch_ok": 4,
+  "fetch_total": 4,
+  "news_score": 2,
+  "trend": "cool",
+  "war_lock": false,
+  "name_lock": false,
+  "lock": false,
+  "lock_title": "",
+  "n_unique": 32,
+  "n_raw": 32,
+  "off_headlines": [
+    "大立光旺季恐提前結束 凸顯蘋果在關稅陰影下轉趨保守 - 經濟日報",
+    "焦點股》大立光：關稅急轉彎 強攻漲停 - 自由財經",
+    "大立光林恩平：關稅看不到直接的影響！4月會比3月差，5月會比4月差 - 財訊"
+  ],
+  "on_headlines": [
+    "對等關稅降至10%，蘋概股還有救？大立光林恩平釋風向 - 遠見雜誌"
+  ]
+}

@@ -1809,3 +1809,21 @@ QUEUE BUY 3008.TW 大立光 snr=0.6969 weight=2% macro=severe/2% name=cool/2 →
 QUEUE BUY 6669.TW 緯穎 snr=0.5535 weight=2% macro=severe/2% name=cool/5 →2% close=7200.00 → 下一根開盤成交
 收盤: cash=1535700 MV=60478 equity=1596178 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5 pending=buy:3008.TW/breakout_v2, buy:6669.TW/breakout_v2
 
+## 2026-08-31 開盤成交（pending）
+開盤價 3008.TW 大立光 7005.00
+開盤價 6669.TW 緯穎 6965.00
+資金分配: 新聞減碼後的目標權重、單檔上限 20%、5 股為單位，不 all-in
+PENDING_BUY 買不起5股，現金留存: 3008.TW alloc=31969 open=7005.00
+PENDING_BUY 買不起5股，現金留存: 6669.TW alloc=31969 open=6965.00
+
+## 2026-08-31
+開始: cash=1535700 持倉=2 pending=0 equity=1598470
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False size=0.02 news=35 twii_d1=-0.0044 twii_d3=0.0065｜今早熱度 35 ≥ 嚴重線 12(昨21:30=33,Δ+2)仍關；新倉檔位 2%
+訊號 1 檔，空槽 8，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    3008.TW      大立光         0.7587   0.8863    7650.00
+QUEUE BUY 3008.TW 大立光 snr=0.7587 weight=2% macro=severe/2% name=cool/2 →2% close=7650.00 → 下一根開盤成交
+收盤: cash=1535700 MV=60740 equity=1596440 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5 pending=buy:3008.TW/breakout_v2
+
