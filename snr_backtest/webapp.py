@@ -318,7 +318,7 @@ async def broadcaster() -> None:
         await asyncio.sleep(1.0)
         sig = _mtimes()
         now = datetime.now().timestamp()
-        interval = 5.0 if (in_cash_session() or in_txf_night()) else 10.0
+        interval = 2.0 if in_txf_night() else (5.0 if in_cash_session() else 10.0)
         due = sig != last or (now - last_push >= interval)
         if not due or not clients:
             continue

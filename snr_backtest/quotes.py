@@ -433,9 +433,13 @@ class ShioajiFeed:
             self._ticks[code] = q
             if code == INDEX_SHIOAJI:
                 self._ticks[INDEX_YAHOO] = q
+            if code.startswith("TXF"):
+                self._ticks[TXF_FRONT] = q
 
-        def _cb(data):
-            _store(data)
+        def _cb(*args):
+            tick = args[-1] if args else None
+            if tick is not None:
+                _store(tick)
 
         try:
             api.set_on_tick_stk_v1_callback(_cb)
@@ -492,6 +496,11 @@ class ShioajiFeed:
                 return None
             return self._yahoo.last(ticker)
         hit = self._ticks.get(code) or self._ticks.get(ticker)
+        if hit is None and str(code).startswith("TXF"):
+            for k, v in self._ticks.items():
+                if str(k).startswith("TXF"):
+                    hit = v
+                    break
         if hit is not None:
             return hit
 
@@ -527,10 +536,13 @@ class ShioajiFeed:
                 delayed=False,
             )
             self._ticks[code] = q
+            if str(code).startswith("TXF"):
+                self._ticks[TXF_FRONT] = q
             return q
 
         try:
-            return _cached(f"sj:snap:{code}", POLL_SEC, _snap)
+            ttl = 2.0 if str(code).startswith("TXF") else POLL_SEC
+            return _cached(f"sj:snap:{code}", ttl, _snap)
         except Exception as exc:
             log.warning("shioaji snapshot fallback yahoo (%s): %s", ticker, exc)
             return self._yahoo.last(ticker)
@@ -669,6 +681,21 @@ def get_feed() -> QuoteFeed:
         return _feed
 
 
+_TXF_KB: dict = {"t": 0.0, "key": "", "kb": None}
+
+
+def _txf_kbars_cached(api, contract, start_d: str, end_d: str):
+    key = f"{start_d}:{end_d}"
+    now = time.time()
+    if _TXF_KB["kb"] is not None and _TXF_KB["key"] == key and now - _TXF_KB["t"] < 20:
+        return _TXF_KB["kb"]
+    kb = api.kbars(contract, start=start_d, end=end_d)
+    _TXF_KB["t"] = now
+    _TXF_KB["key"] = key
+    _TXF_KB["kb"] = kb
+    return kb
+
+
 def _txf_kbars_index(kb) -> pd.DatetimeIndex | None:
     ts_list = list(getattr(kb, "ts", None) or [])
     if not ts_list:
@@ -785,10 +812,11 @@ def txf_night_payload() -> dict:
             prev_d -= timedelta(days=1)
         prev_start = datetime(prev_d.year, prev_d.month, prev_d.day, 15, 0, tzinfo=TZ)
         prev_end = prev_start + timedelta(hours=14)
-        kb_span = impl.api.kbars(
+        kb_span = _txf_kbars_cached(
+            impl.api,
             c,
-            start=prev_start.strftime("%Y-%m-%d"),
-            end=now.strftime("%Y-%m-%d"),
+            prev_start.strftime("%Y-%m-%d"),
+            now.strftime("%Y-%m-%d"),
         )
         prev_closes = _txf_session_closes(kb_span, prev_start, prev_end)
         if prev_closes:
@@ -806,7 +834,9 @@ def txf_night_payload() -> dict:
             if out["last"] is None:
                 out["last"] = night["close"]
             out["line"] = night["line"]
-            if night["asof"]:
+            if out.get("asof"):
+                pass
+            elif night["asof"]:
                 out["asof"] = night["asof"]
         last = out["last"]
         ref = out["ref"]

@@ -1,6 +1,6 @@
 {
   "cash": 1535699.85,
-  "equity": 1596439.85,
+  "equity": 1595401.85,
   "positions": [
     {
       "ticker": "5314.TWO",
@@ -23,22 +23,8 @@
       "trail_armed": false
     }
   ],
-  "pending": [
-    {
-      "side": "buy",
-      "ticker": "3008.TW",
-      "name": "大立光",
-      "reason": "breakout_v2",
-      "snr": 0.7587,
-      "signal_date": "2026-08-31",
-      "target_weight": 0.02,
-      "name_heat": 2.0,
-      "name_trend": "cool",
-      "name_lock": false,
-      "size_note": "macro=severe/2% name=cool/2 →2%"
-    }
-  ],
-  "updated_at": "2026-08-31 16:00:11+0800",
-  "last_session": "2026-08-31",
+  "pending": [],
+  "updated_at": "2026-09-01 16:00:13+0800",
+  "last_session": "2026-09-01",
   "initial_cash": 1000000.0
 }
