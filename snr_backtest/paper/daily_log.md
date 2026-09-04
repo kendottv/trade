@@ -1898,3 +1898,25 @@ pick ticker       name           snr    rs_20      close
 (no signals)
 收盤: cash=1535700 MV=55940 equity=1591640 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5 pending=(無)
 
+## 2026-09-04
+開始: cash=1535700 持倉=2 pending=0 equity=1591640
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False size=0.02 news=34 twii_d1=0.0151 twii_d3=-0.0085｜今早熱度 34 ≥ 嚴重線 12(昨21:30=14,Δ+20)仍關；新倉檔位 2%
+訊號 1 檔，空槽 8，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    2382.TW      廣達          0.4896   0.1051     345.00
+QUEUE BUY 2382.TW 廣達 snr=0.4896 weight=2% macro=severe/2% name=hot/8 →2% close=345.00 → 下一根開盤成交
+收盤: cash=1535700 MV=57680 equity=1593380 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5 pending=buy:2382.TW/breakout_v2
+
+## 2026-09-04
+開始: cash=1535700 持倉=2 pending=0 equity=1591640
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False size=0.02 news=34 twii_d1=0.0151 twii_d3=-0.0085｜今早熱度 34 ≥ 嚴重線 12(昨21:30=14,Δ+20)仍關；新倉檔位 2%
+訊號 1 檔，空槽 8，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    2382.TW      廣達          0.4896   0.1051     345.00
+QUEUE BUY 2382.TW 廣達 snr=0.4896 weight=2% macro=severe/2% name=hot/8 →2% close=345.00 → 下一根開盤成交
+收盤: cash=1535700 MV=57680 equity=1593380 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5 pending=buy:2382.TW/breakout_v2
+
