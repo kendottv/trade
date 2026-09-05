@@ -20,8 +20,9 @@ document.querySelectorAll(".tabs button").forEach((b) => {
     document.querySelectorAll(".tab").forEach((x) => x.classList.remove("on"));
     b.classList.add("on");
     $("tab-" + b.dataset.tab).classList.add("on");
-    if (b.dataset.tab === "over") resizeCharts();
-    if (b.dataset.tab === "pnl") resizeCharts();
+    if (b.dataset.tab === "over" || b.dataset.tab === "pnl" || b.dataset.tab === "bt" || b.dataset.tab === "curves") resizeCharts();
+    if (b.dataset.tab === "bt") loadBacktest();
+    if (b.dataset.tab === "curves") loadCurves();
   };
 });
 document.querySelectorAll("#periods button").forEach((b) => {
@@ -193,6 +194,11 @@ function drawEq(rows) {
 function resizeCharts() {
   if (twiiChart) twiiChart.applyOptions({ width: $("twiiChart").clientWidth });
   if (txfChart) txfChart.applyOptions({ width: $("txfChart").clientWidth });
+  if (btChart) btChart.applyOptions({ width: $("btChart").clientWidth });
+  if (cPrice) cPrice.applyOptions({ width: $("curvePrice").clientWidth });
+  if (cMacd) cMacd.applyOptions({ width: $("curveMacd").clientWidth });
+  if (cRsi) cRsi.applyOptions({ width: $("curveRsi").clientWidth });
+  if (cKd) cKd.applyOptions({ width: $("curveKd").clientWidth });
   if (eqChart) eqChart.applyOptions({ width: $("eqChart").clientWidth });
 }
 window.addEventListener("resize", resizeCharts);
@@ -285,6 +291,301 @@ $("btnResetStrat").onclick = async () => {
   $("stratForm").dataset.filled = "0";
   $("stratMsg").textContent = "已恢復程式預設。";
 };
+
+let btChart, btSeries, btId = "breakout_v2";
+let btKind = "breakout";
+
+const BT_HINT = {
+  breakout: "收盤突破前 N 日高，可加 SNR／大盤濾網。出場：停利停損、時間停損、移動停利。",
+  pullback: "站上趨勢均線後回檔到短均線附近才買。SNR 上限用來避開太乾淨的趨勢。",
+  macd: "MACD 黃金交叉買、死亡交叉賣。停利停損仍有效。",
+  rsi: "RSI 從超賣往上穿越買，碰到超買區賣。",
+  kd: "K 在超賣區黃金交叉買；死亡交叉或 K 到超買賣。",
+  sma: "短均線上穿長均線買、下穿賣。",
+  bb: "回歸：收盤碰到下軌買、上軌賣。突破：收上軌買、跌回中軌賣。",
+};
+const BT_DEFAULTS = {
+  breakout: { tp: 0.25, sl: 0.20, time_stop_days: 3 },
+  pullback: { tp: 0.08, sl: 0.04, time_stop_days: 0 },
+  macd: { tp: 0.15, sl: 0.10, time_stop_days: 0 },
+  rsi: { tp: 0.12, sl: 0.08, time_stop_days: 0 },
+  kd: { tp: 0.12, sl: 0.08, time_stop_days: 0 },
+  sma: { tp: 0.15, sl: 0.10, time_stop_days: 0 },
+  bb: { tp: 0.10, sl: 0.06, time_stop_days: 0 },
+};
+
+function fillBtForm() {
+  const el = $("btForm");
+  if (!el) return;
+  if ($("btKindHint")) $("btKindHint").textContent = BT_HINT[btKind] || "";
+  const d = BT_DEFAULTS[btKind] || BT_DEFAULTS.breakout;
+  const num = (id, lab, v, step) =>
+    `<label>${lab}<input id="bt_${id}" type="number" step="${step}" value="${v}"></label>`;
+  const chk = (id, lab, on) =>
+    `<label>${lab}<input id="bt_${id}" type="checkbox"${on ? " checked" : ""}></label>`;
+  let extra = [
+    num("tp", "停利（例如 0.25=25%）", d.tp, 0.01),
+    num("sl", "停損", d.sl, 0.01),
+    num("time_stop_days", "時間停損日數（0=關）", d.time_stop_days, 1),
+  ];
+  if (btKind === "breakout") {
+    extra = extra.concat([
+      num("lookback", "突破回看天數", 20, 1),
+      num("snr_min", "SNR 下限", 0.40, 0.01),
+      num("trail_arm", "移動停利啟動（12%=0.12）", 0.12, 0.01),
+      num("trail_lookback", "移動停利回看低點", 15, 1),
+      chk("use_snr", "用 SNR 濾網", true),
+      chk("twii", "大盤 > SMA60", true),
+      chk("trail", "移動停利", true),
+    ]);
+  } else if (btKind === "pullback") {
+    extra = extra.concat([
+      num("sma_fast", "短均線", 20, 1),
+      num("sma_trend", "趨勢均線", 60, 1),
+      num("band_lo", "回檔下限（×短均）", 0.97, 0.01),
+      num("band_hi", "回檔上限（×短均）", 1.01, 0.01),
+      num("snr_max", "SNR 上限（雜訊）", 0.25, 0.01),
+      chk("use_snr", "用 SNR 濾網", true),
+    ]);
+  } else if (btKind === "macd") {
+    extra = extra.concat([
+      num("macd_fast", "MACD 快線", 12, 1),
+      num("macd_slow", "MACD 慢線", 26, 1),
+      num("macd_signal", "MACD 訊號", 9, 1),
+    ]);
+  } else if (btKind === "rsi") {
+    extra = extra.concat([
+      num("rsi_n", "RSI 天數", 14, 1),
+      num("rsi_os", "超賣（進場穿越）", 30, 1),
+      num("rsi_ob", "超買（出場）", 70, 1),
+    ]);
+  } else if (btKind === "kd") {
+    extra = extra.concat([
+      num("kd_n", "KD 週期", 9, 1),
+      num("kd_k", "K 平滑", 3, 1),
+      num("kd_d", "D 平滑", 3, 1),
+      num("kd_os", "超賣（K 要低於此才買）", 20, 1),
+      num("kd_ob", "超買（K 到此賣）", 80, 1),
+    ]);
+  } else if (btKind === "sma") {
+    extra = extra.concat([
+      num("sma_fast", "短均線", 20, 1),
+      num("sma_trend", "長均線", 60, 1),
+    ]);
+  } else if (btKind === "bb") {
+    extra = extra.concat([
+      num("bb_n", "布林天數", 20, 1),
+      num("bb_k", "帶寬（標準差倍數）", 2, 0.1),
+      `<label>模式<select id="bt_bb_mode"><option value="revert" selected>回歸（下軌買）</option><option value="break">突破（上軌買）</option></select></label>`,
+    ]);
+  }
+  el.innerHTML = extra.join("");
+}
+
+document.querySelectorAll("#btKinds button").forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll("#btKinds button").forEach((x) => x.classList.remove("on"));
+    b.classList.add("on");
+    btKind = b.dataset.kind;
+    fillBtForm();
+  };
+});
+if ($("btnRunBt")) {
+  $("btnRunBt").onclick = async () => {
+    const num = (id, d) => {
+      const el = $(id);
+      return el ? Number(el.value) : d;
+    };
+    const chk = (id, d) => ($(id) ? $(id).checked : d);
+    const sel = (id, d) => ($(id) ? $(id).value : d);
+    const body = {
+      kind: btKind,
+      start: $("btStart").value,
+      end: $("btEnd").value,
+      tp: num("bt_tp", 0.25),
+      sl: num("bt_sl", 0.20),
+      time_stop_days: num("bt_time_stop_days", 0),
+      snr_min: num("bt_snr_min", 0.4),
+      snr_max: num("bt_snr_max", 0.25),
+      twii_filter: chk("bt_twii", true),
+      trail: chk("bt_trail", true),
+      trail_arm: num("bt_trail_arm", 0.12),
+      trail_lookback: num("bt_trail_lookback", 15),
+      use_snr: chk("bt_use_snr", true),
+      lookback: num("bt_lookback", 20),
+      sma_fast: num("bt_sma_fast", 20),
+      sma_trend: num("bt_sma_trend", 60),
+      band_lo: num("bt_band_lo", 0.97),
+      band_hi: num("bt_band_hi", 1.01),
+      macd_fast: num("bt_macd_fast", 12),
+      macd_slow: num("bt_macd_slow", 26),
+      macd_signal: num("bt_macd_signal", 9),
+      rsi_n: num("bt_rsi_n", 14),
+      rsi_os: num("bt_rsi_os", 30),
+      rsi_ob: num("bt_rsi_ob", 70),
+      kd_n: num("bt_kd_n", 9),
+      kd_k: num("bt_kd_k", 3),
+      kd_d: num("bt_kd_d", 3),
+      kd_os: num("bt_kd_os", 20),
+      kd_ob: num("bt_kd_ob", 80),
+      bb_n: num("bt_bb_n", 20),
+      bb_k: num("bt_bb_k", 2),
+      bb_mode: sel("bt_bb_mode", "revert"),
+    };
+    $("btCap").textContent = "計算中（讀本機日 K）…";
+    try {
+      const r = await fetch("/api/backtest/run", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const j = await r.json();
+      if (!j.ok && j.error) {
+        $("btCap").textContent = j.error;
+        return;
+      }
+      $("btCap").textContent = j.note || "完成";
+      const sm = (j.summary || [])[0] || {};
+      $("btMetrics").innerHTML = [
+        ["期末權益", fmt(sm.final_equity, 0), ""],
+        ["報酬", signed((Number(sm.total_return) || 0) * 100, 1) + "%", Number(sm.total_return) >= 0 ? "up" : "dn"],
+        ["CAGR", ((Number(sm.cagr) || 0) * 100).toFixed(1) + "%", ""],
+        ["勝率", ((Number(sm.win_rate) || 0) * 100).toFixed(1) + "%", ""],
+        ["最大回撤", ((Number(sm.max_drawdown) || 0) * 100).toFixed(1) + "%", "dn"],
+      ].map(([k, v, cls]) => metric(k, v, "", cls)).join("");
+      drawBt(j.curve || []);
+      const tr = j.trades || [];
+      $("btTrades").innerHTML = tr.length
+        ? `<table><thead><tr>${Object.keys(tr[0]).slice(0, 9).map((k) => `<th>${k}</th>`).join("")}</tr></thead><tbody>` +
+          tr.map((row) => `<tr>${Object.keys(tr[0]).slice(0, 9).map((k) => `<td>${row[k] ?? ""}</td>`).join("")}</tr>`).join("") +
+          `</tbody></table>`
+        : '<p class="empty">這次沒有成交。</p>';
+    } catch (e) {
+      $("btCap").textContent = "回測失敗。";
+    }
+  };
+}
+fillBtForm();
+
+let cPrice, cCandle, cSma20, cSma60, cMacd, cMacdLine, cMacdSig, cHist, cRsi, cRsiLine, cKd, cK, cD;
+let curveN = 132;
+
+function loadBacktest(id) {
+  if (id) btId = id;
+  fetch("/api/backtest").then((r) => r.json()).then((j) => {
+    const items = j.items || [];
+    $("btStrats").innerHTML = items.map((x) =>
+      `<button data-id="${x.id}" class="${x.id === btId ? "on" : ""}">${x.label}</button>`
+    ).join("");
+    $("btStrats").querySelectorAll("button").forEach((b) => {
+      b.onclick = () => loadBacktest(b.dataset.id);
+    });
+  }).catch(() => {});
+  fetch("/api/backtest/" + encodeURIComponent(btId)).then((r) => r.json()).then((j) => {
+    $("btCap").textContent = (j.label || btId) + "　" + (j.note || "");
+    const sm = (j.summary || [])[0] || {};
+    const cells = [
+      ["期末權益", fmt(sm.final_equity, 0), ""],
+      ["報酬", signed((Number(sm.total_return) || 0) * 100, 1) + "%", Number(sm.total_return) >= 0 ? "up" : "dn"],
+      ["CAGR", ((Number(sm.cagr) || 0) * 100).toFixed(1) + "%", ""],
+      ["勝率", ((Number(sm.win_rate) || 0) * 100).toFixed(1) + "%", ""],
+      ["最大回撤", ((Number(sm.max_drawdown) || 0) * 100).toFixed(1) + "%", "dn"],
+    ];
+    $("btMetrics").innerHTML = cells.map(([k, v, cls]) => metric(k, v, "", cls)).join("");
+    drawBt(j.curve || []);
+    const tr = j.trades || [];
+    $("btTrades").innerHTML = tr.length
+      ? `<table><thead><tr>${Object.keys(tr[0]).slice(0, 9).map((k) => `<th>${k}</th>`).join("")}</tr></thead><tbody>` +
+        tr.map((r) => `<tr>${Object.keys(tr[0]).slice(0, 9).map((k) => `<td>${r[k] ?? ""}</td>`).join("")}</tr>`).join("") +
+        `</tbody></table>`
+      : '<p class="empty">沒有回測成交檔。</p>';
+  }).catch(() => { $("btCap").textContent = "讀不到 reports。"; });
+}
+
+function drawBt(rows) {
+  const el = $("btChart");
+  if (!el || !window.LightweightCharts) return;
+  if (!btChart) {
+    btChart = LightweightCharts.createChart(el, {
+      layout: { background: { color: "#161b22" }, textColor: "#8b949e" },
+      grid: { vertLines: { color: "#222" }, horzLines: { color: "#222" } },
+      width: el.clientWidth,
+      height: 360,
+    });
+    btSeries = btChart.addLineSeries({ color: "#58a6ff", lineWidth: 2 });
+  }
+  btSeries.setData((rows || []).filter((r) => r.time && r.value != null).map((r) => ({ time: r.time, value: Number(r.value) })));
+}
+
+function fillCurveTickers() {
+  const sel = $("curveTicker");
+  if (!sel || sel.dataset.ready === "1") return;
+  const opts = [{ t: "^TWII", n: "台灣加權" }];
+  (state && state.watch ? state.watch : []).forEach((w) => {
+    if (w.on) opts.push({ t: w.ticker, n: w.name || w.ticker });
+  });
+  sel.innerHTML = opts.map((o) => `<option value="${o.t}">${o.n} ${o.t}</option>`).join("");
+  sel.dataset.ready = "1";
+  sel.onchange = () => loadCurves();
+}
+
+function loadCurves() {
+  fillCurveTickers();
+  const t = ($("curveTicker") && $("curveTicker").value) || "^TWII";
+  fetch("/api/curves?ticker=" + encodeURIComponent(t) + "&n=" + curveN).then((r) => r.json()).then(drawCurves).catch(() => {});
+}
+
+function mkChart(el, h) {
+  return LightweightCharts.createChart(el, {
+    layout: { background: { color: "#161b22" }, textColor: "#8b949e" },
+    grid: { vertLines: { color: "#222" }, horzLines: { color: "#222" } },
+    width: el.clientWidth,
+    height: h,
+  });
+}
+
+function drawCurves(j) {
+  if (!window.LightweightCharts) return;
+  const pe = $("curvePrice"), me = $("curveMacd"), re = $("curveRsi"), ke = $("curveKd");
+  if (!pe) return;
+  if (!cPrice) {
+    cPrice = mkChart(pe, 360);
+    cCandle = cPrice.addCandlestickSeries({
+      upColor: "#e53935", downColor: "#43a047",
+      borderUpColor: "#e53935", borderDownColor: "#43a047",
+      wickUpColor: "#e53935", wickDownColor: "#43a047",
+    });
+    cSma20 = cPrice.addLineSeries({ color: "#58a6ff", lineWidth: 1 });
+    cSma60 = cPrice.addLineSeries({ color: "#f9a825", lineWidth: 1 });
+    cMacd = mkChart(me, 220);
+    cMacdLine = cMacd.addLineSeries({ color: "#58a6ff", lineWidth: 1 });
+    cMacdSig = cMacd.addLineSeries({ color: "#f9a825", lineWidth: 1 });
+    cHist = cMacd.addHistogramSeries();
+    cRsi = mkChart(re, 220);
+    cRsiLine = cRsi.addLineSeries({ color: "#d2a8ff", lineWidth: 2 });
+    cKd = mkChart(ke, 220);
+    cK = cKd.addLineSeries({ color: "#58a6ff", lineWidth: 1 });
+    cD = cKd.addLineSeries({ color: "#e53935", lineWidth: 1 });
+  }
+  cCandle.setData(j.bars || []);
+  cSma20.setData(j.sma20 || []);
+  cSma60.setData(j.sma60 || []);
+  cMacdLine.setData(j.macd || []);
+  cMacdSig.setData(j.macd_sig || []);
+  cHist.setData((j.macd_hist || []).map((p) => ({ time: p.time, value: p.value, color: p.value >= 0 ? "#e53935" : "#43a047" })));
+  cRsiLine.setData(j.rsi || []);
+  cK.setData(j.k || []);
+  cD.setData(j.d || []);
+}
+
+document.querySelectorAll("#curveN button").forEach((b) => {
+  b.onclick = () => {
+    document.querySelectorAll("#curveN button").forEach((x) => x.classList.remove("on"));
+    b.classList.add("on");
+    curveN = Number(b.dataset.n);
+    loadCurves();
+  };
+});
 
 function connect() {
   const proto = location.protocol === "https:" ? "wss" : "ws";

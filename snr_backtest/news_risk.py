@@ -266,12 +266,57 @@ def score_titles(titles: list[str]) -> dict:
     }
 
 
+# Metaphor / clickbait that contains a war-class token but is not kinetic war.
+# 關稅戰 ≠ 戰爭；封鎖消息 ≠ 海上封鎖。
+_WAR_METAPHOR_ZH = (
+    "關稅戰",
+    "貿易戰",
+    "價格戰",
+    "匯率戰",
+    "晶片戰",
+    "半導體戰",
+    "電池戰",
+    "補貼戰",
+    "宣傳戰",
+    "輿論戰",
+    "法律戰",
+    "科技戰",
+    "資訊戰",
+    "網路戰",
+    "標準戰",
+    "專利戰",
+    "封鎖消息",
+    "新聞封鎖",
+    "網路封鎖",
+    "封鎖帳號",
+    "封鎖言論",
+)
+_WAR_METAPHOR_EN = re.compile(
+    r"\b(?:tariff|trade|price|currency|chip|tech)\s+wars?\b",
+    re.I,
+)
+
+
+def _war_scan_key(title: str) -> str:
+    """Strip economic-war / news-blackout wording before matching WAR_PHRASES."""
+    key = normalize_title(title)
+    key = _WAR_METAPHOR_EN.sub(" ", key)
+    for m in sorted(_WAR_METAPHOR_ZH, key=len, reverse=True):
+        # Do not eat 戰爭 inside 貿易戰爭: only drop the metaphor if the next
+        # char is not 爭 (戰爭).
+        if m.endswith("戰"):
+            key = re.sub(re.escape(m) + r"(?!爭)", " ", key)
+        else:
+            key = key.replace(m, " ")
+    return key
+
+
 def has_war_event(titles: list[str] | None) -> tuple[bool, str]:
     """True if any title has a war-class phrase (not a high tariff score)."""
     from size_risk import WAR_PHRASES
 
     for t in titles or []:
-        key = normalize_title(t)
+        key = _war_scan_key(t)
         for phrase in WAR_PHRASES:
             if phrase_in_title(key, phrase):
                 return True, t
@@ -572,7 +617,7 @@ def decide_news(curr_heat: int, prev_heat: int | None) -> tuple[bool, str, str]:
         return (
             True,
             "severe",
-            f"今早熱度 {curr_heat} ≥ 嚴重線 {SEVERE}(昨21:30={prev_heat},Δ{delta:+d})仍關",
+            f"今早熱度 {curr_heat} ≥ 嚴重線 {SEVERE}(昨21:30={prev_heat},Δ{delta:+d})減到最低檔",
         )
     if curr_heat < HOT:
         return (
@@ -692,9 +737,8 @@ def attach_twii(decision: dict, twii: pd.DataFrame | None, session: pd.Timestamp
     px = twii_stress(twii, session)
     news_allow = bool(out.get("news_allow", True))
     scanned_war, war_t = has_war_event(out.get("unique_titles") or out.get("off_headlines"))
-    war_lock = bool(out.get("war_lock")) or scanned_war
-    if war_t and not out.get("war_title"):
-        out["war_title"] = war_t
+    war_lock = scanned_war
+    out["war_title"] = war_t
     out["war_lock"] = war_lock
     unknown = str(out.get("trend") or "") == "unknown" or not out.get("news_fetched", True)
     lock_new = bool(war_lock or unknown or px["price_pause"])
@@ -798,6 +842,16 @@ if __name__ == "__main__":
         assert ok_w
         ok_t, _ = has_war_event(["川普對台加徵關稅 - 經濟日報"])
         assert not ok_t
+        steel = "【即時新聞】川普掀美加關稅戰！紐柯鋼鐵(NUE)等這4檔鋼鐵股狂飆，透視供應鏈洗牌下的真正贏家！"
+        ok_steel, _ = has_war_event([steel])
+        assert not ok_steel, "關稅戰 must not hard-lock"
+        mash = "【全球大頭條】中東衝突再起？美國爭奪石油控制權中國防台海衝突遭能源斷供｜西藏土石流死亡數與尼泊爾差太多外媒記者控北京封鎖消息｜#鏡新聞"
+        ok_mash, _ = has_war_event([mash])
+        assert not ok_mash, "封鎖消息 must not hard-lock"
+        ok_real, _ = has_war_event(["外媒：解放軍演練封鎖台灣港口 - 範例"])
+        assert ok_real
+        ok_tw, _ = has_war_event(["Trump tariff war lifts US steel stocks"])
+        assert not ok_tw
 
         h, off, on = headline_heat("Fed signals pause tariff plan")
         assert h == -2 and on == ["pause tariff"], (h, off, on)

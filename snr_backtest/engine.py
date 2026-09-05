@@ -24,6 +24,10 @@ from config import (
     TICKERS,
     TWII_SMA,
 )
+from indicators import bollinger as bb_calc
+from indicators import kd as kd_calc
+from indicators import macd as macd_calc
+from indicators import rsi as rsi_calc
 from strategies import StrategySpec, add_indicators
 
 
@@ -106,6 +110,52 @@ def attach_twii(bars: pd.DataFrame, twii: pd.DataFrame | None) -> pd.DataFrame:
     return out
 
 
+def overlay_spec_indicators(bars: pd.DataFrame, spec: StrategySpec) -> pd.DataFrame:
+    """Recompute columns that depend on user-tunable periods. Paper live still uses add_indicators defaults."""
+    out = bars.copy()
+    h, l, c = out["High"], out["Low"], out["Close"]
+    n = max(2, int(spec.lookback or 20))
+    if spec.kind == "breakout":
+        out["prior_high_20"] = h.shift(1).rolling(n, min_periods=n).max()
+        out["prior_low_20"] = l.shift(1).rolling(n, min_periods=n).min()
+        tl = max(2, int(spec.trail_lookback or 15))
+        out["prior_low_15"] = l.shift(1).rolling(tl, min_periods=tl).min()
+    if spec.kind == "pullback":
+        fast = max(2, int(spec.sma_fast or 20))
+        trend = max(2, int(spec.sma_trend or 60))
+        out["sma_20"] = c.rolling(fast, min_periods=fast).mean()
+        out["sma_60"] = c.rolling(trend, min_periods=trend).mean()
+    if spec.kind == "macd":
+        m, s, _h = macd_calc(c, spec.macd_fast, spec.macd_slow, spec.macd_signal)
+        out["macd"] = m
+        out["macd_sig"] = s
+        out["macd_prev"] = m.shift(1)
+        out["macd_sig_prev"] = s.shift(1)
+    if spec.kind == "rsi":
+        r = rsi_calc(c, spec.rsi_n)
+        out["rsi"] = r
+        out["rsi_prev"] = r.shift(1)
+    if spec.kind == "kd":
+        k, d = kd_calc(h, l, c, spec.kd_n, spec.kd_k, spec.kd_d)
+        out["k"] = k
+        out["d"] = d
+        out["k_prev"] = k.shift(1)
+        out["d_prev"] = d.shift(1)
+    if spec.kind == "sma":
+        fast = max(2, int(spec.sma_fast or 20))
+        slow = max(3, int(spec.sma_trend or 60))
+        out["sma_fast"] = c.rolling(fast, min_periods=fast).mean()
+        out["sma_slow"] = c.rolling(slow, min_periods=slow).mean()
+        out["sma_fast_prev"] = out["sma_fast"].shift(1)
+        out["sma_slow_prev"] = out["sma_slow"].shift(1)
+    if spec.kind == "bb":
+        mid, up, lo = bb_calc(c, spec.bb_n, spec.bb_k)
+        out["bb_mid"] = mid
+        out["bb_up"] = up
+        out["bb_lo"] = lo
+    return out
+
+
 def run_one(
     df: pd.DataFrame,
     spec: StrategySpec,
@@ -124,6 +174,7 @@ def run_one(
         )
 
     bars = add_indicators(df).sort_index()
+    bars = overlay_spec_indicators(bars, spec)
     bars = attach_twii(bars, twii)
     start = pd.Timestamp(start_date or START_DATE)
     end = pd.Timestamp(end_date or END_DATE) if (end_date or END_DATE) else None
@@ -231,11 +282,42 @@ def run_one(
                 pending_exit = Pending(side="sell", reason="time_stop", snr=snr_t)
             if spec.trail and pos.trail_armed and spec.trail_trigger(row):
                 pending_exit = Pending(side="sell", reason="trail", snr=snr_t)
+            if spec.kind == "macd":
+                m, s = row.get("macd"), row.get("macd_sig")
+                mp, sp = row.get("macd_prev"), row.get("macd_sig_prev")
+                if pd.notna(m) and pd.notna(s) and pd.notna(mp) and pd.notna(sp):
+                    if float(mp) >= float(sp) and float(m) < float(s):
+                        pending_exit = Pending(side="sell", reason="macd_cross", snr=snr_t)
+            if spec.kind == "rsi":
+                r = row.get("rsi")
+                if pd.notna(r) and float(r) >= float(spec.rsi_ob):
+                    pending_exit = Pending(side="sell", reason="rsi_ob", snr=snr_t)
+            if spec.kind == "kd":
+                k, d = row.get("k"), row.get("d")
+                kp, dp = row.get("k_prev"), row.get("d_prev")
+                if pd.notna(k) and pd.notna(d) and pd.notna(kp) and pd.notna(dp):
+                    death = float(kp) >= float(dp) and float(k) < float(d)
+                    if death or float(k) >= float(spec.kd_ob):
+                        pending_exit = Pending(side="sell", reason="kd_exit", snr=snr_t)
+            if spec.kind == "sma":
+                f, s = row.get("sma_fast"), row.get("sma_slow")
+                fp, sp = row.get("sma_fast_prev"), row.get("sma_slow_prev")
+                if pd.notna(f) and pd.notna(s) and pd.notna(fp) and pd.notna(sp):
+                    if float(fp) >= float(sp) and float(f) < float(s):
+                        pending_exit = Pending(side="sell", reason="sma_cross", snr=snr_t)
+            if spec.kind == "bb":
+                c_px, up, lo, mid = row.get("Close"), row.get("bb_up"), row.get("bb_lo"), row.get("bb_mid")
+                if pd.notna(c_px) and pd.notna(up) and pd.notna(lo) and pd.notna(mid):
+                    mode = spec.bb_mode or "revert"
+                    if mode == "break" and float(c_px) < float(mid):
+                        pending_exit = Pending(side="sell", reason="bb_mid", snr=snr_t)
+                    if mode != "break" and float(c_px) >= float(up):
+                        pending_exit = Pending(side="sell", reason="bb_up", snr=snr_t)
             if pending_exit is not None:
                 pending = pending_exit
         else:
             if spec.entry_signal(row):
-                reason = "breakout" if spec.kind == "breakout" else "pullback"
+                reason = spec.kind
                 pending = Pending(side="buy", reason=reason, snr=snr_t)
 
     if pos.shares > 0 and len(bars) > 0:

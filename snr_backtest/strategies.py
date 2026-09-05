@@ -106,9 +106,10 @@ class StrategySpec:
     sl: float  # +0.20 means -20%
     time_stop_days: int  # 0 = disabled
     use_snr: bool
-    kind: str  # "breakout" | "pullback"
+    kind: str  # "breakout" | "pullback" | "macd" | "rsi" | "kd" | "sma" | "bb"
     # --- breakout_v2 optional flags (v1 leaves these at defaults) ---
     snr_min: float | None = None  # None → BREAKOUT_SNR_MIN when use_snr
+    snr_max: float | None = None  # pullback SNR ceiling
     snr_rising: bool = False
     vol_mult: float = 0.0  # 0 = off
     twii_filter: bool = False
@@ -117,11 +118,31 @@ class StrategySpec:
     trail: bool = False
     trail_arm: float = 0.12
     trail_lookback: int = 15
+    lookback: int = 20
+    sma_fast: int = 20
+    sma_trend: int = 60
+    band_lo: float = 0.97
+    band_hi: float = 1.01
+    macd_fast: int = 12
+    macd_slow: int = 26
+    macd_signal: int = 9
+    rsi_n: int = 14
+    rsi_os: float = 30.0
+    rsi_ob: float = 70.0
+    kd_n: int = 9
+    kd_k: int = 3
+    kd_d: int = 3
+    kd_os: float = 20.0
+    kd_ob: float = 80.0
+    bb_n: int = 20
+    bb_k: float = 2.0
+    bb_mode: str = "revert"  # revert = 碰下軌買；break = 收上軌買
 
     def entry_signal(self, row: pd.Series) -> bool:
-        if pd.isna(row.get("snr_20")):
-            return False
-        snr = float(row["snr_20"])
+        if self.kind in ("breakout", "pullback"):
+            if pd.isna(row.get("snr_20")):
+                return False
+        snr = float(row["snr_20"]) if pd.notna(row.get("snr_20")) else 0.0
         if self.kind == "breakout":
             prior = row.get("prior_high_20")
             if pd.isna(prior):
@@ -162,13 +183,49 @@ class StrategySpec:
                 return False
             if not (row["Close"] > sma60):
                 return False
-            lo = sma20 * PULLBACK_BAND_LO
-            hi = sma20 * PULLBACK_BAND_HI
+            lo = sma20 * float(self.band_lo if self.band_lo else PULLBACK_BAND_LO)
+            hi = sma20 * float(self.band_hi if self.band_hi else PULLBACK_BAND_HI)
             if not (lo < row["Close"] <= hi):
                 return False
-            if self.use_snr and snr > PULLBACK_SNR_MAX:
+            ceiling = self.snr_max if self.snr_max is not None else PULLBACK_SNR_MAX
+            if self.use_snr and snr > ceiling:
                 return False
             return True
+        if self.kind == "macd":
+            m = row.get("macd")
+            s = row.get("macd_sig")
+            mp = row.get("macd_prev")
+            sp = row.get("macd_sig_prev")
+            if pd.isna(m) or pd.isna(s) or pd.isna(mp) or pd.isna(sp):
+                return False
+            return float(mp) <= float(sp) and float(m) > float(s)
+        if self.kind == "rsi":
+            r = row.get("rsi")
+            rp = row.get("rsi_prev")
+            if pd.isna(r) or pd.isna(rp):
+                return False
+            return float(rp) < float(self.rsi_os) and float(r) >= float(self.rsi_os)
+        if self.kind == "kd":
+            k, d = row.get("k"), row.get("d")
+            kp, dp = row.get("k_prev"), row.get("d_prev")
+            if pd.isna(k) or pd.isna(d) or pd.isna(kp) or pd.isna(dp):
+                return False
+            golden = float(kp) <= float(dp) and float(k) > float(d)
+            return golden and float(k) < float(self.kd_os)
+        if self.kind == "sma":
+            f, s = row.get("sma_fast"), row.get("sma_slow")
+            fp, sp = row.get("sma_fast_prev"), row.get("sma_slow_prev")
+            if pd.isna(f) or pd.isna(s) or pd.isna(fp) or pd.isna(sp):
+                return False
+            return float(fp) <= float(sp) and float(f) > float(s)
+        if self.kind == "bb":
+            c = row.get("Close")
+            up, lo, mid = row.get("bb_up"), row.get("bb_lo"), row.get("bb_mid")
+            if pd.isna(c) or pd.isna(up) or pd.isna(lo) or pd.isna(mid):
+                return False
+            if (self.bb_mode or "revert") == "break":
+                return float(c) > float(up)
+            return float(c) <= float(lo)
         return False
 
     def time_stop_trigger(self, row: pd.Series) -> bool:

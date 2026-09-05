@@ -54,6 +54,8 @@ th, td { text-align: left; padding: 0.35rem 0.4rem; border-bottom: 1px solid var
 input { background: #0d1117; color: var(--txt); border: 1px solid var(--line); border-radius: 8px; padding: 0.4rem 0.6rem; }
 .form { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.6rem; }
 .form label { display: flex; flex-direction: column; gap: 0.25rem; font-size: 0.82rem; color: var(--dim); }
+.form select { background: #0d1117; color: var(--txt); border: 1px solid var(--line); border-radius: 8px; padding: 0.4rem 0.6rem; }
+.form input[type="checkbox"] { width: 1.1rem; height: 1.1rem; }
 .warn { color: #d29922; }
 .reason { padding: 0 0.2rem; color: var(--dim); }
 ul { padding-left: 1.1rem; margin: 0.2rem 0 0.6rem; }

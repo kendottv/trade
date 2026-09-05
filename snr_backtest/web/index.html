@@ -24,6 +24,8 @@
     <button data-tab="pnl">損益</button>
     <button data-tab="news">新聞</button>
     <button data-tab="watch">監看名單</button>
+    <button data-tab="bt">回測</button>
+    <button data-tab="curves">曲線</button>
     <button data-tab="strat">策略</button>
   </nav>
 
@@ -117,6 +119,64 @@
         <button id="btnResetWatch">恢復內建名單</button>
       </div>
       <p id="watchMsg" class="cap"></p>
+    </div>
+  </section>
+
+  <section id="tab-bt" class="tab">
+    <div class="card">
+      <div class="card-h">
+        <h2>回測結果</h2>
+        <div class="periods" id="btStrats"></div>
+      </div>
+      <p class="cap">內建 reports 可點上面切換。下面選策略、改數字再按「用快取重跑」。不另下載、不改紙上帳戶。</p>
+      <div class="periods" id="btKinds">
+        <button data-kind="breakout" class="on">突破</button>
+        <button data-kind="pullback">回檔</button>
+        <button data-kind="macd">MACD</button>
+        <button data-kind="rsi">RSI</button>
+        <button data-kind="kd">KD</button>
+        <button data-kind="sma">均線交叉</button>
+        <button data-kind="bb">布林</button>
+      </div>
+      <p class="cap" id="btKindHint"></p>
+      <div class="form" id="btForm"></div>
+      <div class="row">
+        <label class="cap">起 <input id="btStart" type="date" value="2021-08-13" /></label>
+        <label class="cap">迄 <input id="btEnd" type="date" value="2026-08-13" /></label>
+        <button id="btnRunBt" class="primary">用快取重跑</button>
+      </div>
+      <p class="cap" id="btCap"></p>
+      <div id="btMetrics" class="metrics"></div>
+      <div id="btChart" class="chart"></div>
+    </div>
+    <div class="card">
+      <h2>回測成交（末 40 筆）</h2>
+      <div id="btTrades"></div>
+    </div>
+  </section>
+
+  <section id="tab-curves" class="tab">
+    <div class="card">
+      <div class="card-h">
+        <h2>常用曲線</h2>
+        <div class="row" style="margin:0">
+          <select id="curveTicker"></select>
+          <div class="periods" id="curveN">
+            <button data-n="66">3個月</button>
+            <button data-n="132" class="on">半年</button>
+            <button data-n="252">1年</button>
+          </div>
+        </div>
+      </div>
+      <p class="cap">SMA／MACD／RSI／KD 用本機日 K 算，不另下載。</p>
+      <h3>價格 + SMA20 / SMA60</h3>
+      <div id="curvePrice" class="chart"></div>
+      <h3>MACD (12,26,9)</h3>
+      <div id="curveMacd" class="chart sm"></div>
+      <h3>RSI 14</h3>
+      <div id="curveRsi" class="chart sm"></div>
+      <h3>KD (9,3,3)</h3>
+      <div id="curveKd" class="chart sm"></div>
     </div>
   </section>
 

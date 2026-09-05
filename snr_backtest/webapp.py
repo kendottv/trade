@@ -18,8 +18,9 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from config import INDEX_TICKER, INITIAL_CAPITAL, STRATEGY_DEFAULTS
+from config import INDEX_TICKER, INITIAL_CAPITAL, REPORTS_DIR, STRATEGY_DEFAULTS
 from data import get_price, load_cache
+from indicators import pack_curves
 from quotes import (
     INDEX_YAHOO,
     apply_session_bar,
@@ -351,6 +352,234 @@ def index() -> FileResponse:
 @app.get("/api/state")
 def api_state() -> JSONResponse:
     return JSONResponse(build_state())
+
+
+BT_LABELS = {
+    "breakout_v2": "breakout_v2（現行紙上）",
+    "breakout_v1": "breakout_v1（SNR 突破）",
+    "breakout_raw": "突破（無 SNR）",
+    "pullback_v1": "pullback_v1（回檔）",
+    "pullback_raw": "回檔（無 SNR）",
+}
+
+
+def _bt_names() -> list[dict]:
+    out = []
+    if not REPORTS_DIR.exists():
+        return out
+    for p in sorted(REPORTS_DIR.glob("*_equity.csv")):
+        key = p.name.replace("_equity.csv", "")
+        out.append({"id": key, "label": BT_LABELS.get(key, key)})
+    return out
+
+
+def _bt_payload(name: str) -> dict:
+    key = "".join(ch for ch in name if ch.isalnum() or ch in "_-")
+    eq_path = REPORTS_DIR / f"{key}_equity.csv"
+    sm_path = REPORTS_DIR / f"{key}_summary.csv"
+    tr_path = REPORTS_DIR / f"{key}_trades.csv"
+    curve = []
+    if eq_path.exists():
+        import pandas as pd
+
+        df = pd.read_csv(eq_path, encoding="utf-8-sig")
+        if "date" in df.columns:
+            col = "total" if "total" in df.columns else df.columns[-1]
+            first = None
+            for _, row in df.iterrows():
+                d = str(row.get("date") or "")[:10]
+                v = row.get(col)
+                if v is None or d == "" or d == "nan":
+                    continue
+                try:
+                    fv = float(v)
+                except (TypeError, ValueError):
+                    continue
+                if first is None or first == 0:
+                    first = fv
+                curve.append({"time": d, "value": round(fv / first * 100, 2) if first else fv})
+    summary = []
+    if sm_path.exists():
+        summary = _csv_rows(sm_path)
+        keep = []
+        for row in summary:
+            t = str(row.get("ticker") or "")
+            if t.startswith("EQUAL") or t == "EQUAL_WEIGHT":
+                keep.append(row)
+        if keep:
+            summary = keep[-2:]
+        else:
+            summary = summary[-1:]
+    trades = _csv_rows(tr_path, 40) if tr_path.exists() else []
+    return {
+        "id": key,
+        "label": BT_LABELS.get(key, key),
+        "curve": curve,
+        "summary": summary,
+        "trades": trades,
+        "note": "用 data\\ 快取回測，不是紙上帳戶。不成交。",
+    }
+
+
+@app.get("/api/backtest")
+def api_backtest_list() -> JSONResponse:
+    return JSONResponse({"items": _bt_names()})
+
+
+class BtRunIn(BaseModel):
+    kind: str = "breakout"
+    start: str = "2021-08-13"
+    end: str = "2026-08-13"
+    tp: float = 0.25
+    sl: float = 0.20
+    time_stop_days: int = 3
+    snr_min: float = 0.40
+    snr_max: float = 0.25
+    twii_filter: bool = True
+    trail: bool = True
+    trail_arm: float = 0.12
+    trail_lookback: int = 15
+    use_snr: bool = True
+    lookback: int = 20
+    sma_fast: int = 20
+    sma_trend: int = 60
+    band_lo: float = 0.97
+    band_hi: float = 1.01
+    macd_fast: int = 12
+    macd_slow: int = 26
+    macd_signal: int = 9
+    rsi_n: int = 14
+    rsi_os: float = 30.0
+    rsi_ob: float = 70.0
+    kd_n: int = 9
+    kd_k: int = 3
+    kd_d: int = 3
+    kd_os: float = 20.0
+    kd_ob: float = 80.0
+    bb_n: int = 20
+    bb_k: float = 2.0
+    bb_mode: str = "revert"
+
+
+@app.post("/api/backtest/run")
+def api_backtest_run(body: BtRunIn) -> JSONResponse:
+    """Run on cached daily bars. Does not touch paper/account.json."""
+    import pandas as pd
+
+    from config import END_DATE, INDEX_TICKER, START_DATE, TICKERS
+    from engine import run_universe
+    from metrics import combined_equity, summarize_one
+    from strategies import StrategySpec
+
+    kind = (body.kind or "breakout").strip().lower()
+    allowed = ("breakout", "pullback", "macd", "rsi", "kd", "sma", "bb")
+    if kind not in allowed:
+        return JSONResponse({"ok": False, "error": "kind 要是 " + " / ".join(allowed)}, status_code=400)
+    spec = StrategySpec(
+        name=f"live_{kind}",
+        tp=float(body.tp),
+        sl=float(body.sl),
+        time_stop_days=int(body.time_stop_days or 0),
+        use_snr=bool(body.use_snr) if kind in ("breakout", "pullback") else False,
+        kind=kind,
+        snr_min=float(body.snr_min),
+        snr_max=float(body.snr_max),
+        twii_filter=bool(body.twii_filter) if kind == "breakout" else False,
+        trail=bool(body.trail) if kind == "breakout" else False,
+        trail_arm=float(body.trail_arm),
+        trail_lookback=int(body.trail_lookback),
+        lookback=int(body.lookback),
+        sma_fast=int(body.sma_fast),
+        sma_trend=int(body.sma_trend),
+        band_lo=float(body.band_lo),
+        band_hi=float(body.band_hi),
+        macd_fast=int(body.macd_fast),
+        macd_slow=int(body.macd_slow),
+        macd_signal=int(body.macd_signal),
+        rsi_n=int(body.rsi_n),
+        rsi_os=float(body.rsi_os),
+        rsi_ob=float(body.rsi_ob),
+        kd_n=int(body.kd_n),
+        kd_k=int(body.kd_k),
+        kd_d=int(body.kd_d),
+        kd_os=float(body.kd_os),
+        kd_ob=float(body.kd_ob),
+        bb_n=int(body.bb_n),
+        bb_k=float(body.bb_k),
+        bb_mode=(body.bb_mode or "revert").strip().lower(),
+    )
+    prices: dict = {}
+    for t in list(TICKERS.keys()) + [INDEX_TICKER]:
+        try:
+            df = load_cache(t, end_date=None)
+        except Exception:
+            df = None
+        if df is not None and not df.empty:
+            prices[t] = df
+    if len(prices) < 2:
+        return JSONResponse({"ok": False, "error": "快取不夠，先讓紙上跑過下載。"}, status_code=400)
+    start = body.start or START_DATE
+    end = body.end or END_DATE
+    results = run_universe(prices, spec, start_date=start, end_date=end, twii=prices.get(INDEX_TICKER))
+    total = combined_equity(results)
+    fake = type("R", (), {})()
+    fake.ticker = "EQUAL_WEIGHT"
+    fake.name = "等權合計"
+    fake.trades = __import__("pandas").concat(
+        [r.trades for r in results if r.trades is not None and len(r.trades)],
+        ignore_index=True,
+    ) if any(r.trades is not None and len(r.trades) for r in results) else __import__("pandas").DataFrame()
+    fake.equity = total
+    fake.initial_capital = sum(r.initial_capital for r in results) or 10_000_000.0
+    fake.failed = ""
+    row = summarize_one(fake)
+    curve = []
+    if total is not None and len(total):
+        first = float(total.iloc[0]) or 1.0
+        for ts, v in total.items():
+            curve.append({"time": str(pd.Timestamp(ts).date()), "value": round(float(v) / first * 100, 2)})
+    trades = []
+    if fake.trades is not None and len(fake.trades):
+        trades = json.loads(fake.trades.tail(40).to_json(orient="records", date_format="iso"))
+    return JSONResponse({
+        "ok": True,
+        "id": spec.name,
+        "label": kind,
+        "curve": curve,
+        "summary": [row],
+        "trades": trades,
+        "note": f"快取重跑 {start}～{end}，十檔等權。不成交、不改紙上帳戶。",
+        "params": spec.param_dict() | {
+            "kind": kind, "tp": spec.tp, "sl": spec.sl,
+            "time_stop_days": spec.time_stop_days, "lookback": spec.lookback,
+            "macd": [spec.macd_fast, spec.macd_slow, spec.macd_signal],
+            "rsi": [spec.rsi_n, spec.rsi_os, spec.rsi_ob],
+            "kd": [spec.kd_n, spec.kd_k, spec.kd_d, spec.kd_os, spec.kd_ob],
+            "sma": [spec.sma_fast, spec.sma_trend],
+            "bb": [spec.bb_n, spec.bb_k, spec.bb_mode],
+        },
+    })
+
+
+@app.get("/api/backtest/{name}")
+def api_backtest_one(name: str) -> JSONResponse:
+    return JSONResponse(_bt_payload(name))
+
+
+@app.get("/api/curves")
+def api_curves(ticker: str = "^TWII", n: int = 132) -> JSONResponse:
+    t = (ticker or "^TWII").strip()
+    if t.upper() in ("TWII", "TAIEX"):
+        t = INDEX_TICKER
+    df = None
+    try:
+        df = load_cache(t, end_date=None)
+    except Exception:
+        df = None
+    payload = pack_curves(df, n=max(22, min(int(n or 132), 260)))
+    payload["ticker"] = t
+    payload["name"] = display_name(t) if t != INDEX_TICKER else "台灣加權"
+    return JSONResponse(payload)
 
 
 class WatchIn(BaseModel):
