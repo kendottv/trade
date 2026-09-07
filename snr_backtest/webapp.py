@@ -56,6 +56,8 @@ WATCH = [
     PAPER / "last_news_2130.txt",
     PAPER / "news_journal.csv",
     PAPER / "size_journal.csv",
+    PAPER / "institutional.json",
+    PAPER / "last_institutional.txt",
 ]
 
 app = FastAPI(title="TW Paper Dashboard")
@@ -289,6 +291,7 @@ def build_state() -> dict[str, Any]:
             "alert": _text(PAPER / "last_alert_session.txt"),
             "n0830": _text(PAPER / "last_news_0830.txt"),
             "n2130": _text(PAPER / "last_news_2130.txt"),
+            "inst": _text(PAPER / "last_institutional.txt"),
         },
         "twii": twii_payload(int(strat.get("TWII_SMA") or 60)),
         "txf_night": txf_night_payload(),
@@ -299,6 +302,11 @@ def build_state() -> dict[str, Any]:
         "strategy": strat,
         "news_th": news_th,
         "held_banks": [BANK_TICKERS[t] for t in held if t in BANK_TICKERS],
+        "institutional": _json(PAPER / "institutional.json") or {
+            "ok": False,
+            "source": "TWSE",
+            "note": "尚未抓取三大法人",
+        },
     }
 
 
@@ -648,6 +656,16 @@ def api_strategy(body: StratIn) -> dict:
 def api_strategy_reset() -> dict:
     reset_all()
     return {"ok": True}
+
+
+
+@app.get("/api/institutional")
+def api_institutional() -> JSONResponse:
+    """TWSE 三大法人快取。不成交、不改帳戶。"""
+    data = _json(PAPER / "institutional.json")
+    if not data:
+        data = {"ok": False, "source": "TWSE", "note": "尚未抓取三大法人"}
+    return JSONResponse(data)
 
 
 @app.websocket("/ws")

@@ -29,7 +29,7 @@ TZ = ZoneInfo("Asia/Taipei")
 
 import pandas as pd
 
-from broker import at_limit_down, at_limit_up, buy_fill, sell_fill
+from broker import at_limit_down, at_limit_up, buy_cost, buy_fill, sell_fill, try_buy_fill
 from config import (
     COMMISSION_MIN,
     COMMISSION_RATE,
@@ -69,7 +69,14 @@ from universe import (
     session_dates,
 )
 from news_risk import append_journal, evaluate_risk, name_heat, save_risk
-from size_risk import apply_name, append_size_journal, target_budget
+from size_risk import (
+    allocate_pool,
+    append_size_journal,
+    compute_pool,
+    format_size_note,
+    macro_pool_fraction,
+    resolve_fill_budget,
+)
 
 log = logging.getLogger("trade.paper")
 
@@ -237,8 +244,8 @@ def fill_pending_buys(
         return
 
     notes.append(
-        f"資金分配: 新聞減碼後的目標權重、單檔上限 {PAPER_MAX_WEIGHT:.0%}、"
-        f"{PAPER_LOT_SIZE} 股為單位，不 all-in"
+        f"資金分配: 昨日排隊預算池配置（單檔上限 {PAPER_MAX_WEIGHT:.0%} 權益、"
+        f"先試 {PAPER_LOT_SIZE} 股再試 1 股，不 all-in；買不起則跳過並保留現金給同輪其他檔）"
     )
     for pend in fillable:
         if len(acct.positions) >= max_positions:
@@ -256,22 +263,38 @@ def fill_pending_buys(
             continue
         slots_left = max(1, max_positions - len(acct.positions))
         _, equity = mark_to_market(acct, prepared, d)
+        stored = getattr(pend, "target_budget", None)
         w = pend.target_weight
-        if w is None:
-            w = float(PAPER_MAX_WEIGHT)
-        if float(w) <= 0:
-            notes.append(f"PENDING_BUY 權重 0，跳過: {pend.ticker} {pend.size_note}")
-            continue
-        budget = target_budget(
-            float(acct.cash), float(equity), slots_left, float(w), float(PAPER_MAX_WEIGHT),
+        budget = resolve_fill_budget(
+            stored_budget=stored,
+            target_weight=w,
+            cash=float(acct.cash),
+            equity=float(equity),
+            slots_left=slots_left,
+            max_weight=float(PAPER_MAX_WEIGHT),
         )
-        fill = buy_fill(budget, o, PAPER_LOT_SIZE, COMMISSION_RATE, COMMISSION_MIN)
+        if budget <= 0:
+            notes.append(f"PENDING_BUY 預算 0，跳過: {pend.ticker} {pend.size_note}")
+            continue
+        fill, lot_used = try_buy_fill(
+            budget, o, PAPER_LOT_SIZE, COMMISSION_RATE, COMMISSION_MIN, fallback_lot=1
+        )
         if fill is None:
+            # Do not infinite re-queue expensive names; leave cash for later names this pass.
+            need1 = buy_cost(1, o, COMMISSION_RATE, COMMISSION_MIN)
             notes.append(
-                f"PENDING_BUY 買不起{PAPER_LOT_SIZE}股，現金留存: "
-                f"{pend.ticker} alloc={budget:.0f} open={o:.2f}"
+                f"PENDING_BUY 單股也買不起，放棄: {pend.ticker} {pend.name} "
+                f"alloc={budget:.0f} need1={need1:.0f} open={o:.2f} cash={acct.cash:.0f}"
             )
             continue
+        if lot_used == 1 and int(PAPER_LOT_SIZE) != 1:
+            pend.size_note = (
+                (pend.size_note + " ") if pend.size_note else ""
+            ) + "lot=1零股"
+            notes.append(
+                f"PENDING_BUY {pend.ticker} 買不起{PAPER_LOT_SIZE}股，改以 1 股零股成交 "
+                f"alloc={budget:.0f} open={o:.2f}"
+            )
         acct.cash = acct.cash + fill.cash_delta
         pos = PaperPosition(
             ticker=pend.ticker,
@@ -300,9 +323,10 @@ def fill_pending_buys(
                 "snr": snr_val,
             }
         )
+        w_disp = "" if w is None else f" share={float(w):.0%}"
         notes.append(
             f"BUY {pend.ticker} {pend.name} {fill.shares}股 @ {fill.price:.2f} "
-            f"snr={snr_val} weight={float(w):.0%} budget={budget:.0f} cash={acct.cash:.0f}"
+            f"snr={snr_val}{w_disp} budget={budget:.0f} cash={acct.cash:.0f}"
             + (f" {pend.size_note}" if pend.size_note else "")
         )
 
@@ -440,6 +464,7 @@ def queue_entries(
     fetch_news: bool = False,
     risk: dict | None = None,
     store: PaperStore | None = None,
+    max_new_cap: int | None = None,
 ) -> list[dict]:
     dstr = pd.Timestamp(d).strftime("%Y-%m-%d")
     signal_rows: list[dict] = []
@@ -468,36 +493,175 @@ def queue_entries(
     # do not add names already held or already pending (buy or sell)
     risk = risk or {}
     if not allow_new:
-        notes.append("風險硬關：今日暫停開新倉（戰爭級／盤崩／無新聞資料；舊倉照停利停損）")
+        notes.append("風險硬關：今日暫停開新倉（戰爭級／盤崩／新聞偏熱且紅盤／無新聞資料；舊倉照停利停損）")
         n_slots = 0
+    elif max_new_cap is not None:
+        before = n_slots
+        n_slots = min(n_slots, max(0, int(max_new_cap)))
+        if before > n_slots or int(max_new_cap) <= 1:
+            notes.append(
+                f"情緒軟關：新聞偏熱但未達硬關，今日新排隊上限 {int(max_new_cap)} 檔"
+                f"（原空槽 {before}）"
+            )
     picked = rank_candidates(signal_rows, held=held, pending=pending_all, max_new=n_slots)
     picked_set = {r["ticker"] for r in picked}
     notes.append(f"訊號 {len(signal_rows)} 檔，空槽 {n_slots}，新排隊 {len(picked)}")
     notes.append("排名:\n" + format_rank_table(signal_rows, picked_set))
-    macro_w = float(risk.get("size_weight") if risk.get("size_weight") is not None else PAPER_MAX_WEIGHT)
     from datetime import datetime, timezone, timedelta
 
     taipei = timezone(timedelta(hours=8))
     now_iso = datetime.now(taipei).strftime("%Y-%m-%d %H:%M:%S%z")
     journal_root = store.root if store is not None else None
 
-    for r in signal_rows:
+    macro_trend = str(risk.get("trend") or "cool")
+    lock_new = bool(risk.get("lock_new"))
+    # size_weight in news_risk is the macro pool fraction (cool 20% … severe 2%)
+    if risk.get("size_weight") is not None:
+        macro_frac = float(risk.get("size_weight"))
+    else:
+        macro_frac = macro_pool_fraction(macro_trend, lock_new)
+
+    deployable_cash = float(acct.cash)
+    pool = compute_pool(deployable_cash, macro_trend, lock_new)
+    # If risk already forced frac=0 via lock, pool is 0; keep explicit.
+    if lock_new:
+        pool = 0.0
+    elif risk.get("size_weight") is not None:
+        pool = max(0.0, deployable_cash * macro_frac)
+
+    # Fetch name heat for picked names, then allocate the pool across them.
+    picked_meta: list[dict] = []
+    heat_by: dict[str, dict] = {}
+    for r in picked:
         nh: dict = {}
-        if fetch_news and r["ticker"] in picked_set:
+        if fetch_news:
             try:
                 nh = name_heat(r["ticker"], r["name"], d)
             except Exception as exc:  # noqa: BLE001
                 notes.append(f"個股新聞失敗 {r['ticker']}: {exc}")
                 nh = {}
+        heat_by[r["ticker"]] = nh
         name_trend = str(nh.get("trend") or "cool")
         name_lock = bool(nh.get("lock"))
-        tw = apply_name(macro_w, name_trend, name_lock)
-        size_note = (
-            f"macro={risk.get('trend')}/{macro_w:.0%} "
-            f"name={name_trend}/{nh.get('news_score', '')} "
-            f"→{tw:.0%}"
+        picked_meta.append(
+            {
+                "ticker": r["ticker"],
+                "name": r["name"],
+                "snr": r["snr"],
+                "close": r["close"],
+                "name_trend": name_trend,
+                "name_lock": name_lock,
+                "name_heat": nh.get("news_score", ""),
+            }
         )
-        if r["ticker"] in picked_set and tw > 0:
+
+    _, equity_now = mark_to_market(acct, prepared, d) if picked_meta else (0.0, float(acct.equity))
+
+    # Drop names where even 1 share (+fees) exceeds max possible single-name budget.
+    # Remaining candidates keep / redistribute the pool.
+    max_one_cap = min(float(deployable_cash), float(pool)) if pool > 0 else 0.0
+    if equity_now and PAPER_MAX_WEIGHT:
+        max_one_cap = min(max_one_cap, float(equity_now) * float(PAPER_MAX_WEIGHT))
+    affordable_meta: list[dict] = []
+    for m in picked_meta:
+        px = float(m["close"])
+        need1 = buy_cost(1, px, COMMISSION_RATE, COMMISSION_MIN)
+        if max_one_cap <= 0 or need1 > max_one_cap + 1e-8:
+            notes.append(
+                f"QUEUE SKIP {m['ticker']} {m['name']} 單股也買不起 "
+                f"close={px:.2f} need1={need1:.0f} cap={max_one_cap:.0f}"
+            )
+            continue
+        affordable_meta.append(m)
+
+    allocated = allocate_pool(
+        pool,
+        affordable_meta,
+        equity=float(equity_now),
+        max_weight=float(PAPER_MAX_WEIGHT),
+    )
+
+    # After split, some allocs may still be < 1 share; drop and re-allocate once.
+    keep_meta: list[dict] = []
+    for a in allocated:
+        px = float(a["close"])
+        need1 = buy_cost(1, px, COMMISSION_RATE, COMMISSION_MIN)
+        budget_a = float(a.get("budget") or 0.0)
+        share_w = float(a.get("share_w") or 0.0)
+        if share_w <= 0 or budget_a <= 0:
+            # locked / zero — leave out of re-alloc (already 0)
+            continue
+        if budget_a + 1e-8 < need1:
+            notes.append(
+                f"QUEUE SKIP {a['ticker']} {a['name']} 單股也買不起 "
+                f"alloc={budget_a:.0f} need1={need1:.0f} close={px:.2f}"
+            )
+            continue
+        keep_meta.append(
+            {
+                "ticker": a["ticker"],
+                "name": a["name"],
+                "snr": a["snr"],
+                "close": a["close"],
+                "name_trend": a.get("name_trend"),
+                "name_lock": a.get("name_lock"),
+                "name_heat": a.get("name_heat"),
+            }
+        )
+    if keep_meta and len(keep_meta) < len(affordable_meta):
+        allocated = allocate_pool(
+            pool,
+            keep_meta,
+            equity=float(equity_now),
+            max_weight=float(PAPER_MAX_WEIGHT),
+        )
+    elif not keep_meta:
+        allocated = []
+    alloc_by = {a["ticker"]: a for a in allocated}
+
+    if picked:
+        notes.append(
+            f"預算池: cash={deployable_cash:.0f} macro={macro_trend}/{macro_frac:.0%} "
+            f"pool={pool:.0f} 候選={len(picked)} 可負擔={len(alloc_by)}（依個股熱度分配；"
+            f"先試{PAPER_LOT_SIZE}股再試1股）"
+        )
+
+    for r in signal_rows:
+        nh = heat_by.get(r["ticker"], {})
+        name_trend = str(nh.get("trend") or ("cool" if r["ticker"] in alloc_by else ""))
+        name_lock = bool(nh.get("lock")) if nh else False
+        a = alloc_by.get(r["ticker"])
+        if a is not None:
+            share = float(a.get("share") or 0.0)
+            alloc = float(a.get("budget") or 0.0)
+            tw = float(a.get("target_weight") or 0.0)
+            size_note = format_size_note(
+                pool=pool,
+                macro_trend=macro_trend,
+                macro_frac=macro_frac,
+                name_trend=str(a.get("name_trend") or name_trend or "cool"),
+                name_heat=a.get("name_heat", nh.get("news_score", "")),
+                share=share,
+                alloc=alloc,
+            )
+        else:
+            share = 0.0
+            alloc = 0.0
+            tw = 0.0
+            size_note = (
+                f"pool={pool:.0f} macro={macro_trend}/{macro_frac:.0%} "
+                f"name={name_trend or '-'}/{nh.get('news_score', '')} （未入隊）"
+            )
+
+        if r["ticker"] in alloc_by and alloc > 0:
+            # Final guard: skip if even 1 share > this alloc (should be rare after re-alloc).
+            need1 = buy_cost(1, float(r["close"]), COMMISSION_RATE, COMMISSION_MIN)
+            if alloc + 1e-8 < need1:
+                notes.append(
+                    f"QUEUE SKIP {r['ticker']} {r['name']} 單股也買不起 "
+                    f"alloc={alloc:.0f} need1={need1:.0f} {size_note}"
+                )
+                continue
             acct.pending.append(
                 PaperPending(
                     side="buy",
@@ -507,18 +671,19 @@ def queue_entries(
                     snr=r["snr"],
                     signal_date=dstr,
                     target_weight=tw,
+                    target_budget=alloc,
                     name_heat=(None if nh.get("news_score") in (None, "") else float(nh["news_score"])),
-                    name_trend=name_trend,
+                    name_trend=str(a.get("name_trend") or name_trend or "cool"),
                     name_lock=name_lock,
                     size_note=size_note,
                 )
             )
             notes.append(
                 f"QUEUE BUY {r['ticker']} {r['name']} snr={r['snr']:.4f} "
-                f"weight={tw:.0%} {size_note} close={r['close']:.2f} → 下一根開盤成交"
+                f"alloc={alloc:.0f} {size_note} close={r['close']:.2f} → 下一根開盤成交"
             )
-        elif r["ticker"] in picked_set and tw <= 0:
-            notes.append(f"QUEUE SKIP {r['ticker']} {r['name']} 個股硬關 {size_note}")
+        elif r["ticker"] in alloc_by and alloc <= 0:
+            notes.append(f"QUEUE SKIP {r['ticker']} {r['name']} 個股硬關或分配為0 {size_note}")
         try:
             append_size_journal(
                 {
@@ -526,18 +691,18 @@ def queue_entries(
                     "session": dstr,
                     "ticker": r["ticker"],
                     "name": r["name"],
-                    "macro_trend": risk.get("trend", ""),
+                    "macro_trend": macro_trend,
                     "macro_heat": risk.get("news_score", ""),
-                    "macro_weight": macro_w,
+                    "macro_weight": macro_frac,
                     "war_lock": int(bool(risk.get("war_lock"))),
                     "old_switch_would_block": int(bool(risk.get("old_switch_would_block"))),
-                    "lock_new": int(bool(risk.get("lock_new"))),
-                    "name_heat": nh.get("news_score", ""),
-                    "name_trend": name_trend if nh else "",
+                    "lock_new": int(lock_new),
+                    "name_heat": nh.get("news_score", "") if nh else "",
+                    "name_trend": (str(a.get("name_trend") or name_trend) if a is not None else (name_trend or "")),
                     "name_lock": int(name_lock),
                     "target_weight": tw,
                     "shares": "",
-                    "budget": "",
+                    "budget": (alloc if a is not None else ""),
                     "note": size_note,
                 },
                 root=journal_root,
@@ -545,6 +710,7 @@ def queue_entries(
         except Exception:
             pass
     return signal_rows
+
 
 
 def process_day(
@@ -586,17 +752,21 @@ def process_day(
     risk = evaluate_risk(d, twii=twii, fetch_news=fetch_news)
     save_risk(risk, store.root / "news_risk.json")
     notes.append(
-        f"風險判定 lock_new={risk.get('lock_new')} size={risk.get('size_weight')} "
-        f"news={risk['news_score']} twii_d1={risk['twii_d1']} twii_d3={risk['twii_d3']}｜{risk['reason']}"
+        f"風險判定 lock_new={risk.get('lock_new')} soft_cap={risk.get('soft_cap')} "
+        f"max_new={risk.get('max_new_entries')} size={risk.get('size_weight')} "
+        f"news={risk['news_score']} red_day={risk.get('red_day')} "
+        f"twii_d1={risk['twii_d1']} twii_d3={risk['twii_d3']}｜{risk['reason']}"
     )
     if flat_on_risk:
         queue_risk_exits(acct, risk, d, notes)
+    _max_cap = risk.get("max_new_entries")
     queue_entries(
         acct, prepared, names, passed, d, max_positions, notes,
         allow_new=not bool(risk.get("lock_new", not risk.get("allow_new_entries", True))),
         fetch_news=fetch_news,
         risk=risk,
         store=store,
+        max_new_cap=(None if _max_cap is None else int(_max_cap)),
     )
 
     # 4. Mark to market at D close

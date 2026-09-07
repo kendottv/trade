@@ -14,13 +14,14 @@ Pipeline
   7. If RSS fetch fails entirely, treat as unknown risk and pause
      (fail-safe, not fail-open)
 
-Decision (news only; price applied after)
-  cool     morning heat < HOT          → allow
-  cooling  still warm but dropped enough and not SEVERE → allow
-  hot      warm and not improving      → pause
-  severe   morning heat >= SEVERE      → pause even if cooling a bit
-  unknown  RSS fetch failed entirely   → pause (no signal, don't assume calm)
-  no 21:30 yet                         → morning only (cool vs hot)
+Decision / anti-emotion entry gate (keeps heat_v1 + size_risk ladder)
+  cool / cooling  → allow new entries; size_weight = macro pool fraction of cash
+  hot / severe    → NOT the old binary NEWS_PAUSE; instead:
+      HARD if also TWII red_day (close < prev) OR price_pause / war / unknown
+      SOFT otherwise: allow but max_new_entries = 1 (count cap on top of size)
+  price_pause     → HARD (d1≤-1.5% or d3≤-3%)
+  unknown / war   → HARD
+  Do NOT restore old NEWS_PAUSE≥4 almost-always pause.
 
 Replay: price stress only (RSS has no historical same-day headlines).
 Existing positions still use TP/SL/trail. Not a broker.
@@ -431,16 +432,23 @@ def _fetch_rss(query: str, n: int = 8) -> list[str]:
 
 
 def twii_stress(twii: pd.DataFrame | None, session: pd.Timestamp) -> dict:
-    out = {"d1": None, "d3": None, "price_pause": False}
+    out = {"d1": None, "d3": None, "price_pause": False, "red_day": False}
     if twii is None or twii.empty or "Close" not in twii.columns:
         return out
     d = pd.Timestamp(session).normalize()
     c = twii["Close"].astype(float)
     c = c[c.index <= d]
-    if len(c) < 4:
+    if len(c) < 2:
         return out
     last = float(c.iloc[-1])
     prev = float(c.iloc[-2])
+    out["red_day"] = bool(prev and last < prev)
+    if len(c) < 4:
+        # still expose red_day even if d1/d3 need more history
+        if prev:
+            out["d1"] = round(last / prev - 1.0, 4)
+            out["price_pause"] = bool(out["d1"] is not None and out["d1"] <= D1_PAUSE)
+        return out
     prev3 = float(c.iloc[-4])
     d1 = last / prev - 1.0 if prev else 0.0
     d3 = last / prev3 - 1.0 if prev3 else 0.0
@@ -448,6 +456,56 @@ def twii_stress(twii: pd.DataFrame | None, session: pd.Timestamp) -> dict:
     out["d3"] = round(d3, 4)
     out["price_pause"] = bool(d1 <= D1_PAUSE or d3 <= D3_PAUSE)
     return out
+
+
+def gate_new_entries(
+    *,
+    trend: str,
+    price_pause: bool,
+    red_day: bool,
+    war_lock: bool = False,
+    unknown: bool = False,
+) -> dict:
+    """Anti-emotion gate for NEW entries only (existing TP/SL untouched).
+
+    HARD stop: TWII price_pause, war_lock, RSS unknown, or (hot/severe AND red_day).
+    SOFT: hot/severe but not HARD → allow with max_new_entries=1 (count cap).
+    Otherwise allow with no news count cap; size_risk weight ladder still applies.
+    """
+    hotish = str(trend or "") in ("hot", "severe")
+    hard = bool(price_pause or war_lock or unknown or (hotish and red_day))
+    if hard:
+        why = []
+        if unknown:
+            why.append("無新聞訊號")
+        if war_lock:
+            why.append("戰爭級硬關")
+        if price_pause:
+            why.append("大盤壓力")
+        if hotish and red_day:
+            why.append(f"新聞{trend}+紅盤")
+        return {
+            "lock_new": True,
+            "allow_new_entries": False,
+            "max_new_entries": 0,
+            "soft_cap": False,
+            "gate_note": "硬關：" + "／".join(why) if why else "硬關",
+        }
+    if hotish:
+        return {
+            "lock_new": False,
+            "allow_new_entries": True,
+            "max_new_entries": 1,
+            "soft_cap": True,
+            "gate_note": f"軟關：新聞{trend}但非紅盤硬關，今日新排隊上限 1 檔",
+        }
+    return {
+        "lock_new": False,
+        "allow_new_entries": True,
+        "max_new_entries": None,
+        "soft_cap": False,
+        "gate_note": "",
+    }
 
 
 def load_risk(path: Path | None = None) -> dict | None:
@@ -684,8 +742,17 @@ def morning_0830(
 
     war_lock, war_title = has_war_event(curr.get("unique_titles") or curr.get("off_headlines"))
     unknown = trend == "unknown" or not curr.get("news_fetched", False)
-    lock_new = bool(unknown or war_lock or px["price_pause"])
+    red_day = bool(px.get("red_day"))
+    gate = gate_new_entries(
+        trend=trend,
+        price_pause=bool(px["price_pause"]),
+        red_day=red_day,
+        war_lock=war_lock,
+        unknown=unknown,
+    )
+    lock_new = bool(gate["lock_new"])
     size_weight = macro_size_weight(trend, lock_new)
+    # old binary NEWS_PAUSE tracking only (do not drive lock_new)
     old_switch = bool(news_pause or px["price_pause"])
 
     reasons = [news_reason]
@@ -693,8 +760,14 @@ def morning_0830(
         reasons.append(f"戰爭級硬關:{war_title[:40]}")
     if px["price_pause"]:
         reasons.append(f"大盤壓力 d1={px['d1']} d3={px['d3']}")
+    elif red_day:
+        reasons.append("TWII紅盤")
+    if gate.get("gate_note"):
+        reasons.append(gate["gate_note"])
     if not lock_new:
-        reasons.append(f"新倉檔位 {size_weight:.0%}")
+        reasons.append(f"今日新倉預算池 {size_weight:.0%} 現金")
+        if gate.get("soft_cap"):
+            reasons.append("新排隊上限1檔")
     news_allow = not news_pause
     result = {
         **curr,
@@ -706,13 +779,16 @@ def morning_0830(
         "war_title": war_title,
         "size_weight": size_weight,
         "old_switch_would_block": old_switch,
-        "allow_new_entries": (not lock_new),
+        "allow_new_entries": bool(gate["allow_new_entries"]),
+        "max_new_entries": gate["max_new_entries"],
+        "soft_cap": bool(gate.get("soft_cap")),
         "prev_session": None if prev is None else prev.get("session"),
         "prev_slot": None if prev is None else prev.get("slot"),
         "prev_score": prev_heat,
         "twii_d1": px["d1"],
         "twii_d3": px["d3"],
         "price_pause": px["price_pause"],
+        "red_day": red_day,
         "reason": "；".join(reasons),
         "prev_off_headlines": [] if prev is None else (prev.get("off_headlines") or [])[:4],
     }
@@ -730,7 +806,7 @@ def morning_0830(
 
 
 def attach_twii(decision: dict, twii: pd.DataFrame | None, session: pd.Timestamp) -> dict:
-    """Reuse the 08:30 decision; only refresh TWII stress at the close."""
+    """Reuse the 08:30 decision; only refresh TWII stress / red_day at the close."""
     from size_risk import macro_size_weight
 
     out = dict(decision)
@@ -740,19 +816,34 @@ def attach_twii(decision: dict, twii: pd.DataFrame | None, session: pd.Timestamp
     war_lock = scanned_war
     out["war_title"] = war_t
     out["war_lock"] = war_lock
-    unknown = str(out.get("trend") or "") == "unknown" or not out.get("news_fetched", True)
-    lock_new = bool(war_lock or unknown or px["price_pause"])
+    trend = str(out.get("trend") or "cool")
+    unknown = trend == "unknown" or not out.get("news_fetched", True)
+    red_day = bool(px.get("red_day"))
+    gate = gate_new_entries(
+        trend=trend,
+        price_pause=bool(px["price_pause"]),
+        red_day=red_day,
+        war_lock=war_lock,
+        unknown=unknown,
+    )
+    lock_new = bool(gate["lock_new"])
     out["twii_d1"] = px["d1"]
     out["twii_d3"] = px["d3"]
     out["price_pause"] = px["price_pause"]
+    out["red_day"] = red_day
     out["lock_new"] = lock_new
-    out["size_weight"] = macro_size_weight(str(out.get("trend") or "cool"), lock_new)
-    out["allow_new_entries"] = not lock_new
+    out["size_weight"] = macro_size_weight(trend, lock_new)
+    out["allow_new_entries"] = bool(gate["allow_new_entries"])
+    out["max_new_entries"] = gate["max_new_entries"]
+    out["soft_cap"] = bool(gate.get("soft_cap"))
     out["old_switch_would_block"] = bool((not news_allow) or px["price_pause"])
     reason = str(out.get("reason") or "")
     price_bit = f"大盤壓力 d1={px['d1']} d3={px['d3']}"
     if px["price_pause"] and price_bit not in reason:
-        out["reason"] = (reason + "；" + price_bit).strip("；")
+        reason = (reason + "；" + price_bit).strip("；")
+    if gate.get("gate_note") and gate["gate_note"] not in reason:
+        reason = (reason + "；" + gate["gate_note"]).strip("；")
+    out["reason"] = reason
     out["updated_at"] = _now_iso()
     return out
 
@@ -776,13 +867,21 @@ def evaluate_risk(
         return morning_0830(session, twii=twii)
 
     px = twii_stress(twii, session)
-    lock_new = bool(px["price_pause"])
-    allow = not lock_new
+    # Replay has no same-day headlines: price stress only (no soft news cap).
+    gate = gate_new_entries(
+        trend="cool",
+        price_pause=bool(px["price_pause"]),
+        red_day=bool(px.get("red_day")),
+        war_lock=False,
+        unknown=False,
+    )
+    lock_new = bool(gate["lock_new"])
+    allow = bool(gate["allow_new_entries"])
     reasons = []
     if px["price_pause"]:
         reasons.append(f"大盤壓力 d1={px['d1']} d3={px['d3']}")
     if not reasons:
-        reasons.append("回放無新聞標題:滿額檔位 20%")
+        reasons.append("回放無新聞標題:滿額預算池 20% 現金")
     return {
         "session": dstr,
         "updated_at": _now_iso(),
@@ -791,12 +890,15 @@ def evaluate_risk(
         "war_lock": False,
         "size_weight": 0.0 if lock_new else 0.20,
         "old_switch_would_block": lock_new,
+        "max_new_entries": gate["max_new_entries"],
+        "soft_cap": False,
         "news_fetched": False,
         "news_score": 0,
         "trend": "cool",
         "twii_d1": px["d1"],
         "twii_d3": px["d3"],
         "price_pause": px["price_pause"],
+        "red_day": bool(px.get("red_day")),
         "reason": "；".join(reasons),
         "off_headlines": [],
         "on_headlines": [],
@@ -901,6 +1003,25 @@ if __name__ == "__main__":
         )
         assert scored["off_headlines"] == [], scored
         assert scored["news_score"] < 0, scored
+
+        # anti-emotion gate
+        g = gate_new_entries(trend="hot", price_pause=False, red_day=False)
+        assert g["lock_new"] is False and g["max_new_entries"] == 1 and g["soft_cap"]
+        g = gate_new_entries(trend="severe", price_pause=False, red_day=True)
+        assert g["lock_new"] is True and g["max_new_entries"] == 0
+        g = gate_new_entries(trend="cool", price_pause=True, red_day=True)
+        assert g["lock_new"] is True
+        g = gate_new_entries(trend="cooling", price_pause=False, red_day=True)
+        assert g["lock_new"] is False and g["max_new_entries"] is None
+        g = gate_new_entries(trend="hot", price_pause=True, red_day=False)
+        assert g["lock_new"] is True
+        # red_day from TWII closes
+        idx = pd.date_range("2026-01-02", periods=5, freq="B")
+        tw = pd.DataFrame({"Close": [100.0, 101.0, 102.0, 101.0, 99.0]}, index=idx)
+        px = twii_stress(tw, idx[-1])
+        assert px["red_day"] is True and px["d1"] is not None
+        px2 = twii_stress(tw, idx[2])  # 102 > 101
+        assert px2["red_day"] is False
 
         print("self-test ok", s)
     elif args.slot == "2130":

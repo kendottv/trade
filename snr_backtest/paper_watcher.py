@@ -153,8 +153,11 @@ def main() -> None:
         log("watcher stop (off hours; weekday 08:30–22:00)")
         return
     if not already_ran_today(STAMP, now):
-        run_live()
-        mark(STAMP, datetime.now(TZ))
+        rc = run_live()
+        if rc == 0:
+            mark(STAMP, datetime.now(TZ))
+        else:
+            log(f"catch-up live failed rc={rc}; leave stamp unset for retry")
     else:
         log("already ran live today, skip catch-up")
 

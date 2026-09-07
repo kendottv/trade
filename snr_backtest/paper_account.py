@@ -50,7 +50,8 @@ class PaperPending:
     reason: str
     snr: float | None = None
     signal_date: str = ""
-    target_weight: float | None = None
+    target_weight: float | None = None  # share of today's new-buy pool
+    target_budget: float | None = None  # NT$ alloc from pool; fill prefers this
     name_heat: float | None = None
     name_trend: str = ""
     name_lock: bool = False
@@ -135,6 +136,9 @@ def account_to_dict(acct):
                 "snr": (None if p.snr is None else round(float(p.snr), 4)),
                 "signal_date": p.signal_date,
                 "target_weight": p.target_weight,
+                "target_budget": (
+                    None if p.target_budget is None else round(float(p.target_budget), 2)
+                ),
                 "name_heat": p.name_heat,
                 "name_trend": p.name_trend,
                 "name_lock": bool(p.name_lock),
@@ -172,6 +176,9 @@ def account_from_dict(raw):
             signal_date=str(p.get("signal_date") or ""),
             target_weight=(
                 None if p.get("target_weight") in (None, "") else float(p["target_weight"])
+            ),
+            target_budget=(
+                None if p.get("target_budget") in (None, "") else float(p["target_budget"])
             ),
             name_heat=(None if p.get("name_heat") in (None, "") else float(p["name_heat"])),
             name_trend=str(p.get("name_trend") or ""),

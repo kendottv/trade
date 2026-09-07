@@ -1920,3 +1920,16 @@ pick ticker       name           snr    rs_20      close
 QUEUE BUY 2382.TW 廣達 snr=0.4896 weight=2% macro=severe/2% name=hot/8 →2% close=345.00 → 下一根開盤成交
 收盤: cash=1535700 MV=57680 equity=1593380 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5 pending=buy:2382.TW/breakout_v2
 
+## 2026-09-07
+開始: cash=1535700 持倉=2 pending=1 equity=1593380
+資金分配: 昨日排隊預算池配置（單檔上限 20% 權益、先試 5 股再試 1 股，不 all-in；買不起則跳過並保留現金給同輪其他檔）
+BUY 2382.TW 廣達 90股 @ 350.00 snr=0.4896 share=2% budget=31903 cash=1504155 macro=severe/2% name=hot/8 →2%
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=True soft_cap=False max_new=0 size=0.0 news=35 red_day=False twii_d1=0.0167 twii_d3=0.0252｜今早熱度 35 ≥ 嚴重線 12(昨21:30=36,Δ-1)減到最低檔；戰爭級硬關:不只圍台海還封鎖台灣後門！陸海警常態巡邏東太平洋 2.7萬平方海里淪陷 - TV；硬關：戰爭級硬關
+風險硬關：今日暫停開新倉（戰爭級／盤崩／新聞偏熱且紅盤／無新聞資料；舊倉照停利停損）
+訊號 1 檔，空槽 0，新排隊 0
+排名:
+pick ticker       name           snr    rs_20      close
+     2382.TW      廣達          0.4096   0.0551     347.50
+收盤: cash=1504155 MV=90743 equity=1594898 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5, 2382.TW 90@350.0 pending=(無)
+

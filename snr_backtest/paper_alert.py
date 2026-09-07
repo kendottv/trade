@@ -253,11 +253,23 @@ def lookback_high(hist: pd.DataFrame, n: int = LOOKBACK) -> float | None:
 def build_levels() -> dict[str, float]:
     names = candidate_tickers()
     prices, _failed = load_prices(list(names) + ["^TWII"], force_download=False)
+    today = pd.Timestamp(datetime.now(TZ).date())
+    # Use last *completed* session only (never include a partial today bar).
+    asof_candidates: list[pd.Timestamp] = []
     twii = prices.get("^TWII")
     if twii is not None and len(twii):
-        asof = pd.Timestamp(twii.index.max()).normalize()
+        asof_candidates.append(pd.Timestamp(twii.index.max()).normalize())
+    for df in prices.values():
+        if df is None or df.empty:
+            continue
+        asof_candidates.append(pd.Timestamp(df.index.max()).normalize())
+    completed = [d for d in asof_candidates if d < today]
+    if completed:
+        asof = max(completed)
+    elif asof_candidates:
+        asof = max(asof_candidates)
     else:
-        asof = pd.Timestamp(datetime.now(TZ).date())
+        asof = today - pd.Timedelta(days=1)
     passed, _table = screen_universe(prices, names, asof)
     levels: dict[str, float] = {}
     for ticker in passed:

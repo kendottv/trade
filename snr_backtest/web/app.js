@@ -38,11 +38,52 @@ function metric(k, v, d, cls) {
   return `<div class="metric"><div class="k">${k}</div><div class="v">${v}</div><div class="d ${cls || ""}">${d || ""}</div></div>`;
 }
 
+
+function yiCls(n) {
+  if (n === null || n === undefined || n === "") return "";
+  return Number(n) >= 0 ? "up" : "dn";
+}
+function yiCell(label, netYi, sub) {
+  const cls = yiCls(netYi);
+  const main = netYi === null || netYi === undefined ? "—" : signed(netYi, 2) + " 億";
+  const subHtml = sub ? `<span class="cap">${sub}</span>` : "";
+  return `<div class="cell"><span>${label}</span><b class="${cls}">${main}</b>${subHtml}</div>`;
+}
+function renderInstitutional(inst) {
+  const el = $("instGrid");
+  const meta = $("instMeta");
+  const note = $("instNote");
+  if (!el || !meta || !note) return;
+  const i = inst || {};
+  if (!i.ok) {
+    meta.textContent = (i.source || "TWSE") + "　尚未更新";
+    note.textContent = i.note || "尚無三大法人資料（盤後約 16:00–18:00 後才公布，21:30 排程會再抓）。";
+    el.innerHTML = "";
+    return;
+  }
+  meta.textContent = `資料日 ${i.date || "—"}　來源 ${i.source || "TWSE"}　更新 ${i.updated_at || "—"}`;
+  note.textContent = i.note || "金額單位：億元（證交所 BFI82U）。不成交。";
+  const f = i.foreign || {};
+  const t = i.trust || {};
+  const d = i.dealer || {};
+  const dp = i.dealer_proprietary || d.proprietary || {};
+  const dh = i.dealer_hedge || d.hedge || {};
+  const tot = i.total || {};
+  const dealerSub = [];
+  if (dp && dp.net_yi != null) dealerSub.push("自行 " + signed(dp.net_yi, 2));
+  if (dh && dh.net_yi != null) dealerSub.push("避險 " + signed(dh.net_yi, 2));
+  el.innerHTML =
+    yiCell("外資", f.net_yi, "不含外資自營") +
+    yiCell("投信", t.net_yi, "") +
+    yiCell("自營商", d.net_yi, dealerSub.join("　")) +
+    yiCell("合計", tot.net_yi, "三大法人合計");
+}
+
 function render(s) {
   const prevKey = lastAlertKey;
   $("clock").textContent = s.clock + (s.live ? " 盤中" : " 盤後");
   const pnlCls = s.pnl >= 0 ? "up" : "dn";
-  let sizeLabel = s.lock_new ? "硬關" : (s.size_weight != null ? (Number(s.size_weight) * 100).toFixed(0) + "%" : (s.allow ? "開" : "關"));
+  let sizeLabel = s.lock_new ? "硬關" : (s.size_weight != null ? "池" + (Number(s.size_weight) * 100).toFixed(0) + "%" : (s.allow ? "開" : "關"));
   $("metrics").innerHTML =
     metric("權益", fmt(s.equity, 0), signed(s.pnl, 0) + "（" + signed(s.pnl_pct, 1) + "%）", pnlCls) +
     metric("現金", fmt(s.cash, 0), "") +
@@ -64,7 +105,7 @@ function render(s) {
   }
   const pend = s.pending || [];
   $("pending").innerHTML = pend.length
-    ? pend.map((p) => `<div class="item">${p.side} ${p.name || p.ticker} ${p.reason || ""} ${p.target_weight != null ? "權重 " + (p.target_weight * 100).toFixed(0) + "%" : ""}</div>`).join("")
+    ? pend.map((p) => `<div class="item">${p.side} ${p.name || p.ticker} ${p.reason || ""} ${p.target_budget != null ? "預算 " + Number(p.target_budget).toFixed(0) : (p.target_weight != null ? "份額 " + (p.target_weight * 100).toFixed(0) + "%" : "")}</div>`).join("")
     : '<p class="empty">沒有 pending。</p>';
 
   const pos = s.positions || [];
@@ -80,8 +121,9 @@ function render(s) {
       : "用最近收盤估；今天開盤買的，盤中請看現價。";
   }
   const st = s.stamps || {};
-  $("stamps").innerHTML = `<p class="cap">收盤單 ${st.live || "—"}　預警 ${st.alert || "—"}　新聞 08:30 ${st.n0830 || "—"}　21:30 ${st.n2130 || "—"}</p>`;
+  $("stamps").innerHTML = `<p class="cap">收盤單 ${st.live || "—"}　預警 ${st.alert || "—"}　新聞 08:30 ${st.n0830 || "—"}　21:30 ${st.n2130 || "—"}　法人 ${st.inst || "—"}</p>`;
   $("reason").textContent = s.reason || "";
+  renderInstitutional(s.institutional || {});
 
   const tw = s.twii || {};
   const chgCls = (tw.chg || 0) >= 0 ? "up" : "dn";
