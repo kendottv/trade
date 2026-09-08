@@ -48,15 +48,25 @@ SIZE_JOURNAL_COLS = [
 ]
 
 # +3 phrases in news_risk.WEIGHTS — event lock, not a score cutoff.
+# Hard-lock = kinetic war / invasion / missile-strike class only.
+# 2026-09: drop bare 封鎖/blockade — TVBS「不只圍台海還封鎖台灣後門！陸海警…東太平洋」
+# is geopolitical color commentary and false-positive hard-locked a severe tariff day.
+# Keep real blockade via 海上封鎖／軍事封鎖／封鎖港口／封鎖海峽／naval blockade.
 WAR_PHRASES = (
     "invasion",
-    "blockade",
+    "naval blockade",
+    "missile strike",
     "missile",
     "war",
     "戰爭",
     "導彈",
-    "封鎖",
+    "海上封鎖",
+    "軍事封鎖",
+    "封鎖港口",
+    "封鎖海峽",
+    "全面封鎖",
     "入侵",
+    "宣戰",
 )
 
 # Per-name lock only if the title also mentions that company.

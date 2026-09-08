@@ -1,6 +1,6 @@
 {
   "cash": 1504154.96,
-  "equity": 1594897.96,
+  "equity": 1595282.96,
   "positions": [
     {
       "ticker": "5314.TWO",
@@ -34,7 +34,7 @@
     }
   ],
   "pending": [],
-  "updated_at": "2026-09-07 16:30:19+0800",
-  "last_session": "2026-09-07",
+  "updated_at": "2026-09-08 16:17:58+0800",
+  "last_session": "2026-09-08",
   "initial_cash": 1000000.0
 }

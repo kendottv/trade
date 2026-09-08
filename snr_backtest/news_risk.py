@@ -333,6 +333,64 @@ def _mentions_name(title: str, name: str, ticker: str) -> bool:
     return bool(code) and code in key
 
 
+# Short Chinese names collide with other entities in Google News RSS
+# (e.g. 世紀 → 世紀鋁業/CENX、21世紀、世紀協議). Precision > recall.
+_NAME_FALSE_FRIENDS: dict[str, tuple[str, ...]] = {
+    "世紀": (
+        "世紀鋁業",
+        "世紀鋁",
+        "鋁業",
+        "cenx",
+        "世紀協議",
+        "世紀台美",
+        "台美關稅協議",
+        "21世紀",
+        "廿一世紀",
+        "社慶論壇",
+        "權力核心",
+    ),
+}
+
+_EQUITY_HINTS = (
+    "股",
+    "營收",
+    "法說",
+    "除權",
+    "除息",
+    "漲停",
+    "跌停",
+    "上市",
+    "上櫃",
+    "興櫃",
+    "軋空",
+    "融資",
+    "融券",
+    "投信",
+    "外資",
+    "主力",
+    "twse",
+    "tpex",
+)
+
+
+def name_title_keep(title: str, name: str, ticker: str) -> bool:
+    """Keep only titles that likely refer to this listed name (precision first)."""
+    key = normalize_title(title)
+    code = (ticker or "").split(".")[0].lower()
+    n = normalize_title(name or "")
+    if code and code in key:
+        return True
+    for ff in _NAME_FALSE_FRIENDS.get((name or "").strip(), ()):
+        if normalize_title(ff) in key:
+            return False
+    if not n or n not in key:
+        return False
+    # Ambiguous ≤2-char names need equity context, not bare substring hits.
+    if len(n) <= 2:
+        return any(h in key for h in _EQUITY_HINTS)
+    return True
+
+
 def has_name_lock(titles: list[str] | None, name: str, ticker: str) -> tuple[bool, str]:
     from size_risk import NAME_LOCK_PHRASES
 
@@ -359,15 +417,29 @@ def _save_name_news(payload: dict) -> None:
 
 
 def name_heat(ticker: str, name: str, session=None) -> dict:
-    """Live RSS for one name. Used at 16:00 when a breakout is queued."""
+    """Live RSS for one name. Used at 16:00 when a breakout is queued.
+
+    Queries prefer ticker code + 「股」 disambiguation; titles are filtered
+    for same-name collisions before scoring. Writes paper/name_news only.
+    """
     session = pd.Timestamp(session or datetime.now(TAIPEI).date()).normalize()
     dstr = session.strftime("%Y-%m-%d")
     queries: list[str] = []
-    if name:
-        queries.extend([str(name), f"{name} 利空", f"{name} 關稅"])
     code = (ticker or "").split(".")[0]
-    if code:
-        queries.append(f"{code} Taiwan")
+    # Prefer precision over recall: never query bare short name alone.
+    if name and code:
+        queries.extend(
+            [
+                f"{name} {code}",
+                f"{name}股",
+                f"{code} 台股",
+                f"{name} {code} 利空",
+            ]
+        )
+    elif name:
+        queries.extend([f"{name}股", f"{name} 利空", f"{name} 關稅"])
+    elif code:
+        queries.append(f"{code} 台股")
     titles: list[str] = []
     ok = 0
     for q in queries:
@@ -375,6 +447,7 @@ def name_heat(ticker: str, name: str, session=None) -> dict:
         if got:
             ok += 1
         titles.extend(got)
+    titles = [t for t in titles if name_title_keep(t, name, ticker)]
     scored = score_titles(titles)
     fetched = ok > 0
     heat = int(scored.get("news_score") or 0)
@@ -401,6 +474,8 @@ def name_heat(ticker: str, name: str, session=None) -> dict:
         "n_raw": scored.get("n_raw", 0),
         "off_headlines": scored.get("off_headlines") or [],
         "on_headlines": scored.get("on_headlines") or [],
+        # Neutral / zero-heat titles still matter for briefs (precision-filtered).
+        "sample_titles": (scored.get("unique_titles") or [])[:8],
     }
     _save_name_news(out)
     return out
@@ -950,10 +1025,29 @@ if __name__ == "__main__":
         mash = "【全球大頭條】中東衝突再起？美國爭奪石油控制權中國防台海衝突遭能源斷供｜西藏土石流死亡數與尼泊爾差太多外媒記者控北京封鎖消息｜#鏡新聞"
         ok_mash, _ = has_war_event([mash])
         assert not ok_mash, "封鎖消息 must not hard-lock"
-        ok_real, _ = has_war_event(["外媒：解放軍演練封鎖台灣港口 - 範例"])
-        assert ok_real
+        # Contiguous kinetic phrases only (封鎖台灣港口 ≠ 封鎖港口 substring).
+        ok_real, _ = has_war_event(["外媒：解放軍宣布對台海上封鎖並封鎖港口 - 範例"])
+        assert ok_real  # 海上封鎖 / 封鎖港口 still hard-locks
         ok_tw, _ = has_war_event(["Trump tariff war lifts US steel stocks"])
         assert not ok_tw
+        # TVBS color commentary (圍台海／陸海警東太平洋) must NOT hard-lock
+        tvbs = "不只圍台海還封鎖台灣後門！陸海警常態巡邏東太平洋 2.7萬平方海里淪陷 - TVBS新聞網"
+        ok_cg, _ = has_war_event([tvbs])
+        assert not ok_cg, "海警/圍台 color must not hard-lock"
+        ok_sea, _ = has_war_event(["解放軍宣布對台實施海上封鎖 - 範例"])
+        assert ok_sea
+        # same-name RSS filter: 世紀鋁業 / 21世紀 / 協議 ≠ 5314 世紀股
+        assert not name_title_keep(
+            "【即時新聞】川普重塑金屬關稅！世紀鋁業(CENX)大讚防逃漏", "世紀", "5314.TWO"
+        )
+        assert not name_title_keep(
+            "風傳媒社慶論壇》劉峻誠揭21世紀權力核心", "世紀", "5314.TWO"
+        )
+        assert not name_title_keep(
+            "一紙世紀台美關稅協議，怎把產業分割3種命運？", "世紀", "5314.TWO"
+        )
+        assert name_title_keep("世紀(5314)營收亮眼 - 範例", "世紀", "5314.TWO")
+        assert name_title_keep("緯穎除權將複製世紀軋空行情？ - 工商時報", "世紀", "5314.TWO")
 
         h, off, on = headline_heat("Fed signals pause tariff plan")
         assert h == -2 and on == ["pause tariff"], (h, off, on)
