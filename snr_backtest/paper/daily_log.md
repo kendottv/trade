@@ -1953,3 +1953,13 @@ pick ticker       name           snr    rs_20      close
 (no signals)
 收盤: cash=1504155 MV=91128 equity=1595283 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5, 2382.TW 90@350.0 pending=(無)
 
+## 2026-09-09
+開始: cash=1504155 持倉=3 pending=0 equity=1595283
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False soft_cap=True max_new=1 size=0.02 news=35 red_day=False twii_d1=0.0016 twii_d3=0.0136｜今早熱度 35 ≥ 嚴重線 12(昨21:30=31,Δ+4)減到最低檔；軟關：新聞severe但非紅盤硬關，今日新排隊上限 1 檔；今日新倉預算池 2% 現金；新排隊上限1檔
+情緒軟關：新聞偏熱但未達硬關，今日新排隊上限 1 檔（原空槽 7）
+訊號 0 檔，空槽 1，新排隊 0
+排名:
+(no signals)
+收盤: cash=1504155 MV=95772 equity=1599927 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5, 2382.TW 90@350.0 pending=(無)
+
