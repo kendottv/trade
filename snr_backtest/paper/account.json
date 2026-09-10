@@ -1,6 +1,6 @@
 {
   "cash": 1504154.96,
-  "equity": 1599926.96,
+  "equity": 1602806.96,
   "positions": [
     {
       "ticker": "5314.TWO",
@@ -10,7 +10,7 @@
       "entry_date": "2026-08-27",
       "entry_snr": 0.8954,
       "time_stop_count": 0,
-      "trail_armed": false
+      "trail_armed": true
     },
     {
       "ticker": "2301.TW",
@@ -34,7 +34,7 @@
     }
   ],
   "pending": [],
-  "updated_at": "2026-09-09 16:18:21+0800",
-  "last_session": "2026-09-09",
+  "updated_at": "2026-09-10 16:54:12+0800",
+  "last_session": "2026-09-10",
   "initial_cash": 1000000.0
 }
