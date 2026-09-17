@@ -2058,3 +2058,31 @@ pick ticker       name           snr    rs_20      close
 (no signals)
 收盤: cash=1504155 MV=84217 equity=1588372 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5, 2382.TW 90@350.0 pending=(無)
 
+## 2026-09-17
+開始: cash=1504155 持倉=3 pending=0 equity=1588372
+QUEUE SELL 5314.TWO sl (entry=38.00 H=27.75 L=27.75) → 下一根開盤成交
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False soft_cap=True max_new=1 size=0.02 news=32 red_day=False twii_d1=0.0096 twii_d3=0.0093｜今早熱度 32 ≥ 嚴重線 12(昨21:30=34,Δ-2)減到最低檔；軟關：新聞severe但非紅盤硬關，今日新排隊上限 1 檔；今日新倉預算池 2% 現金；新排隊上限1檔
+情緒軟關：新聞偏熱但未達硬關，今日新排隊上限 1 檔（原空槽 7）
+訊號 1 檔，空槽 1，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    2412.TW      中華電         0.7391   0.0321     145.00
+預算池: cash=1504155 macro=severe/2% pool=30083 候選=1 可負擔=1（依個股熱度分配；先試5股再試1股）
+QUEUE BUY 2412.TW 中華電 snr=0.7391 alloc=30083 pool=30083 macro=severe/2% name=cool/2 share=100% alloc=30083 close=145.00 → 下一根開盤成交
+收盤: cash=1504155 MV=82070 equity=1586225 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5, 2382.TW 90@350.0 pending=sell:5314.TWO/sl, buy:2412.TW/breakout_v2
+
+## 2026-09-17
+開始: cash=1504155 持倉=3 pending=0 equity=1588372
+QUEUE SELL 5314.TWO sl (entry=38.00 H=27.75 L=27.75) → 下一根開盤成交
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False soft_cap=True max_new=1 size=0.02 news=32 red_day=False twii_d1=0.0096 twii_d3=0.0093｜今早熱度 32 ≥ 嚴重線 12(昨21:30=34,Δ-2)減到最低檔；軟關：新聞severe但非紅盤硬關，今日新排隊上限 1 檔；今日新倉預算池 2% 現金；新排隊上限1檔
+情緒軟關：新聞偏熱但未達硬關，今日新排隊上限 1 檔（原空槽 7）
+訊號 1 檔，空槽 1，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    2412.TW      中華電         0.7391   0.0321     145.00
+預算池: cash=1504155 macro=severe/2% pool=30083 候選=1 可負擔=1（依個股熱度分配；先試5股再試1股）
+QUEUE BUY 2412.TW 中華電 snr=0.7391 alloc=30083 pool=30083 macro=severe/2% name=cool/2 share=100% alloc=30083 close=145.00 → 下一根開盤成交
+收盤: cash=1504155 MV=82070 equity=1586225 持倉=5314.TWO 840@38.0, 2301.TW 100@308.5, 2382.TW 90@350.0 pending=sell:5314.TWO/sl, buy:2412.TW/breakout_v2
+

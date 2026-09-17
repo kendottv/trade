@@ -2,7 +2,7 @@
 
 Live paper overlays recent daily bars from 永豐 Shioaji (simulation quotes).
 Long history still comes from Yahoo once, then Shioaji patches new sessions.
-Backtests that pass end_date stay on the cached sample.
+If cache does not cover end_date, get_price auto-downloads from Yahoo (server-safe).
 """
 
 from __future__ import annotations
@@ -279,35 +279,75 @@ def overlay_shioaji(tickers: list[str], lookback_days: int = 10) -> dict[str, pd
     return patched
 
 
+
+def _cache_covers(df: pd.DataFrame | None, end_date: str | None) -> bool:
+    """True if cached bars already reach the requested sample end (or ~yesterday for live)."""
+    if df is None or df.empty:
+        return False
+    last = pd.Timestamp(df.index.max()).normalize()
+    if end_date is None:
+        # live/paper: treat cache as fresh if last bar is yesterday or today
+        floor = pd.Timestamp.now().normalize() - pd.Timedelta(days=1)
+        return last >= floor
+    return last >= pd.Timestamp(end_date).normalize()
+
 def get_price(
     ticker: str,
     force_download: bool = False,
     end_date: str | None = END_DATE,
+    cache_only: bool = False,
 ) -> pd.DataFrame | None:
-    cached = load_cache(ticker, end_date=end_date)
+    """Load OHLCV. Auto-downloads from Yahoo when cache does not cover end_date.
+
+    end_date=None means live/paper (through latest available). Backtests pass an
+    explicit end; if the local parquet stops earlier, we refresh without needing
+    paper_watcher — so a server-side backtest can stay current.
+    """
     paper = end_date is None
+    # Judge coverage on the *full* cache, then clip for the caller.
+    cached_full = load_cache(ticker, end_date=None)
     if paper and force_download:
         try:
             overlay_shioaji([ticker])
-            cached = load_cache(ticker, end_date=None)
+            cached_full = load_cache(ticker, end_date=None)
         except Exception as exc:
             log.warning("shioaji overlay skip %s: %s", ticker, exc)
-        if cached is not None and len(cached) > 0:
-            return cached
-    if not force_download and cached is not None and len(cached) > 0:
+        if cached_full is not None and len(cached_full) > 0 and _cache_covers(cached_full, None):
+            return cached_full
+
+    if cache_only:
+        need = False
+    else:
+        need = force_download or not _cache_covers(cached_full, end_date)
+    if not need:
+        out = cached_full if paper else _clip_end(cached_full, end_date)
         log.info(
             "cache hit %s  rows=%d  %s → %s",
-            ticker, len(cached), cached.index.min().date(), cached.index.max().date(),
+            ticker,
+            len(out) if out is not None else 0,
+            out.index.min().date() if out is not None and len(out) else "?",
+            out.index.max().date() if out is not None and len(out) else "?",
         )
-        return cached
+        return out
+
     try:
         df = _download_one(ticker, end_date=end_date)
     except Exception as exc:  # noqa: BLE001 — network / yfinance is messy
         log.warning("download FAILED %s: %s", ticker, exc)
-        return cached
+        if cached_full is None or cached_full.empty:
+            return None
+        return cached_full if paper else _clip_end(cached_full, end_date)
     if df is None or df.empty:
         log.warning("download empty %s", ticker)
-        return cached
+        if cached_full is None or cached_full.empty:
+            return None
+        return cached_full if paper else _clip_end(cached_full, end_date)
+
+    # Merge with any longer existing cache so a shorter clip download cannot wipe history.
+    if cached_full is not None and not cached_full.empty:
+        both = pd.concat([cached_full, df])
+        both = both[~both.index.duplicated(keep="last")].sort_index()
+        df = both
     save_cache(ticker, df)
     if paper:
         try:
@@ -321,16 +361,29 @@ def get_price(
         "downloaded %s  rows=%d  %s → %s",
         ticker, len(df), df.index.min().date(), df.index.max().date(),
     )
-    return df
+    return df if paper else _clip_end(df, end_date)
 
 
-def load_universe(force_download: bool = False) -> tuple[dict[str, pd.DataFrame], list[str]]:
-    """Return {ticker: df} and a list of tickers that failed."""
+def load_universe(
+    force_download: bool = False,
+    end_date: str | None = END_DATE,
+    cache_only: bool = False,
+) -> tuple[dict[str, pd.DataFrame], list[str]]:
+    """Return {ticker: df} and a list of tickers that failed.
+
+    end_date is forwarded to get_price so backtests/servers can refresh past
+    config.END_DATE when the sample window moves forward.
+    """
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     prices: dict[str, pd.DataFrame] = {}
     failed: list[str] = []
     for ticker in list(TICKERS.keys()) + [INDEX_TICKER]:
-        df = get_price(ticker, force_download=force_download)
+        df = get_price(
+            ticker,
+            force_download=force_download,
+            end_date=end_date,
+            cache_only=cache_only,
+        )
         if df is None or df.empty:
             failed.append(ticker)
             continue

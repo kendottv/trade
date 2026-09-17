@@ -287,7 +287,7 @@ def make_breakout_v2(
 
 
 def all_strategies() -> list[StrategySpec]:
-    """SNR-gated mains first, then raw baselines for with-vs-without comparison."""
+    """Breakout/pullback (+SNR/raw) plus classic indicator strategies."""
     return [
         StrategySpec(
             name="breakout_v1",
@@ -320,5 +320,47 @@ def all_strategies() -> list[StrategySpec]:
             time_stop_days=0,
             use_snr=False,
             kind="pullback",
+        ),
+        # classic indicators (engine already supports these kinds)
+        StrategySpec(
+            name="macd_v1",
+            tp=0.15,
+            sl=0.08,
+            time_stop_days=0,
+            use_snr=False,
+            kind="macd",
+        ),
+        StrategySpec(
+            name="rsi_v1",
+            tp=0.12,
+            sl=0.06,
+            time_stop_days=0,
+            use_snr=False,
+            kind="rsi",
+        ),
+        StrategySpec(
+            name="kd_v1",
+            tp=0.12,
+            sl=0.06,
+            time_stop_days=0,
+            use_snr=False,
+            kind="kd",
+        ),
+        StrategySpec(
+            name="sma_cross_v1",
+            tp=0.15,
+            sl=0.08,
+            time_stop_days=0,
+            use_snr=False,
+            kind="sma",
+        ),
+        StrategySpec(
+            name="bb_revert_v1",
+            tp=0.10,
+            sl=0.06,
+            time_stop_days=0,
+            use_snr=False,
+            kind="bb",
+            bb_mode="revert",
         ),
     ]

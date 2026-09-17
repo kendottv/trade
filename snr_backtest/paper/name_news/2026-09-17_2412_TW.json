@@ -1,0 +1,31 @@
+{
+  "session": "2026-09-17",
+  "ticker": "2412.TW",
+  "name": "中華電",
+  "updated_at": "2026-09-17 16:00:11+0800",
+  "news_fetched": true,
+  "fetch_ok": 4,
+  "fetch_total": 4,
+  "news_score": 2,
+  "trend": "cool",
+  "war_lock": false,
+  "name_lock": false,
+  "lock": false,
+  "lock_title": "",
+  "n_unique": 22,
+  "n_raw": 28,
+  "off_headlines": [
+    "台股暴跌700點中華電（2412）卻創歷史新高！大漲4％登144元…股添樂：少了網路線只是原始人 - UDN"
+  ],
+  "on_headlines": [],
+  "sample_titles": [
+    "Hami Point 去日本也可集點！中華電攜日本 Ponta 推赴日旅遊雙重優惠 - UDN",
+    "2412 中華電 - 【中華電(2412)盤後解析】外資連買推升，籌碼趨於集中 ... - 股市爆料同學會 - CMoney",
+    "中華電信 | 2412.TW 股價走勢與即時報價 - finance.biggo.com.tw",
+    "三大法人買賣超 – 外資買超(2368)金像電、(2412)中華電，投信買超(1815)富喬、(8996)高力，法人合計賣超1123.73億元 - sinotrade.com.tw",
+    "營收速報 - 中華電(2412)8月營收233.09億元年增率高達25.61％ - TradingView",
+    "星鏈登台誰受惠？中華電 (2412) 爭獨家代理的30天訊號-梁姐價值投資心法 - CMoney投資網誌",
+    "《通網股》中華電iPhone 18資費到！Pro Max最低0元 - 旺得富理財網",
+    "中華電擬調薪4% 福利加碼 卓揆讚「永遠走在最前面」 - money.udn.com"
+  ]
+}

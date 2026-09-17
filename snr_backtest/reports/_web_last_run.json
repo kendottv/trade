@@ -1,0 +1,31 @@
+{
+  "ok": true,
+  "running": false,
+  "strategy": "pullback_v1",
+  "start": "2021-08-13",
+  "end": "2026-08-13",
+  "failed": [],
+  "equal_weight": {
+    "ticker": "EQUAL_WEIGHT",
+    "name": "等權合計",
+    "trades": 378,
+    "n_wins": 154,
+    "n_losses": 224,
+    "win_rate": 0.4074074074074074,
+    "avg_win": 0.07677625977248466,
+    "avg_loss": -0.048670437980680985,
+    "profit_factor": 1.0471234890709353,
+    "expectancy": 0.0024374759187568737,
+    "expectancy_twd": 1204.5294444444382,
+    "total_return": 0.04546826359854128,
+    "max_drawdown": -0.14905436023940705,
+    "cagr": 0.008933865259547202,
+    "final_equity": 10454682.635985412,
+    "exposure": 0.5049423393739704,
+    "avg_snr_win": 0.11941688311688312,
+    "avg_snr_loss": 0.11675535714285713,
+    "failed": ""
+  },
+  "finished_at": "2026-09-16T23:50:19+08:00",
+  "reports_dir": "C:\\Users\\AUSER\\Desktop\\trade\\snr_backtest\\reports"
+}
