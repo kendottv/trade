@@ -1,17 +1,7 @@
 {
-  "cash": 1504154.96,
-  "equity": 1586224.96,
+  "cash": 1497902.39,
+  "equity": 1586799.89,
   "positions": [
-    {
-      "ticker": "5314.TWO",
-      "name": "世紀",
-      "shares": 840,
-      "avg_price": 38.0,
-      "entry_date": "2026-08-27",
-      "entry_snr": 0.8954,
-      "time_stop_count": 0,
-      "trail_armed": true
-    },
     {
       "ticker": "2301.TW",
       "name": "光寶科",
@@ -31,39 +21,20 @@
       "entry_snr": 0.4896,
       "time_stop_count": 0,
       "trail_armed": false
-    }
-  ],
-  "pending": [
-    {
-      "side": "sell",
-      "ticker": "5314.TWO",
-      "name": "世紀",
-      "reason": "sl",
-      "snr": 0.8954,
-      "signal_date": "2026-09-17",
-      "target_weight": null,
-      "target_budget": null,
-      "name_heat": null,
-      "name_trend": "",
-      "name_lock": false,
-      "size_note": ""
     },
     {
-      "side": "buy",
       "ticker": "2412.TW",
       "name": "中華電",
-      "reason": "breakout_v2",
-      "snr": 0.7391,
-      "signal_date": "2026-09-17",
-      "target_weight": 1.0,
-      "target_budget": 30083.1,
-      "name_heat": 2.0,
-      "name_trend": "cool",
-      "name_lock": false,
-      "size_note": "pool=30083 macro=severe/2% name=cool/2 share=100% alloc=30083"
+      "shares": 205,
+      "avg_price": 143.5,
+      "entry_date": "2026-09-18",
+      "entry_snr": 0.7391,
+      "time_stop_count": 0,
+      "trail_armed": false
     }
   ],
-  "updated_at": "2026-09-17 16:13:55+0800",
-  "last_session": "2026-09-17",
+  "pending": [],
+  "updated_at": "2026-09-18 16:06:08+0800",
+  "last_session": "2026-09-18",
   "initial_cash": 1000000.0
 }
