@@ -562,8 +562,25 @@ class ShioajiFeed:
                     return pd.DataFrame()
                 if isinstance(raw, pd.DataFrame):
                     df = raw.copy()
-                else:
+                elif isinstance(raw, dict):
                     df = pd.DataFrame(raw)
+                elif hasattr(raw, 'keys'):
+                    # shioaji KBars is mapping-like; pd.DataFrame(raw) raises
+                    # ValueError: DataFrame constructor not properly called!
+                    df = pd.DataFrame({k: raw[k] for k in raw.keys()})
+                elif getattr(raw, 'Close', None) is not None:
+                    df = pd.DataFrame(
+                        {
+                            'Open': raw.Open,
+                            'High': raw.High,
+                            'Low': raw.Low,
+                            'Close': raw.Close,
+                            'Volume': getattr(raw, 'Volume', None),
+                            'ts': getattr(raw, 'ts', None),
+                        }
+                    )
+                else:
+                    return pd.DataFrame()
                 if df is None or df.empty:
                     return pd.DataFrame()
                 if "ts" in df.columns:
