@@ -1,119 +1,20 @@
 {
-  "ok": true,
-  "date": "2026-09-24",
-  "day_date": "20260924",
+  "ok": false,
+  "date": "2026-09-26",
+  "day_date": "20260926",
   "source": "TWSE",
   "endpoint": "BFI82U",
   "unit": "元",
   "display_unit": "億",
-  "title": "115年09月24日 三大法人買賣金額統計表",
-  "updated_at": "2026-09-24 21:30:07",
-  "foreign": {
-    "name": "外資及陸資(不含外資自營商)",
-    "buy": 272421262886,
-    "sell": 305385876541,
-    "net": -32964613655,
-    "net_yi": -329.65
-  },
-  "trust": {
-    "name": "投信",
-    "buy": 13921313441,
-    "sell": 26744576741,
-    "net": -12823263300,
-    "net_yi": -128.23
-  },
-  "dealer": {
-    "name": "自營商(自行+避險)",
-    "buy": 32970062212,
-    "sell": 31631631791,
-    "net": 1338430421,
-    "net_yi": 13.38,
-    "proprietary": {
-      "name": "自營商(自行買賣)",
-      "buy": 9882509551,
-      "sell": 5646973463,
-      "net": 4235536088,
-      "net_yi": 42.36
-    },
-    "hedge": {
-      "name": "自營商(避險)",
-      "buy": 23087552661,
-      "sell": 25984658328,
-      "net": -2897105667,
-      "net_yi": -28.97
-    }
-  },
-  "dealer_proprietary": {
-    "name": "自營商(自行買賣)",
-    "buy": 9882509551,
-    "sell": 5646973463,
-    "net": 4235536088,
-    "net_yi": 42.36
-  },
-  "dealer_hedge": {
-    "name": "自營商(避險)",
-    "buy": 23087552661,
-    "sell": 25984658328,
-    "net": -2897105667,
-    "net_yi": -28.97
-  },
-  "foreign_dealer": {
-    "name": "外資自營商",
-    "buy": 0,
-    "sell": 0,
-    "net": 0,
-    "net_yi": 0.0
-  },
-  "total": {
-    "name": "合計",
-    "buy": 319312638539,
-    "sell": 363762085073,
-    "net": -44449446534,
-    "net_yi": -444.49
-  },
-  "rows": [
-    {
-      "name": "自營商(自行買賣)",
-      "buy": 9882509551,
-      "sell": 5646973463,
-      "net": 4235536088,
-      "net_yi": 42.36
-    },
-    {
-      "name": "自營商(避險)",
-      "buy": 23087552661,
-      "sell": 25984658328,
-      "net": -2897105667,
-      "net_yi": -28.97
-    },
-    {
-      "name": "投信",
-      "buy": 13921313441,
-      "sell": 26744576741,
-      "net": -12823263300,
-      "net_yi": -128.23
-    },
-    {
-      "name": "外資及陸資(不含外資自營商)",
-      "buy": 272421262886,
-      "sell": 305385876541,
-      "net": -32964613655,
-      "net_yi": -329.65
-    },
-    {
-      "name": "外資自營商",
-      "buy": 0,
-      "sell": 0,
-      "net": 0,
-      "net_yi": 0.0
-    },
-    {
-      "name": "合計",
-      "buy": 319312638539,
-      "sell": 363762085073,
-      "net": -44449446534,
-      "net_yi": -444.49
-    }
-  ],
-  "note": "證交所 BFI82U 日彙總；金額為元，面板以億顯示。不成交。"
+  "title": "三大法人買賣金額統計表",
+  "updated_at": "2026-09-26 21:30:08",
+  "foreign": null,
+  "trust": null,
+  "dealer": null,
+  "dealer_proprietary": null,
+  "dealer_hedge": null,
+  "foreign_dealer": null,
+  "total": null,
+  "rows": [],
+  "note": "TWSE 近幾日皆無三大法人資料（20260919:JSONDecodeError,20260918:JSONDecodeError,20260917:JSONDecodeError,20260916:JSONDecodeError,20260915:JSONDecodeError）"
 }
