@@ -1,0 +1,26 @@
+{
+  "session": "2026-10-01",
+  "ticker": "3037.TW",
+  "name": "欣興電子",
+  "updated_at": "2026-10-01 16:00:25+0800",
+  "news_fetched": true,
+  "fetch_ok": 2,
+  "fetch_total": 4,
+  "news_score": 0,
+  "trend": "cool",
+  "war_lock": false,
+  "name_lock": false,
+  "lock": false,
+  "lock_title": "",
+  "n_unique": 5,
+  "n_raw": 6,
+  "off_headlines": [],
+  "on_headlines": [],
+  "sample_titles": [
+    "3037 欣興 - 1210，前幾個月看到，現在又1210了 - 股市爆料同學會 - CMoney",
+    "面板股退燒、ABF載板接棒！南電(8046)大漲逾7%，欣興(3037)、景碩(3189)誰還有補漲空間？ - 優分析UAnalyze",
+    "欣興電子（3037）疑似洗產地事件全解析！後續會有哪些影響？ - StockFeel 股感",
+    "快訊／欣興電子遭檢調搜索 2副總1會計遭帶回 - Yahoo股市",
+    "欣興電子日前遭檢調搜索 股價今跌停、跌出千金股 - 公視新聞網PNN"
+  ]
+}

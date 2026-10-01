@@ -2221,3 +2221,29 @@ pick ticker       name           snr    rs_20      close
 (no signals)
 收盤: cash=1497902 MV=87382 equity=1585285 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5 pending=(無)
 
+## 2026-10-01
+開始: cash=1497902 持倉=3 pending=0 equity=1585285
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False soft_cap=True max_new=1 size=0.02 news=30 red_day=False twii_d1=0.0086 twii_d3=0.0068｜今早熱度 30 ≥ 嚴重線 12(昨21:30=28,Δ+2)減到最低檔；軟關：新聞severe但非紅盤硬關，今日新排隊上限 1 檔；今日新倉預算池 2% 現金；新排隊上限1檔
+情緒軟關：新聞偏熱但未達硬關，今日新排隊上限 1 檔（原空槽 7）
+訊號 1 檔，空槽 1，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    3037.TW      欣興電子        0.4404   0.2214    1215.00
+預算池: cash=1497902 macro=severe/2% pool=29958 候選=1 可負擔=1（依個股熱度分配；先試5股再試1股）
+QUEUE BUY 3037.TW 欣興電子 snr=0.4404 alloc=29958 pool=29958 macro=severe/2% name=cool/0 share=100% alloc=29958 close=1215.00 → 下一根開盤成交
+收盤: cash=1497902 MV=88338 equity=1586240 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5 pending=buy:3037.TW/breakout_v2
+
+## 2026-10-01
+開始: cash=1497902 持倉=3 pending=0 equity=1585285
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False soft_cap=True max_new=1 size=0.02 news=30 red_day=False twii_d1=0.0086 twii_d3=0.0068｜今早熱度 30 ≥ 嚴重線 12(昨21:30=28,Δ+2)減到最低檔；軟關：新聞severe但非紅盤硬關，今日新排隊上限 1 檔；今日新倉預算池 2% 現金；新排隊上限1檔
+情緒軟關：新聞偏熱但未達硬關，今日新排隊上限 1 檔（原空槽 7）
+訊號 1 檔，空槽 1，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    3037.TW      欣興電子        0.4404   0.2214    1215.00
+預算池: cash=1497902 macro=severe/2% pool=29958 候選=1 可負擔=1（依個股熱度分配；先試5股再試1股）
+QUEUE BUY 3037.TW 欣興電子 snr=0.4404 alloc=29958 pool=29958 macro=severe/2% name=cool/0 share=100% alloc=29958 close=1215.00 → 下一根開盤成交
+收盤: cash=1497902 MV=88338 equity=1586240 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5 pending=buy:3037.TW/breakout_v2
+
