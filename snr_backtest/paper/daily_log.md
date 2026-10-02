@@ -2247,3 +2247,19 @@ pick ticker       name           snr    rs_20      close
 QUEUE BUY 3037.TW 欣興電子 snr=0.4404 alloc=29958 pool=29958 macro=severe/2% name=cool/0 share=100% alloc=29958 close=1215.00 → 下一根開盤成交
 收盤: cash=1497902 MV=88338 equity=1586240 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5 pending=buy:3037.TW/breakout_v2
 
+## 2026-10-02 開盤成交（pending）
+開盤價 3037.TW 欣興電子 1195.00
+資金分配: 昨日排隊預算池配置（單檔上限 20% 權益、先試 5 股再試 1 股，不 all-in；買不起則跳過並保留現金給同輪其他檔）
+BUY 3037.TW 欣興電子 25股 @ 1195.00 snr=0.4404 share=100% budget=29958 cash=1467985 pool=29958 macro=severe/2% name=cool/0 share=100% alloc=29958
+
+## 2026-10-02
+開始: cash=1467985 持倉=4 pending=0 equity=1589627
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False soft_cap=True max_new=1 size=0.02 news=29 red_day=False twii_d1=0.0025 twii_d3=0.0177｜今早熱度 29 ≥ 嚴重線 12(昨21:30=19,Δ+10)減到最低檔；軟關：新聞severe但非紅盤硬關，今日新排隊上限 1 檔；今日新倉預算池 2% 現金；新排隊上限1檔
+情緒軟關：新聞偏熱但未達硬關，今日新排隊上限 1 檔（原空槽 6）
+訊號 1 檔，空槽 1，新排隊 0
+排名:
+pick ticker       name           snr    rs_20      close
+     3037.TW      欣興電子        0.5171   0.2912    1305.00
+收盤: cash=1467985 MV=120585 equity=1588570 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5, 3037.TW 25@1195.0 pending=(無)
+

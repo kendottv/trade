@@ -1,6 +1,6 @@
 {
-  "cash": 1497902.39,
-  "equity": 1586239.89,
+  "cash": 1467984.82,
+  "equity": 1588569.82,
   "positions": [
     {
       "ticker": "2301.TW",
@@ -31,25 +31,20 @@
       "entry_snr": 0.7391,
       "time_stop_count": 0,
       "trail_armed": false
-    }
-  ],
-  "pending": [
+    },
     {
-      "side": "buy",
       "ticker": "3037.TW",
       "name": "欣興電子",
-      "reason": "breakout_v2",
-      "snr": 0.4404,
-      "signal_date": "2026-10-01",
-      "target_weight": 1.0,
-      "target_budget": 29958.05,
-      "name_heat": 0.0,
-      "name_trend": "cool",
-      "name_lock": false,
-      "size_note": "pool=29958 macro=severe/2% name=cool/0 share=100% alloc=29958"
+      "shares": 25,
+      "avg_price": 1195.0,
+      "entry_date": "2026-10-02",
+      "entry_snr": 0.4404,
+      "time_stop_count": 0,
+      "trail_armed": false
     }
   ],
-  "updated_at": "2026-10-01 16:12:36+0800",
-  "last_session": "2026-10-01",
+  "pending": [],
+  "updated_at": "2026-10-02 16:08:48+0800",
+  "last_session": "2026-10-02",
   "initial_cash": 1000000.0
 }
