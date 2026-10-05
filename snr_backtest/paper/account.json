@@ -1,6 +1,6 @@
 {
   "cash": 1467984.82,
-  "equity": 1588569.82,
+  "equity": 1590527.32,
   "positions": [
     {
       "ticker": "2301.TW",
@@ -40,11 +40,26 @@
       "entry_date": "2026-10-02",
       "entry_snr": 0.4404,
       "time_stop_count": 0,
-      "trail_armed": false
+      "trail_armed": true
     }
   ],
-  "pending": [],
-  "updated_at": "2026-10-02 16:08:48+0800",
-  "last_session": "2026-10-02",
+  "pending": [
+    {
+      "side": "buy",
+      "ticker": "3711.TW",
+      "name": "日月光投控",
+      "reason": "breakout_v2",
+      "snr": 0.5083,
+      "signal_date": "2026-10-05",
+      "target_weight": 1.0,
+      "target_budget": 29359.7,
+      "name_heat": 0.0,
+      "name_trend": "cool",
+      "name_lock": false,
+      "size_note": "pool=29360 macro=severe/2% name=cool/0 share=100% alloc=29360"
+    }
+  ],
+  "updated_at": "2026-10-05 16:13:23+0800",
+  "last_session": "2026-10-05",
   "initial_cash": 1000000.0
 }
