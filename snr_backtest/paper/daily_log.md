@@ -2293,3 +2293,22 @@ pick ticker       name           snr    rs_20      close
 QUEUE BUY 3711.TW 日月光投控 snr=0.5083 alloc=29360 pool=29360 macro=severe/2% name=cool/0 share=100% alloc=29360 close=742.00 → 下一根開盤成交
 收盤: cash=1467985 MV=122542 equity=1590527 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5, 3037.TW 25@1195.0 pending=buy:3711.TW/breakout_v2
 
+## 2026-10-06 開盤成交（pending）
+開盤價 3711.TW 日月光投控 747.00
+資金分配: 昨日排隊預算池配置（單檔上限 20% 權益、先試 5 股再試 1 股，不 all-in；買不起則跳過並保留現金給同輪其他檔）
+BUY 3711.TW 日月光投控 35股 @ 747.00 snr=0.5083 share=100% budget=29360 cash=1441803 pool=29360 macro=severe/2% name=cool/0 share=100% alloc=29360
+
+## 2026-10-06
+開始: cash=1441803 持倉=5 pending=0 equity=1589590
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=False soft_cap=True max_new=1 size=0.02 news=16 red_day=False twii_d1=0.0022 twii_d3=0.0304｜今早熱度 16 ≥ 嚴重線 12(昨21:30=29,Δ-13)減到最低檔；軟關：新聞severe但非紅盤硬關，今日新排隊上限 1 檔；今日新倉預算池 2% 現金；新排隊上限1檔
+情緒軟關：新聞偏熱但未達硬關，今日新排隊上限 1 檔（原空槽 5）
+訊號 2 檔，空槽 1，新排隊 1
+排名:
+pick ticker       name           snr    rs_20      close
+*    6197.TW      佳必琪         0.4425   0.0885     365.00
+     3044.TW      健鼎科技        0.4361   0.1150     579.00
+預算池: cash=1441803 macro=severe/2% pool=28836 候選=1 可負擔=1（依個股熱度分配；先試5股再試1股）
+QUEUE BUY 6197.TW 佳必琪 snr=0.4425 alloc=28836 pool=28836 macro=severe/2% name=cool/0 share=100% alloc=28836 close=365.00 → 下一根開盤成交
+收盤: cash=1441803 MV=148532 equity=1590335 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5, 3037.TW 25@1195.0, 3711.TW 35@747.0 pending=buy:6197.TW/breakout_v2
+

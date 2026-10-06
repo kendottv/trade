@@ -1,6 +1,6 @@
 {
-  "cash": 1467984.82,
-  "equity": 1590527.32,
+  "cash": 1441802.56,
+  "equity": 1590335.06,
   "positions": [
     {
       "ticker": "2301.TW",
@@ -41,25 +41,35 @@
       "entry_snr": 0.4404,
       "time_stop_count": 0,
       "trail_armed": true
+    },
+    {
+      "ticker": "3711.TW",
+      "name": "日月光投控",
+      "shares": 35,
+      "avg_price": 747.0,
+      "entry_date": "2026-10-06",
+      "entry_snr": 0.5083,
+      "time_stop_count": 0,
+      "trail_armed": false
     }
   ],
   "pending": [
     {
       "side": "buy",
-      "ticker": "3711.TW",
-      "name": "日月光投控",
+      "ticker": "6197.TW",
+      "name": "佳必琪",
       "reason": "breakout_v2",
-      "snr": 0.5083,
-      "signal_date": "2026-10-05",
+      "snr": 0.4425,
+      "signal_date": "2026-10-06",
       "target_weight": 1.0,
-      "target_budget": 29359.7,
+      "target_budget": 28836.05,
       "name_heat": 0.0,
       "name_trend": "cool",
       "name_lock": false,
-      "size_note": "pool=29360 macro=severe/2% name=cool/0 share=100% alloc=29360"
+      "size_note": "pool=28836 macro=severe/2% name=cool/0 share=100% alloc=28836"
     }
   ],
-  "updated_at": "2026-10-05 16:13:23+0800",
-  "last_session": "2026-10-05",
+  "updated_at": "2026-10-06 16:00:16+0800",
+  "last_session": "2026-10-06",
   "initial_cash": 1000000.0
 }
