@@ -1,6 +1,6 @@
 {
   "cash": 1413682.55,
-  "equity": 1584932.55,
+  "equity": 1586625.05,
   "positions": [
     {
       "ticker": "2301.TW",
@@ -63,8 +63,23 @@
       "trail_armed": true
     }
   ],
-  "pending": [],
-  "updated_at": "2026-10-13 16:00:10+0800",
-  "last_session": "2026-10-13",
+  "pending": [
+    {
+      "side": "buy",
+      "ticker": "3044.TW",
+      "name": "健鼎科技",
+      "reason": "breakout_v2",
+      "snr": 0.4703,
+      "signal_date": "2026-10-14",
+      "target_weight": 1.0,
+      "target_budget": 28273.65,
+      "name_heat": 0.0,
+      "name_trend": "cool",
+      "name_lock": false,
+      "size_note": "pool=28274 macro=severe/2% name=cool/0 share=100% alloc=28274"
+    }
+  ],
+  "updated_at": "2026-10-14 16:08:46+0800",
+  "last_session": "2026-10-14",
   "initial_cash": 1000000.0
 }
