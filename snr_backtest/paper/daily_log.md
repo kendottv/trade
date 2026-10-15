@@ -2424,3 +2424,16 @@ pick ticker       name           snr    rs_20      close
 QUEUE BUY 3044.TW 健鼎科技 snr=0.4703 alloc=28274 pool=28274 macro=severe/2% name=cool/0 share=100% alloc=28274 close=603.00 → 下一根開盤成交
 收盤: cash=1413683 MV=172942 equity=1586625 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5, 3037.TW 25@1195.0, 3711.TW 35@747.0, 6197.TW 80@351.0 pending=buy:3044.TW/breakout_v2
 
+## 2026-10-15
+開始: cash=1413683 持倉=6 pending=1 equity=1586625
+資金分配: 昨日排隊預算池配置（單檔上限 20% 權益、先試 5 股再試 1 股，不 all-in；買不起則跳過並保留現金給同輪其他檔）
+BUY 3044.TW 健鼎科技 45股 @ 580.00 snr=0.4703 share=100% budget=28274 cash=1387545 pool=28274 macro=severe/2% name=cool/0 share=100% alloc=28274
+流動性篩選通過 26/27 檔（失敗下載 0）
+風險判定 lock_new=True soft_cap=False max_new=0 size=0.0 news=28 red_day=True twii_d1=-0.0341 twii_d3=-0.0473｜今早熱度 28 ≥ 嚴重線 12(昨21:30=30,Δ-2)減到最低檔；軟關：新聞severe但非紅盤硬關，今日新排隊上限 1 檔；今日新倉預算池 2% 現金；新排隊上限1檔；大盤壓力 d1=-0.0341 d3=-0.0473；硬關：大盤壓力／新聞severe+紅盤
+風險硬關：今日暫停開新倉（戰爭級／盤崩／新聞偏熱且紅盤／無新聞資料；舊倉照停利停損）
+訊號 1 檔，空槽 0，新排隊 0
+排名:
+pick ticker       name           snr    rs_20      close
+     2412.TW      中華電         0.5882   0.0460     152.50
+收盤: cash=1387545 MV=191748 equity=1579293 持倉=2301.TW 100@308.5, 2382.TW 90@350.0, 2412.TW 205@143.5, 3037.TW 25@1195.0, 3711.TW 35@747.0, 6197.TW 80@351.0, 3044.TW 45@580.0 pending=(無)
+
