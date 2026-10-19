@@ -1,6 +1,6 @@
 {
   "cash": 1387545.36,
-  "equity": 1579275.36,
+  "equity": 1578017.86,
   "positions": [
     {
       "ticker": "2301.TW",
@@ -9,7 +9,7 @@
       "avg_price": 308.5,
       "entry_date": "2026-08-27",
       "entry_snr": 0.6147,
-      "time_stop_count": 2,
+      "time_stop_count": 0,
       "trail_armed": false
     },
     {
@@ -74,7 +74,7 @@
     }
   ],
   "pending": [],
-  "updated_at": "2026-10-16 16:00:12+0800",
-  "last_session": "2026-10-16",
+  "updated_at": "2026-10-19 16:14:25+0800",
+  "last_session": "2026-10-19",
   "initial_cash": 1000000.0
 }
