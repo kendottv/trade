@@ -1,6 +1,6 @@
 {
   "cash": 1387545.36,
-  "equity": 1578017.86,
+  "equity": 1575172.86,
   "positions": [
     {
       "ticker": "2301.TW",
@@ -74,7 +74,7 @@
     }
   ],
   "pending": [],
-  "updated_at": "2026-10-19 16:14:25+0800",
-  "last_session": "2026-10-19",
+  "updated_at": "2026-10-20 16:10:25+0800",
+  "last_session": "2026-10-20",
   "initial_cash": 1000000.0
 }
