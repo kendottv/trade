@@ -1,6 +1,6 @@
 {
   "cash": 1387545.36,
-  "equity": 1579665.36,
+  "equity": 1574860.36,
   "positions": [
     {
       "ticker": "2301.TW",
@@ -73,8 +73,23 @@
       "trail_armed": false
     }
   ],
-  "pending": [],
-  "updated_at": "2026-10-21 16:07:38+0800",
-  "last_session": "2026-10-21",
+  "pending": [
+    {
+      "side": "sell",
+      "ticker": "6197.TW",
+      "name": "佳必琪",
+      "reason": "trail",
+      "snr": 0.4425,
+      "signal_date": "2026-10-22",
+      "target_weight": null,
+      "target_budget": null,
+      "name_heat": null,
+      "name_trend": "",
+      "name_lock": false,
+      "size_note": ""
+    }
+  ],
+  "updated_at": "2026-10-22 16:15:00+0800",
+  "last_session": "2026-10-22",
   "initial_cash": 1000000.0
 }
