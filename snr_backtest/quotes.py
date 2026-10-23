@@ -87,7 +87,8 @@ def now_taipei() -> datetime:
 
 def in_cash_session(now: datetime | None = None) -> bool:
     now = now or now_taipei()
-    if now.weekday() >= 5:
+    from tw_calendar import is_trading_day
+    if not is_trading_day(now.date()):
         return False
     start = now.replace(hour=SESSION_START[0], minute=SESSION_START[1], second=0, microsecond=0)
     end = now.replace(hour=SESSION_END[0], minute=SESSION_END[1], second=0, microsecond=0)

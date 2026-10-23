@@ -48,7 +48,8 @@ def log(msg: str) -> None:
 
 
 def in_session(now: datetime) -> bool:
-    if now.weekday() >= 5:
+    from tw_calendar import is_trading_day
+    if not is_trading_day(now.date()):
         return False
     start = now.replace(hour=SESSION_START[0], minute=SESSION_START[1], second=0, microsecond=0)
     end = now.replace(hour=SESSION_END[0], minute=SESSION_END[1], second=0, microsecond=0)
@@ -345,15 +346,16 @@ def run_session() -> None:
 
 
 def seconds_until_session(now: datetime) -> float:
+    from tw_calendar import is_trading_day as _itd
     if in_session(now):
         return 0.0
     t = now
     for _ in range(8):
         start = t.replace(hour=9, minute=0, second=0, microsecond=0)
-        if t.weekday() < 5 and t < start:
+        if _itd(t.date()) and t < start:
             return max(15.0, (start - now).total_seconds())
         t = (t + timedelta(days=1)).replace(hour=0, minute=0, second=0, microsecond=0)
-        while t.weekday() >= 5:
+        while not _itd(t.date()):
             t += timedelta(days=1)
         start = t.replace(hour=9, minute=0, second=0, microsecond=0)
         return max(15.0, (start - now).total_seconds())

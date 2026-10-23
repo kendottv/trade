@@ -995,6 +995,8 @@ def _mark_live_stamp() -> None:
     LIVE_STAMP.write_text(datetime.now(TZ).strftime("%Y-%m-%d %H:%M:%S"), encoding="utf-8")
 
 
+from tw_calendar import is_trading_day as _is_trading_day
+
 OPEN_STAMP = ROOT / "paper" / "last_open_fill.txt"
 
 
@@ -1002,14 +1004,31 @@ def _today_open_price(ticker: str) -> float | None:
     from quotes import get_feed
 
     feed = get_feed()
+    today = datetime.now(TZ).date()
+
+    def _is_today(ts) -> bool:
+        if ts is None:
+            return False
+        try:
+            return pd.Timestamp(ts).date() == today
+        except Exception:
+            return False
+
+    # Only accept quotes stamped today; a stale snapshot (e.g. previous
+    # session on a typhoon/holiday closure) must never be used as a fill.
     bar = feed.session_bar(ticker)
     if bar and bar.get("Open"):
-        px = float(bar["Open"])
-        if px > 0:
-            return px
+        if _is_today(bar.get("ts")):
+            px = float(bar["Open"])
+            if px > 0:
+                return px
+        else:
+            log.warning("open-price stale bar %s ts=%s (today=%s) -> no fill", ticker, bar.get("ts"), today)
     q = feed.last(ticker)
     if q is not None and q.open and float(q.open) > 0:
-        return float(q.open)
+        if _is_today(getattr(q, "ts", None)):
+            return float(q.open)
+        log.warning("open-price stale quote %s ts=%s (today=%s) -> no fill", ticker, getattr(q, "ts", None), today)
     return None
 
 
@@ -1032,8 +1051,9 @@ def run_open_fills(max_positions: int) -> int:
     acct = store.load_or_create(INITIAL_CAPITAL)
     now = datetime.now(TZ)
     today = pd.Timestamp(now.date()).normalize()
-    if now.weekday() >= 5:
-        log.info("open-fill skip: weekend")
+    from tw_calendar import is_trading_day
+    if not is_trading_day(now.date()):
+        log.info("open-fill skip: not a TWSE trading day (%s)", now.date())
         return 0
     if not acct.pending:
         log.info("open-fill skip: no pending")
@@ -1098,7 +1118,7 @@ def run_live(max_positions: int, force_download: bool) -> None:
     cache_ahead = bool(latest is not None and (last is None or last < latest))
     maybe_new_bar = (
         force_download
-        and now.weekday() < 5
+        and _is_trading_day(now.date())
         and now.hour >= 15
         and (last is None or last < today)
         and not cache_ahead

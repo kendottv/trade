@@ -28,6 +28,8 @@ LOCK = ROOT / "paper" / "watcher.lock"
 TZ = ZoneInfo("Asia/Taipei")
 STAMP = ROOT / "paper" / "last_live_run.txt"
 ALERT_STAMP = ROOT / "paper" / "last_alert_session.txt"
+from tw_calendar import is_trading_day
+
 OPEN_STAMP = ROOT / "paper" / "last_open_fill.txt"
 NEWS_0830_STAMP = ROOT / "paper" / "last_news_0830.txt"
 NEWS_2130_STAMP = ROOT / "paper" / "last_news_2130.txt"
@@ -119,7 +121,7 @@ def past_stop(now: datetime) -> bool:
 
 
 def in_session(now: datetime) -> bool:
-    if now.weekday() >= 5:
+    if not is_trading_day(now.date()):
         return False
     start = now.replace(hour=9, minute=0, second=0, microsecond=0)
     end = now.replace(hour=13, minute=35, second=0, microsecond=0)
@@ -132,7 +134,8 @@ def seconds_until_next(now: datetime) -> float:
     t = now
     for i in range(10):
         day = (t + timedelta(days=i)).replace(second=0, microsecond=0)
-        if day.weekday() >= 5:
+        if not is_trading_day(day.date()):
+            # still wake at 22:00-type slots? holidays: nothing to do
             continue
         for h, m in ((9, 0), (16, 0), (22, 0)):
             slot = day.replace(hour=h, minute=m)
@@ -181,7 +184,7 @@ def main() -> None:
             else:
                 log(f"alert failed rc={rc}, will retry")
             continue
-        if now.weekday() < 5 and now.hour >= 16:
+        if is_trading_day(now.date()) and now.hour >= 16:
             last = last_session_date()
             if last < now.strftime("%Y-%m-%d"):
                 run_live()
