@@ -1,6 +1,6 @@
 {
-  "cash": 1387545.36,
-  "equity": 1574860.36,
+  "cash": 1412753.32,
+  "equity": 1572643.32,
   "positions": [
     {
       "ticker": "2301.TW",
@@ -9,7 +9,7 @@
       "avg_price": 308.5,
       "entry_date": "2026-08-27",
       "entry_snr": 0.6147,
-      "time_stop_count": 0,
+      "time_stop_count": 1,
       "trail_armed": false
     },
     {
@@ -53,16 +53,6 @@
       "trail_armed": false
     },
     {
-      "ticker": "6197.TW",
-      "name": "佳必琪",
-      "shares": 80,
-      "avg_price": 351.0,
-      "entry_date": "2026-10-07",
-      "entry_snr": 0.4425,
-      "time_stop_count": 0,
-      "trail_armed": true
-    },
-    {
       "ticker": "3044.TW",
       "name": "健鼎科技",
       "shares": 45,
@@ -73,23 +63,8 @@
       "trail_armed": false
     }
   ],
-  "pending": [
-    {
-      "side": "sell",
-      "ticker": "6197.TW",
-      "name": "佳必琪",
-      "reason": "trail",
-      "snr": 0.4425,
-      "signal_date": "2026-10-22",
-      "target_weight": null,
-      "target_budget": null,
-      "name_heat": null,
-      "name_trend": "",
-      "name_lock": false,
-      "size_note": ""
-    }
-  ],
-  "updated_at": "2026-10-26 16:09:20+0800",
-  "last_session": "2026-10-22",
+  "pending": [],
+  "updated_at": "2026-10-27 16:08:39+0800",
+  "last_session": "2026-10-27",
   "initial_cash": 1000000.0
 }
