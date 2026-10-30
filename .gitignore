@@ -42,3 +42,8 @@ shioaji.log
 *.db
 *.sqlite*
 
+
+# NN 模擬送單：狀態/紀錄/停止開關（含帳戶資訊，不上傳）
+snr_backtest/paper_nn/sim_*
+snr_backtest/paper_nn/SIM_STOP
+

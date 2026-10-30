@@ -240,7 +240,7 @@ def api_state() -> JSONResponse:
     for r in wl.get("records") or []:
         r["label"] = stock_names.label(r.get("code"))
     return JSONResponse({"account": account(), "watchlist": wl,
-                         "research": research(), "monitor": monitor(), "news": news(),
+                         "research": research(), "monitor": monitor(), "news": news(), "sim": _json(PAPER / "sim_status.json"),
                          "strategy": nn_strategy.STRATEGY})
 
 
@@ -253,3 +253,95 @@ def api_coach() -> JSONResponse:
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("webapp:app", host="127.0.0.1", port=8501, reload=False)
+
+
+# ---- 永豐模擬帳戶：背景執行緒呼叫 sim_trader.py --snapshot（唯讀、只准 simulation），/api/sim 只讀快取檔 ----
+import subprocess  # noqa: E402
+from datetime import datetime as _dt  # noqa: E402
+
+SIM_SNAP = PAPER / "sim_snapshot.json"
+
+
+def _sim_market_hours(now=None) -> bool:
+    n = now or _dt.now()
+    return n.weekday() < 5 and (9, 0) <= (n.hour, n.minute) <= (13, 40)
+
+
+def _sim_refresh_loop() -> None:
+    while True:
+        try:
+            age = time.time() - SIM_SNAP.stat().st_mtime if SIM_SNAP.exists() else 1e9
+            limit = 300 if _sim_market_hours() else 3600
+            if age > limit and not (PAPER / "SIM_STOP").exists():
+                subprocess.run([sys.executable, str(ROOT / "sim_trader.py"), "--snapshot"], cwd=str(ROOT),
+                               stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=180,
+                               creationflags=getattr(subprocess, "CREATE_NO_WINDOW", 0))
+        except Exception:
+            pass
+        time.sleep(60)
+
+
+threading.Thread(target=_sim_refresh_loop, daemon=True, name="sim-snap").start()
+
+
+def _sim_lab(code) -> str:
+    try:
+        return stock_names.label(code)
+    except Exception:
+        return str(code)
+
+
+@app.get("/api/sim")
+def api_sim() -> JSONResponse:
+    snap = _json(SIM_SNAP)
+    state = _json(PAPER / "sim_state.json")
+    status = _json(PAPER / "sim_status.json")
+    legacy = set(snap.get("legacy_codes") or [])
+    for p in snap.get("positions") or []:
+        p["label"] = _sim_lab(p["code"]); p["legacy"] = p["code"] in legacy
+    for t in snap.get("trades") or []:
+        t["label"] = _sim_lab(t["code"])
+    mon = _dt.now().strftime("%Y-%m")
+    logs = sorted(PAPER.glob("sim_orders_*.csv"))
+    rows = _csv(logs[-1]) if logs else []
+    for r in rows:
+        r["label"] = _sim_lab(r.get("code"))
+    recs = sorted(PAPER.glob("sim_reconcile_*.csv"))
+    rec = _csv(recs[-1]) if recs else []
+    for r in rec:
+        r["label"] = _sim_lab(r.get("code"))
+    compare, cmp_mon = [], None
+    try:
+        from nn_strategy import latest_target
+        from sim_trader import BUDGET_NTD
+        lt = latest_target()
+        held = {p["code"]: p for p in (snap.get("positions") or [])}
+        tg = {}
+        if lt:
+            cmp_mon = lt[0]
+            for r in lt[1]:
+                hp = held.get(r["code"]) or {}
+                last = float(hp.get("last") or 0) or float(r.get("close") or 0)
+                tg[r["code"]] = (r, int(r["weight"] * BUDGET_NTD // last) if last > 0 else 0)
+        for c in list(tg) + [c for c in held if c not in tg]:
+            r, t = tg.get(c, ({}, 0))
+            a = int(float((held.get(c) or {}).get("shares") or 0))
+            d = a - t
+            if c in legacy and c not in tg:
+                stt = "舊持股、待清倉"
+            elif c not in tg:
+                stt = "不在目標、應賣出"
+            elif a == 0:
+                stt = "未買進"
+            elif t and abs(d) <= max(1, 0.1 * t):
+                stt = "符合"
+            else:
+                stt = "多買" if d > 0 else "不足"
+            compare.append({"code": c, "label": _sim_lab(c), "weight": r.get("weight"), "target_shares": t,
+                            "sim_shares": a, "diff": d, "status": stt})
+    except Exception as e:  # noqa: BLE001
+        compare = [{"code": "", "label": f"對照計算失敗：{e}", "target_shares": None, "sim_shares": None, "diff": None, "status": ""}]
+    return JSONResponse({"snapshot": snap, "state": state, "status": status, "log": rows[-60:],
+                         "compare": compare, "compare_mon": cmp_mon,
+                         "log_file": logs[-1].name if logs else None, "reconcile": rec,
+                         "reconcile_file": recs[-1].name if recs else None, "month": mon})

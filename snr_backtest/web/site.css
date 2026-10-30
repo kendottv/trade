@@ -28,3 +28,48 @@ td,th{font-variant-numeric:tabular-nums}td:not(.l),th:not(.l){text-align:right}
 .eqsum .note{grid-column:1/-1;color:var(--dim);font-size:.82rem;border-top:1px solid var(--line);padding-top:.6rem}
 .eqsum .big,.metric .v{white-space:nowrap}
 .eqsum{grid-template-columns:minmax(260px,auto) repeat(3,minmax(130px,1fr));column-gap:2rem}@media(max-width:700px){.eqsum{grid-template-columns:1fr 1fr}}
+
+.simtabs{display:flex;gap:.3rem;margin:.6rem 0 .4rem;border-bottom:1px solid var(--line)}.simtabs button{background:none;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--dim);padding:.35rem .9rem;cursor:pointer;font:inherit;margin-bottom:-1px}.simtabs button:hover{color:var(--txt)}.simtabs button.on{color:var(--txt);background:var(--card);border-color:var(--line);border-bottom:1px solid var(--card)}
+.pagetabs{display:flex;gap:.4rem;margin:.6rem 1.4rem 0;border-bottom:1px solid var(--line)}.pagetabs button{background:none;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--dim);padding:.45rem 1.1rem;cursor:pointer;font:inherit;font-size:.95rem;margin-bottom:-1px}.pagetabs button:hover{color:var(--txt)}.pagetabs button.on{color:var(--txt);background:var(--card);border-color:var(--line);border-bottom:1px solid var(--card);font-weight:600}
+
+/* sticky top-level page tabs */
+.pagetabs{
+  position:sticky;
+  top:0;
+  z-index:50;
+  background:var(--bg);
+  margin:0;
+  padding:.55rem 1.4rem .4rem;
+  border-bottom:1px solid var(--line);
+  box-shadow:0 1px 0 var(--line);
+}
+.pagetabs button{
+  margin-bottom:0;
+}
+
+/* compact sim summary cards only */
+#simmetrics{
+  gap:.35rem;
+  padding:.35rem 0 .5rem;
+  grid-template-columns:repeat(5,minmax(0,1fr));
+}
+#simmetrics .metric{
+  padding:.4rem .55rem;
+  border-radius:8px;
+}
+#simmetrics .metric .k{font-size:.72rem}
+#simmetrics .metric .v{
+  font-size:1.12rem;
+  font-weight:600;
+  letter-spacing:-.015em;
+  margin-top:.08rem;
+}
+#simmetrics .metric .d{font-size:.78rem;margin-top:.05rem}
+@media(max-width:860px){
+  #simmetrics{
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:.4rem;
+    padding:.4rem 0;
+  }
+  #simmetrics .metric .v{font-size:1.05rem}
+}

@@ -30,7 +30,7 @@ function render(s){const a=s.account;
   `<tr class="${r.code=='6197'?'hl':''}"><td>${r.watch_rank}</td><td class="l">${r.label||r.code}${r.code=='6197'?' ★':''}</td><td class="${cls(r.pred_excess_ret)}">${spct(r.pred_excess_ret)}</td><td>${r.rank}/${r.n_stocks}</td><td>${r.decile}</td></tr>`).join('');
  const R=s.research;$('rscap').textContent=`⚠ ${R.note}（${R.mon||''}）`;
  $('rs').innerHTML='<tr><th>#</th><th class="l">股票</th><th>預測超額</th></tr>'+R.rows.map(r=>`<tr><td>${r.rank}</td><td class="l">${r.name}</td><td class="${cls(r.pred)}">${pct(r.pred,2)}</td></tr>`).join('');
- const m=s.monitor,L=m.latest||{};$('moncap').innerHTML=`最新 ${L.mon||'—'}：IC ${nf(L.ic,3)} · 12月滾動 IC ${nf(L.ic12,3)} · 12月命中率 ${nf(L.hit12,0)}% · 全期平均 IC ${nf(m.ic_mean_all,3)}（${pct(m.ic_pos_share,0)} 月份為正，共 ${m.n_months} 月）${m.neg_streak>=3?' · <span class="dn">IC 連續轉負 '+m.neg_streak+' 月</span>':''}`;
+ {const S=s.sim||{};let el=$('simst');if(!el){el=document.createElement('div');el.id='simst';el.className='cap';$('moncap').after(el)}el.textContent='模擬下單：'+(S.updated?(S.message||S.state||'—')+'（'+S.updated+'）':'尚未執行')}const m=s.monitor,L=m.latest||{};$('moncap').innerHTML=`最新 ${L.mon||'—'}：IC ${nf(L.ic,3)} · 12月滾動 IC ${nf(L.ic12,3)} · 12月命中率 ${nf(L.hit12,0)}% · 全期平均 IC ${nf(m.ic_mean_all,3)}（${pct(m.ic_pos_share,0)} 月份為正，共 ${m.n_months} 月）${m.neg_streak>=3?' · <span class="dn">IC 連續轉負 '+m.neg_streak+' 月</span>':''}`;
  const sr=m.series.slice(-60);line($('mon'),[{name:'12月滾動 IC',color:'#58a6ff',pts:sr.map(r=>r.ic12)},{name:'12月命中率 ÷100',color:'#3fb950',pts:sr.map(r=>r.hit12==null?null:r.hit12/100)}],{fmt:v=>v.toFixed(2),zero:true,legend:true,x:sr.length?sr[0].mon.slice(0,7)+' → '+sr.at(-1).mon.slice(0,7):''});
  const N=s.news;$('newscap').textContent=`${N.note} · ${N.as_of?N.as_of.slice(0,16):'尚未抓取'} · ${N.count||0} 則`;
  const lk=h=>`<li><a href="${h.link}" target="_blank" rel="noopener">${h.title}</a>${h.held?` <span class="tag">${h.held.join('、')}</span>`:''}</li>`;
@@ -83,3 +83,35 @@ function eqDraw(){const a=EQ.a,el=$('curve'),init=a.initial||0,all=a.curve.filte
   tip.innerHTML=`<b>${c[i].date}</b><div>權益 NT$ ${nf(c[i].equity)}</div><div>當日 <span class="${cls(dc)}">${snf(dc)}</span></div><div>累積 <span class="${cls(cu)}">${spct(cu)}</span></div>${bp[i]!=null?`<div class="cap">加權指數 ${spct(bp[i]/base-1)}</div>`:''}`;
   tip.hidden=false;tip.style.left=Math.min(x+12,W-170)+'px';tip.style.top=Math.max(4,y-70)+'px'}}
 loadBench();setInterval(loadBench,3600000);
+
+async function loadSim(){try{const d=await (await fetch('/api/sim',{cache:'no-store'})).json();renderSim(d)}catch(e){$('simcap').textContent='模擬帳戶載入失敗：'+e.message}}
+function renderSim(d){const S=d.snapshot||{},B=S.baseline,SL=S.sleeve,st=d.status||{};
+ const n=v=>v==null||v===''?'—':nf(+v),n2=v=>v==null||v===''?'—':nf(+v,2);
+ $('simcap').innerHTML=(S.updated?`快照 ${S.updated}（盤中每 5 分鐘、盤後每小時更新，只讀）`:'尚無快照')+(B?` · 策略起算 ${B.start_date}，只算 100 萬策略部分`:' · 策略尚未開始（11/2 第一次送單後起算）')+(st.message?` · 最近動作：${st.message}`:'')+((S.errors||[]).length?` · <span class="dn">${S.errors.join('；')}</span>`:'');
+ const bal=S.balance&&S.balance.acc_balance,m=[];
+ if(SL){m.push(['策略權益',nf(SL.equity)],['策略損益',`<span class="${cls(SL.equity-SL.initial)}">${snf(SL.equity-SL.initial)}</span>`,`<span class="${cls(SL.equity-SL.initial)}">${spct((SL.equity-SL.initial)/SL.initial)}</span>`],['策略市值',nf(SL.mv)])}
+ else m.push(['策略權益','—','尚未開始']);
+ m.push(['帳戶餘額',bal?nf(bal):'—',bal?'':'模擬環境未提供（回 0）'],['持股',(S.positions||[]).length+' 檔']);
+ $('simmetrics').innerHTML=m.map(([k,v,x])=>`<div class="metric"><div class="k">${k}</div><div class="v">${v}</div>${x?`<div class="d">${x}</div>`:''}</div>`).join('');
+ const P=S.positions||[];
+ $('simpos').innerHTML='<tr><th class="l">股票</th><th>股數</th><th>成本</th><th>現價</th><th>損益</th><th>報酬</th><th class="l">備註</th></tr>'+(P.length?P.map(p=>`<tr><td class="l">${p.label||p.code}</td><td>${nf(p.shares)}</td><td>${n2(p.avg)}</td><td>${n2(p.last)}</td><td class="${cls(p.pnl)}">${p.pnl==null?'—':snf(p.pnl)}</td><td class="${cls(p.ret)}">${p.ret==null?'—':spct(p.ret)}</td><td class="l">${p.legacy?'舊持股、待清倉（不計績效）':'策略'}</td></tr>`).join(''):'<tr><td class="l" colspan="7">沒有持股</td></tr>');
+ const T=S.trades||[],L=d.log||[];
+ $('simtrcap').textContent=`今日（即時）${T.length} 筆 · 本月紀錄 ${d.log_file||'無'}`;
+ const rowT=(t,src)=>`<tr><td class="l">${src}</td><td class="l">${t.time||''}</td><td class="l">${t.label||t.code}</td><td>${t.side==='Buy'?'買':'賣'}</td><td>${t.lot==='IntradayOdd'?'零股':'整股'}</td><td>${n(t.shares)}</td><td>${n2(t.price)}</td><td class="l">${t.status||''}</td><td>${n(t.deal_shares)}</td></tr>`;
+ const all=T.map(t=>rowT(t,'即時')).concat(L.slice().reverse().map(t=>rowT(t,t.kind||'紀錄')));
+ $('simtr').innerHTML='<tr><th class="l">來源</th><th class="l">時間</th><th class="l">股票</th><th>買賣</th><th>盤別</th><th>股數</th><th>限價</th><th class="l">狀態</th><th>成交股數</th></tr>'+(all.length?all.join(''):'<tr><td class="l" colspan="9">沒有委託</td></tr>');
+ const F=all.filter((x,k)=>{const t=k<T.length?T[k]:L.slice().reverse()[k-T.length];return +(t&&t.deal_shares)>0});
+$('simfillcap').textContent=`有成交的委託 ${F.length} 筆`;
+$('simfill').innerHTML='<tr><th class="l">來源</th><th class="l">時間</th><th class="l">股票</th><th>買賣</th><th>盤別</th><th>股數</th><th>限價</th><th class="l">狀態</th><th>成交股數</th></tr>'+(F.length?F.join(''):'<tr><td class="l" colspan="9">還沒有成交</td></tr>');
+const C=d.compare||[];$('simcmpcap').textContent=`策略目標 ${d.compare_mon||'—'} vs 模擬帳戶實際持股（目標股數 = 權重 × 98 萬 ÷ 現價；差額 = 實際 − 目標）`;
+$('simcmp').innerHTML='<tr><th class="l">股票</th><th>權重</th><th>目標股數</th><th>實際股數</th><th>差額</th><th class="l">狀態</th></tr>'+(C.length?C.map(r=>`<tr><td class="l">${r.label||r.code}</td><td>${r.weight==null?'—':pct(r.weight,1)}</td><td>${n(r.target_shares)}</td><td>${n(r.sim_shares)}</td><td class="${cls(r.diff)}">${r.diff==null?'—':snf(r.diff)}</td><td class="l${r.status==='符合'?'':' warn'}">${r.status}</td></tr>`).join(''):'<tr><td class="l" colspan="6">沒有目標或持股</td></tr>');
+const R=d.reconcile||[];$('simreccap').textContent=d.reconcile_file?`${d.reconcile_file}（差額 = 實際 − 目標）`:'尚未對帳';
+ $('simrec').innerHTML='<tr><th class="l">股票</th><th>目標股數</th><th>模擬股數</th><th>差額</th></tr>'+R.map(r=>`<tr><td class="l">${r.label||r.code}</td><td>${n(r.target_shares)}</td><td>${n(r.sim_shares)}</td><td class="${cls(+r.diff)}">${r.diff}</td></tr>`).join('');
+}
+document.querySelectorAll('.simtabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.simtabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.simpane').forEach(p=>p.hidden=p.id!=='pane-'+b.dataset.t)});
+loadSim();setInterval(loadSim,60000);
+
+(function(){const go=p=>{if(p!=='sim')p='paper';document.querySelectorAll('.pagetabs button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));document.querySelectorAll('.page').forEach(x=>x.hidden=x.id!=='page-'+p);try{localStorage.setItem('page',p)}catch(e){}if(location.hash!=='#'+p)history.replaceState(null,'','#'+p);window.dispatchEvent(new Event('resize'))};
+document.querySelectorAll('.pagetabs button').forEach(b=>b.onclick=()=>go(b.dataset.p));
+window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
+let p0=location.hash.slice(1);if(!p0){try{p0=localStorage.getItem('page')}catch(e){}}go(p0||'paper')})();

@@ -1,6 +1,6 @@
 {
   "cash": 18985.9,
-  "equity": 996530.5,
+  "equity": 969066.56,
   "initial_cash": 1000000.0,
   "positions": [
     {
@@ -15,8 +15,8 @@
       "nn_rank": 6,
       "nn_score": 0.013379405,
       "industry": "半導體業",
-      "last": 3505.0,
-      "price_src": "2026-10-29"
+      "last": 3245.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "7846",
@@ -30,8 +30,8 @@
       "nn_rank": 8,
       "nn_score": 0.012453863,
       "industry": "未知",
-      "last": 95.80000305175781,
-      "price_src": "2026-10-29"
+      "last": 95.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "4537",
@@ -45,8 +45,8 @@
       "nn_rank": 17,
       "nn_score": 0.008982055,
       "industry": "未知",
-      "last": 152.5,
-      "price_src": "2026-10-29"
+      "last": 140.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "7843",
@@ -60,8 +60,8 @@
       "nn_rank": 21,
       "nn_score": 0.008347648,
       "industry": "未知",
-      "last": 101.0,
-      "price_src": "2026-10-29"
+      "last": 100.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "6654",
@@ -75,8 +75,8 @@
       "nn_rank": 23,
       "nn_score": 0.008020617,
       "industry": "其他電子業",
-      "last": 202.0,
-      "price_src": "2026-10-29"
+      "last": 201.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "7827",
@@ -90,8 +90,8 @@
       "nn_rank": 27,
       "nn_score": 0.007568744,
       "industry": "未知",
-      "last": 138.0,
-      "price_src": "2026-10-29"
+      "last": 135.5,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "5274",
@@ -105,8 +105,8 @@
       "nn_rank": 29,
       "nn_score": 0.0073714843,
       "industry": "半導體業",
-      "last": 16980.0,
-      "price_src": "2026-10-29"
+      "last": 15970.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "3189",
@@ -120,8 +120,8 @@
       "nn_rank": 31,
       "nn_score": 0.0071814284,
       "industry": "半導體業",
-      "last": 959.0,
-      "price_src": "2026-10-29"
+      "last": 932.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "6957",
@@ -135,8 +135,8 @@
       "nn_rank": 32,
       "nn_score": 0.0071650026,
       "industry": "其他業",
-      "last": 444.5,
-      "price_src": "2026-10-29"
+      "last": 438.5,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "1780",
@@ -150,8 +150,8 @@
       "nn_rank": 33,
       "nn_score": 0.0071637826,
       "industry": "食品工業",
-      "last": 24.049999237060547,
-      "price_src": "2026-10-29"
+      "last": 23.950000762939453,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "3711",
@@ -165,8 +165,8 @@
       "nn_rank": 34,
       "nn_score": 0.0070928736,
       "industry": "半導體業",
-      "last": 683.0,
-      "price_src": "2026-10-29"
+      "last": 668.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "2527",
@@ -180,8 +180,8 @@
       "nn_rank": 35,
       "nn_score": 0.007034123,
       "industry": "建材營造業",
-      "last": 48.400001525878906,
-      "price_src": "2026-10-29"
+      "last": 47.849998474121094,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "8091",
@@ -195,8 +195,8 @@
       "nn_rank": 36,
       "nn_score": 0.0068600634,
       "industry": "半導體業",
-      "last": 202.0,
-      "price_src": "2026-10-29"
+      "last": 194.5,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "3321",
@@ -210,8 +210,8 @@
       "nn_rank": 37,
       "nn_score": 0.0067562284,
       "industry": "電子零組件業",
-      "last": 21.450000762939453,
-      "price_src": "2026-10-29"
+      "last": 20.100000381469727,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "6870",
@@ -225,8 +225,8 @@
       "nn_rank": 38,
       "nn_score": 0.0067313476,
       "industry": "數位雲端",
-      "last": 397.0,
-      "price_src": "2026-10-29"
+      "last": 385.0,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "4925",
@@ -240,8 +240,8 @@
       "nn_rank": 41,
       "nn_score": 0.0063731656,
       "industry": "未知",
-      "last": 125.0,
-      "price_src": "2026-10-29"
+      "last": 121.5,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "5011",
@@ -255,8 +255,8 @@
       "nn_rank": 42,
       "nn_score": 0.006361255,
       "industry": "鋼鐵工業",
-      "last": 20.0,
-      "price_src": "2026-10-29"
+      "last": 19.700000762939453,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "1260",
@@ -271,7 +271,7 @@
       "nn_score": 0.0061451662,
       "industry": "未知",
       "last": 32.95000076293945,
-      "price_src": "2026-10-29"
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "4582",
@@ -285,8 +285,8 @@
       "nn_rank": 47,
       "nn_score": 0.0059951823,
       "industry": "未知",
-      "last": 20.25,
-      "price_src": "2026-10-29"
+      "last": 19.950000762939453,
+      "price_src": "2026-10-30"
     },
     {
       "ticker": "3037",
@@ -300,15 +300,15 @@
       "nn_rank": 48,
       "nn_score": 0.0059779035,
       "industry": "電子零組件業",
-      "last": 1040.0,
-      "price_src": "2026-10-29"
+      "last": 989.0,
+      "price_src": "2026-10-30"
     }
   ],
   "pending": [],
   "strategy": "nn_top20_buf40_ind30",
   "created_at": "2026-10-29 23:52:41+0800",
-  "last_session": "2026-10-29",
+  "last_session": "2026-10-30",
   "last_target": "2026-09",
   "paper_only": true,
-  "updated_at": "2026-10-30 08:30:09+0800"
+  "updated_at": "2026-10-30 16:00:08+0800"
 }

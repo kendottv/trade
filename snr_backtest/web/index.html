@@ -4,6 +4,8 @@
 <header class="top"><div><h1>NN 紙上帳戶</h1><div class="sub" id="strat">載入中…</div></div><div class="badge">只模擬 · 不下單</div></header>
 <div class="ticker" id="ticker"><span class="cap">行情載入中…</span></div>
 <div class="err" id="err" hidden></div>
+<nav class="pagetabs"><button data-p="paper" class="on">紙上帳戶</button><button data-p="sim">永豐模擬帳戶</button></nav>
+<div class="page" id="page-paper">
 <section class="metrics" id="metrics"></section>
 <main class="grid">
  <section class="card wide"><div class="eqhead"><h2>權益曲線</h2><div class="tabs" id="eqtabs"><button data-r="1M">1M</button><button data-r="3M">3M</button><button data-r="YTD">YTD</button><button data-r="ALL" class="on">ALL</button></div></div><div id="curve" class="eqwrap"></div></section>
@@ -13,6 +15,10 @@
  <section class="card"><h2>模型監控</h2><div class="cap" id="moncap"></div><div id="mon" class="chart"></div></section>
  <section class="card"><h2>新聞（僅顯示）</h2><div class="cap" id="newscap"></div><div id="news"></div></section>
 </main>
+</div>
+<div class="page" id="page-sim" hidden><main class="grid">
+ <section class="card wide" id="simcard"><h2>永豐模擬帳戶</h2><div class="cap" id="simcap">載入中…</div><section class="metrics" id="simmetrics"></section><div class="simtabs"><button class="on" data-t="pos">持股</button><button data-t="ord">委託</button><button data-t="fill">成交</button><button data-t="cmp">對照</button></div><div class="simpane" id="pane-pos"><div class="tw"><table id="simpos"></table></div></div><div class="simpane" id="pane-ord" hidden><div class="cap" id="simtrcap"></div><div class="tw"><table id="simtr"></table></div></div><div class="simpane" id="pane-fill" hidden><div class="cap" id="simfillcap"></div><div class="tw"><table id="simfill"></table></div></div><div class="simpane" id="pane-cmp" hidden><div class="cap" id="simcmpcap"></div><div class="tw"><table id="simcmp"></table></div><div class="cap" id="simreccap"></div><div class="tw"><table id="simrec"></table></div></div></section>
+</main></div>
 <footer class="cap">資料：trade_NN/out、paper_nn、trade-coach 新聞。預測的是下個月超額報酬，排名比數值重要。</footer>
 <script src="/static/app.js?v={{v}}"></script><script src="/static/chat.js?v={{v}}"></script>
 </body></html>
