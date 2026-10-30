@@ -18,7 +18,7 @@ import os
 import threading
 import time
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import timezone, datetime, timedelta
 from pathlib import Path
 from zoneinfo import ZoneInfo
 
@@ -333,7 +333,8 @@ def _parse_ts(raw) -> datetime:
         n = int(raw)
         if n > 10**15:
             n = n / 1e9
-        return datetime.fromtimestamp(n, tz=TZ)
+        # Shioaji snapshot ts 是「台北時間當 UTC」的 epoch
+        return datetime.fromtimestamp(n, tz=timezone.utc).replace(tzinfo=TZ)
     except (TypeError, ValueError, OSError):
         try:
             ts = pd.Timestamp(raw)
@@ -502,7 +503,7 @@ class ShioajiFeed:
                 if str(k).startswith("TXF"):
                     hit = v
                     break
-        if hit is not None:
+        if hit is not None and hit.prev_close:
             return hit
 
         def _snap() -> Quote | None:

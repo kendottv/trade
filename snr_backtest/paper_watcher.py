@@ -66,23 +66,15 @@ def mark(path: Path, now: datetime) -> None:
 
 
 def run_live() -> int:
-    cmd = [str(PY), str(ROOT / "paper_daily.py"), "--live", "--download"]
+    cmd = [str(PY), str(ROOT / "nn_paper.py"), "--daily"]  # NN 策略（舊 paper_daily 已移到 legacy/）
     log("run: " + " ".join(cmd))
     p = subprocess.run(cmd, cwd=str(ROOT))
     log(f"live exit {p.returncode}")
     return p.returncode
 
 
-def run_opens() -> int:
-    cmd = [str(PY), str(ROOT / "paper_daily.py"), "--opens"]
-    log("run: " + " ".join(cmd))
-    p = subprocess.run(cmd, cwd=str(ROOT))
-    log(f"open-fill exit {p.returncode}")
-    return p.returncode
-
-
 def last_session_date() -> str:
-    path = ROOT / "paper" / "account.json"
+    path = ROOT / "paper_nn" / "account.json"
     try:
         data = json.loads(path.read_text(encoding="utf-8"))
         return str(data.get("last_session") or "")[:10]
@@ -90,16 +82,8 @@ def last_session_date() -> str:
         return ""
 
 
-def run_alerts() -> int:
-    cmd = [str(PY), str(ROOT / "paper_alert.py")]
-    log("run: " + " ".join(cmd))
-    p = subprocess.run(cmd, cwd=str(ROOT))
-    log(f"alert exit {p.returncode}")
-    return p.returncode
-
-
 def run_news(slot: str) -> int:
-    cmd = [str(PY), str(ROOT / "news_risk.py"), "--slot", slot]
+    cmd = [str(PY), str(ROOT / "coach_bridge.py")]  # 新聞改用 trade-coach
     log("run: " + " ".join(cmd))
     p = subprocess.run(cmd, cwd=str(ROOT))
     log(f"news {slot} exit {p.returncode}")
@@ -169,21 +153,6 @@ def main() -> None:
         if past_stop(now):
             log("watcher stop (22:00)")
             return
-        if in_session(now) and not already_ran_today(OPEN_STAMP, now):
-            rc = run_opens()
-            if rc == 0:
-                mark(OPEN_STAMP, datetime.now(TZ))
-            else:
-                log(f"open-fill failed rc={rc}, will retry")
-                time.sleep(60)
-            continue
-        if in_session(now) and not already_ran_today(ALERT_STAMP, now):
-            rc = run_alerts()
-            if rc == 0:
-                mark(ALERT_STAMP, datetime.now(TZ))
-            else:
-                log(f"alert failed rc={rc}, will retry")
-            continue
         if is_trading_day(now.date()) and now.hour >= 16:
             last = last_session_date()
             if last < now.strftime("%Y-%m-%d"):

@@ -28,3 +28,17 @@ snr_backtest/paper/last_open_fill.txt
 shioaji.log
 **/shioaji.log
 **/.shioaji/
+
+# secrets / private (added 2026-10-30)
+**/.env*
+!**/.env.example
+**/*.pem
+**/*.key
+**/*secret*
+!**/broker_secrets.example.json
+**/.streamlit/credentials.toml
+*.bak_*
+*.log
+*.db
+*.sqlite*
+

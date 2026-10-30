@@ -1,0 +1,188 @@
+{
+ "source": "rss_live",
+ "as_of": "2026-10-30 08:30:06+08:00",
+ "window_hours": 24,
+ "news_count": 297,
+ "hot_keywords": [
+  {
+   "keyword": "AI",
+   "count": 72
+  },
+  {
+   "keyword": "Fed/利率",
+   "count": 33
+  },
+  {
+   "keyword": "半導體",
+   "count": 30
+  },
+  {
+   "keyword": "輝達",
+   "count": 15
+  },
+  {
+   "keyword": "匯率",
+   "count": 8
+  },
+  {
+   "keyword": "記憶體",
+   "count": 6
+  },
+  {
+   "keyword": "先進製程/封裝",
+   "count": 5
+  },
+  {
+   "keyword": "伺服器",
+   "count": 4
+  },
+  {
+   "keyword": "機器人",
+   "count": 3
+  },
+  {
+   "keyword": "電動車",
+   "count": 3
+  }
+ ],
+ "hot_stocks": [
+  {
+   "code": "2330",
+   "name": "台積電",
+   "count": 33
+  },
+  {
+   "code": "2303",
+   "name": "聯電",
+   "count": 12
+  },
+  {
+   "code": "2454",
+   "name": "聯發科",
+   "count": 11
+  },
+  {
+   "code": "2308",
+   "name": "台達電",
+   "count": 8
+  },
+  {
+   "code": "2409",
+   "name": "友達",
+   "count": 7
+  },
+  {
+   "code": "2379",
+   "name": "瑞昱",
+   "count": 4
+  },
+  {
+   "code": "6486",
+   "name": "互動",
+   "count": 3
+  },
+  {
+   "code": "2382",
+   "name": "廣達",
+   "count": 3
+  },
+  {
+   "code": "3105",
+   "name": "穩懋",
+   "count": 3
+  },
+  {
+   "code": "2352",
+   "name": "佳世達",
+   "count": 2
+  }
+ ],
+ "held_mentions": [
+  {
+   "held": [
+    "3711 日月光投控"
+   ],
+   "title": "鉅亨速報 - Factset 最新調查：日月光投控(3711-TW)EPS預估上修至20.33元，預估目標價為854元",
+   "link": "https://news.cnyes.com/news/id/6641424"
+  },
+  {
+   "held": [
+    "3711 日月光投控"
+   ],
+   "title": "【日月光投控法說會 AI 摘要】2026/10/29",
+   "link": "https://news.cnyes.com/news/id/6640979"
+  }
+ ],
+ "held_mention_count": 2,
+ "headlines": [
+  {
+   "time": "10-30 08:24",
+   "title": "歐元區領導人11/26-11/27開會，討論歐洲央行總裁接任人選",
+   "link": "https://tw.stock.yahoo.com/news/%E6%AD%90%E5%85%83%E5%8D%80%E9%A0%98%E5%B0%8E%E4%BA%BA11-26-11-27%E9%96%8B%E6%9C%83-%E8%A8%8E%E8%AB%96%E6%AD%90%E6%B4%B2%E5%A4%AE%E8%A1%8C%E7%B8%BD%E8%A3%81%E6%8E%A5%E4%BB%BB%E4%BA%BA%E9%81%B8-002402842.html",
+   "publisher": "yahoo_intl",
+   "stocks": []
+  },
+  {
+   "time": "10-30 08:23",
+   "title": "美股財報／亞馬遜財報遜色 現金流惡化引發盤後跌逾7%",
+   "link": "https://news.google.com/rss/articles/CBMiYEFVX3lxTFBIX05QakEtS3hnMmZOSXRHVG5oN2dJZjlkM1hZcDhyU0hvWjRFRkRNUWRaZUJrc3dWZE1OT1BJX2lSeklaSlpUZkdiZUNuMUs0QWJRbHY0cm9ldkpRMFZWWg?oc=5",
+   "publisher": "非凡新聞台",
+   "stocks": []
+  },
+  {
+   "time": "10-30 08:20",
+   "title": "〈分析〉Trainium擬2027年走出AWS：亞馬遜AI晶片下一步怎麼賺？",
+   "link": "https://news.cnyes.com/news/id/6641370",
+   "publisher": "鉅亨網",
+   "stocks": []
+  },
+  {
+   "time": "10-30 08:20",
+   "title": "10／30盤前｜台股跌！外資錢進金融、電信 買超10強金融包辦6檔",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE5TVGU3ZHNVNUtlZ3hHejg2RExlaUc5Y1UyR19MeDRPX3JYTkUtWFI0ZXoxWGZOWXhpYm9KY3hPMHptZEt4b0gtcTdkdk1YV1I1VjlFUlpaQjU5SXRDZTIw?oc=5",
+   "publisher": "工商時報",
+   "stocks": []
+  },
+  {
+   "time": "10-30 08:19",
+   "title": "聯準會年底升息預期猶存，紐約期金和現貨金週四下跌0.50%、1.13%",
+   "link": "https://tw.stock.yahoo.com/news/%E8%81%AF%E6%BA%96%E6%9C%83%E5%B9%B4%E5%BA%95%E5%8D%87%E6%81%AF%E9%A0%90%E6%9C%9F%E7%8C%B6%E5%AD%98-%E7%B4%90%E7%B4%84%E6%9C%9F%E9%87%91%E5%92%8C%E7%8F%BE%E8%B2%A8%E9%87%91%E9%80%B1%E5%9B%9B%E4%B8%8B%E8%B7%8C0-50-1-13-001901447.html",
+   "publisher": "yahoo_intl",
+   "stocks": []
+  },
+  {
+   "time": "10-30 08:13",
+   "title": "無人機＋機器人皆有斬獲！佳世達飆漲停奪量價雙增王 「砷化鎵晶圓代工龍頭」亮燈一同稱帝",
+   "link": "https://news.google.com/rss/articles/CBMi7ANBVV95cUxOak9hYkV3djk1N0xsbUxiOWpsd0lTYUpKR0pSVm1pQldhVldDRDNzdlowSHpKa3F4alRGQUdSOG44Y1JSMk9POVhBSnVZTFhMTVhpUnFpRWttSFRFc2JMYzRaelNvUE44bjBRRlVHZXQ1SHg4TlhSdzFJTXQ4elU3blBKSy1UX2JFVnRfbUo1dURGWnRDOXhFaWpLRFFraGNVSUp1TG9xczdhb3Z2WEpJcGpNLU8wN1dfMGw5R2JtSThELXJ4d1VjbVhmUi1XMkFrUlU3NHdnSVNoeEZxTzNfbFRoVkxYUVJIWFpSVzIweEdVRGxlT0tjaF9NTTNYNFVvTGQzd2FTNllpTnY2SEg5Um1FOE5QQ1dSd1JOS2V3VV9xMmhJTnVnQTJ4RGpTQldoVFdDeTZBeDdsLVhLOWJNQVFLdGx2ODd5OTNLRUs5RGgxd2tFaWZQV084azgtaF90OGZjSHd4TlhwZ21MRU1oLVZhRG5fN0JvS0d5bmhFc0gyemFMem9FeTVyMkdrc2lmUS04MHBFRV9wWVdRcTBzWGFQZThQcHRJaFR2cldkaUNTYzk4ZEVRb0lhN2YtbHBUd3dsODF6TkRYRjNSRDdMQ1dULWNlODRfTGxGcjNvZUZNaUJsNWZZcS1RSzI?oc=5",
+   "publisher": "Yahoo股市",
+   "stocks": [
+    "2352 佳世達"
+   ]
+  },
+  {
+   "time": "10-30 08:12",
+   "title": "英特爾以色列廠爆炸加劇供應短缺 股價暴跌21%",
+   "link": "https://news.google.com/rss/articles/CBMifkFVX3lxTFBCdHdpNjh5Smt0TWg0T2FUVXFiQ244MGJPSFVSOWZibkJRWXNVaVNhUHVxT2EtdEZGY2Y0Z0d2WkcyNjZ0VXRuVFhEUDBPSERNQS1mVTh2SXhiOWExWlR5aUNkdXRxbm8zbkFVNVIzTkpzSFpXMmhLUUFENTR2d9IBYkFVX3lxTE1nVDFhY2owQ1ZNMzRuLXY5RjRFOEpqMmFCT1dxVmlxYnM2VTdXU3Vtam9oQ0NINWlScWlnZWtiT0ZSaTNCQ2VwYmx2Z296RVVoQ3RQRE9uXy1TamFfYWU5d3l3?oc=5",
+   "publisher": "經濟日報",
+   "stocks": []
+  },
+  {
+   "time": "10-30 08:10",
+   "title": "鉅亨速報 - Factset 最新調查：致茂(2360-TW)EPS預估上修至48.3元，預估目標價為2800元",
+   "link": "https://news.cnyes.com/news/id/6641426",
+   "publisher": "鉅亨網",
+   "stocks": [
+    "2360 致茂"
+   ]
+  }
+ ],
+ "sources": {
+  "yahoo_tw_market": "ok (50)",
+  "yahoo_intl": "ok (50)",
+  "gnews_tw": "ok (100)",
+  "gnews_us": "ok (100)",
+  "cnyes_tw_stock": "ok (30)",
+  "cnyes_us_stock": "ok (30)"
+ },
+ "stock_list_size": 1991
+}

@@ -33,13 +33,7 @@ STRATEGY_KEYS = (
     "MAX_POSITIONS",
 )
 
-NEWS_KEYS = ("HOT", "SEVERE", "COOLING_DROP")
 
-NEWS_DEFAULTS = {
-    "HOT": 6,
-    "SEVERE": 12,
-    "COOLING_DROP": 3,
-}
 
 
 def load_raw() -> dict:
@@ -107,13 +101,6 @@ def load_strategy_overlay() -> dict:
     return {k: raw[k] for k in STRATEGY_KEYS if k in raw}
 
 
-def load_news_overlay() -> dict:
-    raw = load_raw().get("news")
-    if not isinstance(raw, dict):
-        return {}
-    return {k: raw[k] for k in NEWS_KEYS if k in raw}
-
-
 def apply_strategy_to_module(g: dict, defaults: dict) -> None:
     overlay = load_strategy_overlay()
     for key, value in overlay.items():
@@ -123,17 +110,6 @@ def apply_strategy_to_module(g: dict, defaults: dict) -> None:
             g[key] = coerce(defaults[key], value)
         except (TypeError, ValueError):
             continue
-
-
-def effective_news() -> dict:
-    out = dict(NEWS_DEFAULTS)
-    overlay = load_news_overlay()
-    for key, value in overlay.items():
-        try:
-            out[key] = int(value)
-        except (TypeError, ValueError):
-            continue
-    return out
 
 
 def save_watchlist(watchlist: dict[str, str]) -> None:
@@ -156,11 +132,9 @@ def save_watchlist(watchlist: dict[str, str]) -> None:
     save_raw(data)
 
 
-def save_strategy(strategy: dict, news: dict | None = None) -> None:
+def save_strategy(strategy: dict) -> None:
     data = load_raw()
     data["strategy"] = {k: strategy[k] for k in STRATEGY_KEYS if k in strategy}
-    if news is not None:
-        data["news"] = {k: int(news[k]) for k in NEWS_KEYS if k in news}
     save_raw(data)
 
 

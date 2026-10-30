@@ -7,7 +7,7 @@ if not exist ".venv\Scripts\python.exe" (
   exit /b 1
 )
 echo Updating paper account...
-".venv\Scripts\python.exe" paper_daily.py --live --download
+".venv\Scripts\python.exe" nn_paper.py --daily
 echo.
 echo Done. See paper\account.json
 pause

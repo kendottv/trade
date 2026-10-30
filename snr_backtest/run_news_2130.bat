@@ -8,7 +8,7 @@ if not exist "%HERE%.venv\Scripts\python.exe" (
   echo %date% %time% ERROR no venv >> "paper\scheduled.log"
   exit /b 1
 )
-"%HERE%.venv\Scripts\python.exe" "%HERE%news_risk.py" --slot 2130 >> "paper\scheduled.log" 2>&1
+"%HERE%.venv\Scripts\python.exe" "%HERE%coach_bridge.py" >> "paper\scheduled.log" 2>&1
 echo %date% %time% NEWS 2130 done err=%ERRORLEVEL% >> "paper\scheduled.log"
 echo %date% %time% INSTITUTIONAL 2130 >> "paper\scheduled.log"
 "%HERE%.venv\Scripts\python.exe" "%HERE%institutional.py" --fetch >> "paper\scheduled.log" 2>&1

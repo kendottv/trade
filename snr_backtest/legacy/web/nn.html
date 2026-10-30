@@ -1,0 +1,11 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>NN 紙上帳戶</title>
+<link rel="stylesheet" href="/static/app.css"><style>body{font-family:sans-serif;background:#0f1115;color:#ddd;padding:16px}table{border-collapse:collapse;margin:8px 0}td,th{border:1px solid #333;padding:4px 8px;text-align:right}th{background:#1b1f27}.hl{background:#3a2f12}a{color:#7cb7ff}</style></head>
+<body><h2>NN 紙上帳戶（只模擬，不下單）</h2><div id="sum"></div>
+<h3>自選 10 檔排名</h3><table id="wl"></table><h3>持股</h3><table id="pos"></table>
+<p><a href="http://localhost:7870" target="_blank">開 trade-coach 交易教練</a> · <a href="/">回總覽</a></p>
+<script>
+fetch('/api/nn').then(r=>r.json()).then(d=>{const a=d.account||{};
+document.getElementById('sum').textContent=`策略：${d.strategy.label}｜目標月份 ${d.target_mon}｜權益 ${Math.round(a.equity).toLocaleString()}｜現金 ${Math.round(a.cash).toLocaleString()}｜初始 ${Math.round(a.initial_cash).toLocaleString()}｜日期 ${a.last_session}`;
+const w=d.watchlist.records||[];document.getElementById('wl').innerHTML='<tr><th>名次</th><th>代號</th><th>預測超額</th><th>全市場排名</th><th>十分位</th></tr>'+w.map(r=>`<tr class="${r.code=='6197'?'hl':''}"><td>${r.watch_rank}</td><td>${r.code}</td><td>${(r.pred_excess_ret*100).toFixed(2)}%</td><td>${r.rank}/${r.n_stocks}</td><td>${r.decile}</td></tr>`).join('');
+document.getElementById('pos').innerHTML='<tr><th>股票</th><th>股數</th><th>成本</th><th>現價</th><th>NN 名次</th></tr>'+(a.positions||[]).map(p=>`<tr><td>${p.name}</td><td>${p.shares}</td><td>${p.avg_price.toFixed(2)}</td><td>${(p.last||0).toFixed(2)}</td><td>${p.nn_rank??''}</td></tr>`).join('');});
+</script></body></html>
