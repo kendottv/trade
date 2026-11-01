@@ -1,79 +1,89 @@
 {
  "source": "rss_live",
- "as_of": "2026-10-31 21:30:09+08:00",
+ "as_of": "2026-11-01 21:30:08+08:00",
  "window_hours": 24,
- "news_count": 289,
+ "news_count": 232,
  "hot_keywords": [
   {
    "keyword": "AI",
-   "count": 77
+   "count": 65
   },
   {
    "keyword": "半導體",
-   "count": 36
+   "count": 19
   },
   {
    "keyword": "輝達",
-   "count": 29
+   "count": 12
   },
   {
    "keyword": "Fed/利率",
    "count": 8
   },
   {
-   "keyword": "記憶體",
-   "count": 7
-  },
-  {
-   "keyword": "關稅/貿易",
-   "count": 5
-  },
-  {
    "keyword": "機器人",
    "count": 4
   },
   {
-   "keyword": "匯率",
-   "count": 3
+   "keyword": "記憶體",
+   "count": 4
   },
   {
-   "keyword": "AI伺服器",
-   "count": 3
+   "keyword": "關稅/貿易",
+   "count": 4
   },
   {
-   "keyword": "伺服器",
-   "count": 3
+   "keyword": "CPO/矽光子",
+   "count": 2
+  },
+  {
+   "keyword": "散熱",
+   "count": 2
+  },
+  {
+   "keyword": "先進製程/封裝",
+   "count": 1
   }
  ],
  "hot_stocks": [
   {
    "code": "2330",
    "name": "台積電",
-   "count": 31
+   "count": 18
   },
   {
    "code": "2317",
    "name": "鴻海",
-   "count": 9
-  },
-  {
-   "code": "2308",
-   "name": "台達電",
    "count": 5
-  },
-  {
-   "code": "2303",
-   "name": "聯電",
-   "count": 3
   },
   {
    "code": "2454",
    "name": "聯發科",
+   "count": 4
+  },
+  {
+   "code": "5287",
+   "name": "數字",
    "count": 3
   },
   {
-   "code": "1303",
-   "name": "南亞",
+   "code": "6568",
+   "name": "宏觀",
+   "count": 3
+  },
+  {
+   "code": "2383",
+   "name": "台光電",
+   "count": 2
+  },
+  {
+   "code": "6274",
+   "name": "台燿",
+   "count": 2
+  },
+  {
+   "code": "2308",
+   "name": "台達電",
    "count": 2
   },
   {
@@ -82,98 +92,80 @@
    "count": 2
   },
   {
-   "code": "1301",
-   "name": "台塑",
-   "count": 2
-  },
-  {
-   "code": "3443",
-   "name": "創意",
-   "count": 2
-  },
-  {
-   "code": "3037",
-   "name": "欣興",
+   "code": "2303",
+   "name": "聯電",
    "count": 2
   }
  ],
  "held_mentions": [
   {
    "held": [
-    "3037 欣興"
-   ],
-   "title": "從零股榜看人氣》前10罕見沒換人！台達電週跌14％仍穩第3 創意欣興逆勢往前卡位- 上市櫃",
-   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5YUTZObHRBdkNWeGgxYUNVRHVZTkZVQi1GaWljZVJQTTM1V1Nrd3NLUzJyWFdOTjhvRWRoSzBvYjJEZWFIQXpTb0QtUnRDdE0tR3Y5MFRYS29vSDhfNllwa3N3MFVaNE8za0E?oc=5"
-  },
-  {
-   "held": [
     "3037 欣興",
-    "3321 同泰"
+    "3189 景碩"
    ],
-   "title": "〈熱門股〉欣興旗下同泰電子結束連19季虧損Q3轉盈 周漲24%",
-   "link": "https://news.cnyes.com/news/id/6642481"
+   "title": "AI 算力撞上傳輸天花板！PCB、CCL 材料迎「混種革命」，揭密下一波千億升級商機",
+   "link": "https://news.cnyes.com/news/id/6641796"
   }
  ],
- "held_mention_count": 2,
+ "held_mention_count": 1,
  "headlines": [
   {
-   "time": "10-31 21:23",
-   "title": "AI 泡沫爆了嗎？那斯達克大跌 跟2000年達康泡沫情景有何異同",
-   "link": "https://news.google.com/rss/articles/CBMiWkFVX3lxTE1Scmt1Nld6enNOUHBDaUpmb1hRMWpla3hJVWF3VVVzVGN0QVY2S3pkWklTekpMak9hWk1fUHpjUUN4MFpDYm5udUlqdDltSmZkUVA4UlFYdEpsUdIBYkFVX3lxTE82MllQaU04d2ZSLWZONG1sYzJLbEhoZG83U2pTZS1fbnpINFZEak5LN2p2Rkc3TkI5Vzk4eWJsWkVscGxFc0lUWHBwRF96X2cxWGJmUkFlMVVkMzcyVkRSMlR3?oc=5",
-   "publisher": "經濟日報",
+   "time": "11-01 21:16",
+   "title": "美科技股重挫30%引發供應鏈洗牌，台股急跌逾五千點資金轉向防禦型ETF！-財經焦點情報站",
+   "link": "https://news.google.com/rss/articles/CBMiggFBVV95cUxObzgwNlVKM3VNckdTX255ZTlPM0RqZXN5TFBRbmhSd1FROXoxTTdjZk1HNDR4WTVOUzRFLTlnVzNLYWdZcDk0bkJYWmpaWWo0T3ZQUHNId1BTSEJJam9IblQ5SlFvaWpLYmxSRHpDdXMxLS11OGRPSndFZl9fMnQ1VzRn?oc=5",
+   "publisher": "CMoney投資網誌",
    "stocks": []
   },
   {
-   "time": "10-31 21:20",
-   "title": "小兒抄底加槓桿？狂砍0050卻砸2.28億搶「這4檔正2」破1.3萬張 另掃4檔債券ETF入袋2.1萬張",
-   "link": "https://news.google.com/rss/articles/CBMiugJBVV95cUxPM1FwNlJZNzA1aF9pUEZ0eklaZ19pSm1OLURCZ3hXdm1hYTBjYTdqcUVyX2trNlNjWjZjakhWTnZHdkNNTEpwcnFfMXE0YjlDbVlXb3FUbkprZWI2Z2l0aFE3dkFKRzJ1bkU5TjlubVY2SzhaM3ZmNGtsLWQ2NnUwOFJrY3lLZm1HcUM5ODJiZHNpMGwyRTF2OXlGVTh4Z2pwSFFqNElTSV9nWl9kNEp3ZzIyMjFSMWo0NW0zZ3VLaElRclcyQWlzSWtfU0xPd24xcDRxVFhLZzhqWi1VTnFKVzR6bmZ4QkdHWGVCeWc2WENnRkNDS3hwclRLUnZHQmNzbTFDVFEtVjNVMTlld1B4MVBLZmgxYTNzQ005RnkwMGdNMHc2aHdwVWtlWFhGMXNnaHA0YVp5S1RrQQ?oc=5",
+   "time": "11-01 21:13",
+   "title": "百萬持有人證券增至8檔 0050奪冠",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTFBuTVdyRzh0SGdWYnZYX1VSVHE4ZU04cnlCVWVxb3VGdl81UGlNcnRQbGNXWEw3LWJQTVhtOVNhcXV6eWkxaGlDRlhXbjZ6MXpud1E?oc=5",
+   "publisher": "中華新聞雲／中華日報",
+   "stocks": []
+  },
+  {
+   "time": "11-01 21:10",
+   "title": "Meta攜手中國傅里葉開發人形機器人「Max」！第二代啟動研發、搭載輝達晶片",
+   "link": "https://news.cnyes.com/news/id/6643212",
+   "publisher": "鉅亨網",
+   "stocks": []
+  },
+  {
+   "time": "11-01 21:00",
+   "title": "預測市場瘋了？70％壓民主黨國會大翻盤 華爾街押注「藍潮」改寫財經遊戲規則",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5zTFUwazgybXR0QTlVSk02VUxNbTl2azhFZ1JCelRwTkxyY1NHUDJGeVZ1NUgzbFJNb3B5VGY4aE45eVRMSHAzNjlUSmhicXppZmxZOEk2dkVtRTktWGRDYWpvZU5ITE0?oc=5",
+   "publisher": "CMoney",
+   "stocks": []
+  },
+  {
+   "time": "11-01 21:00",
+   "title": "三大法人10月押寶名單出爐！股市再閃金光 這「鋼鐵廠」逆勢突圍、吸金49.3億元",
+   "link": "https://news.google.com/rss/articles/CBMijwNBVV95cUxNTUhnejl6ZjhGdWFEZ0ZLb1FNdWdKOFVjbVMtc1AzRGxIbzVkdFY1OG9jbUt4Sjd3S3lTUlRGNXNnMnpnajlTWHNYeEhPNmlIbW9SVkI3enF6Y2haM0VaZXZTM0lsckJvYzJQSVRrczBJNEVVbUNkXzdLdHhuNkVwVl9DelBjaUY1OFpnajIyd2E5U1FKNm41Ulh3Sk1RNEZtU1d3T0lqcjFIN3pSeUd4MlRSSlh0QmM5NWVmakR2T01zaHYzTDRvSDZSMlFtMlViaXNhVnUxSnFTYl9aRnZrdE5xTUY0WmZLNzI2Z1hBQVFGME9RYXpQTzVQNTdseGxKVHpjVzNIUW9DX3R0Q1c4cms2bDQ2RXVkTFlfSzV3QW1zZWpkSUVscmhPdUY2dEtWall6c0VtWHJUdWJ4SmlpNzlHc2Fobi16UGdqQlRYc0NrcDAxTkxqTjdmVVM2VjIzQjA3N2xuTHd4eENqUmpzWmlkUk55WlZsMkZBUUFvUEJpOEVIM3pqVXVsN3lpUG8?oc=5",
    "publisher": "Yahoo股市",
    "stocks": []
   },
   {
-   "time": "10-31 21:17",
-   "title": "Okta衝進S&P 500！替代Kenvue納入指數，追蹤資金潮恐再點燃軟體股行情",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5aNEVvYlk0Vjk4R1RFaVVvTVowWS16U0x3V2Vhc0d1VU1QZVE3dWdnRk5vWXlHeGs3TDBQX0pjekRTT2VPQVJINTdGNHBEMzF6RXNNelA0SUZLbEk1QzNPM2hqRGRwRFk?oc=5",
-   "publisher": "CMoney",
+   "time": "11-01 20:50",
+   "title": "台股10月市值蒸發10.5兆！股民平均縮水71萬 苦笑「賠錢終於超越平均」",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE8wdHdqZzFSTlNuWE9DLTJyaFh3OXhGZkgtc0htQ24wNHhGbHNWYmRJUzgybDFOV05OQ3k0dHFxdmtPZDN5enNxM1I0VGJDQlZUc3fSAVdBVV95cUxOdF9rakFMaFRiTDFGU19SWEdXem02UHV0dGJZaVRPeXp0YUx6ZWVzbVNjdC1fZXZCTmpJNkRBNG1iWlY2OVROUWVEcThpZXBnS1MtSlpQWGc?oc=5",
+   "publisher": "UDN",
    "stocks": []
   },
   {
-   "time": "10-31 21:12",
-   "title": "俄羅斯外長：澤倫斯基想見普丁 就來莫斯科",
-   "link": "https://news.cnyes.com/news/id/6643042",
-   "publisher": "鉅亨網",
-   "stocks": []
-  },
-  {
-   "time": "10-31 21:10",
-   "title": "台積電ADR暴跌近6％台股拋售逃得掉？策略師點出護國神山抗壓韌性",
-   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE95cXFUVW9NQmlyMjBJTVVJdVRHNDJEMm15V3B6NjBzMWl0RXZVZEhJaThCcGE5UVFNMFNSU1JnY3d5cnk0MmJpR0oxTUZDTUl0d0pqMHF4VGxhU2JDaWow0gFkQVVfeXFMTTR3RUxPU2Q2bnBxb296WmYxbE1JTXFCbXdwOE1TSWtJQVpET005WjNkMjE1UUJQbEFaYnJtZzRObnhXNzU3YmFpcG5mNVRfRTM4STVKTFlqcklTcnc1akJubkoxQg?oc=5",
-   "publisher": "自由財經",
+   "time": "11-01 20:47",
+   "title": "台股重挫反成買點？台光電、台燿迎漲價大行情 法人喊出驚人目標價",
+   "link": "https://news.google.com/rss/articles/CBMiU0FVX3lxTE03TkQ5Z042VEZZeTlLcXA1cXFqaWdVaUtQNS1nQ2lkakh1SndCM0VRaGdvQjJEdmZiWTlDTWFmV0JPeVlGUG5CMnByZ1NtNW52b2Fj?oc=5",
+   "publisher": "中天新聞網",
    "stocks": [
-    "2330 台積電"
+    "2383 台光電",
+    "6274 台燿"
    ]
   },
   {
-   "time": "10-31 21:10",
-   "title": "Anthropic總裁：Claude永遠不會成為你的伴侶或心理師！AI時代人類更要持續進化",
-   "link": "https://news.cnyes.com/news/id/6642934",
-   "publisher": "鉅亨網",
-   "stocks": [
-    "6486 互動"
-   ]
-  },
-  {
-   "time": "10-31 21:02",
-   "title": "TWA00 加權指數- 美科技股爆雷台股挫逾千點，力晶掀經營權之爭- 股市爆料同學會",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBvWU5ZVkxJcjFvNzBSUWE3UENqQVdYLUJ1VjB5ZDNJNXR5c0hlZWE1NXlPN08wVlhBLTFQNTFOeXVwbGp1SWdOMHdIQzk2VElZNTRDV3ZMaHI?oc=5",
-   "publisher": "CMoney",
-   "stocks": []
-  },
-  {
-   "time": "10-31 21:00",
-   "title": "親歷者口述驚魂十餘秒 西班牙高鐵追撞慘劇背後",
-   "link": "https://news.cnyes.com/news/id/6643043",
-   "publisher": "鉅亨網",
+   "time": "11-01 20:47",
+   "title": "法說會與賣壓同時壓盤，台股先看第四季營收能否接上-子敏左側交易",
+   "link": "https://news.google.com/rss/articles/CBMigwFBVV95cUxQS3lGaHRBTE9fRHQ5NGg5ZDNIX1RXX25MMFBtMnRNMXN4MG1zc1VXN2NRWHRFVFJrcTJBRks4MkhNSjExb3RQVExPUXYyb3pzWTlBQmYxODluVnQxYUZfR3hwNDBKbFZyR0hFZFZHSkVxR2I5WTJSc2NLeF9uWkJiamp1WQ?oc=5",
+   "publisher": "CMoney投資網誌",
    "stocks": []
   }
  ],
@@ -181,7 +173,7 @@
   "yahoo_tw_market": "ok (50)",
   "yahoo_intl": "ok (50)",
   "gnews_tw": "ok (99)",
-  "gnews_us": "ok (100)",
+  "gnews_us": "ok (72)",
   "cnyes_tw_stock": "ok (30)",
   "cnyes_us_stock": "ok (30)"
  },
