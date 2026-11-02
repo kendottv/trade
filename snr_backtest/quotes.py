@@ -40,6 +40,11 @@ POLL_SEC = 15
 
 _YF_QUIET = False
 
+# 重連相關
+RECONNECT_MIN_INTERVAL = 90  # 兩次主動重連至少間隔秒數
+TICK_STALE_SEC = 300  # 交易時段內 tick 超過這秒數沒更新視為斷線
+SCHEDULED_SLOTS = ((8, 40), (14, 50))  # 每日主動重連時段 (hour, minute)
+
 
 def _quiet_yfinance() -> None:
     """Yahoo often prints 'possibly delisted' when a fetch is empty. Not true."""
@@ -359,6 +364,11 @@ class ShioajiFeed:
         self._ticks: dict[str, Quote] = {}
         self._sub: set[str] = set()
         self._yahoo = YahooFeed()
+        self._last_good = 0.0
+        self._last_reconnect_attempt = 0.0
+        self._scheduled_done: set[str] = set()
+        self._bg_started = False
+        self._start_bg()
 
     def available(self) -> bool:
         try:
@@ -367,6 +377,63 @@ class ShioajiFeed:
             return False
         key, secret = _shioaji_keys()
         return bool(key and secret)
+
+    def _start_bg(self) -> None:
+        if self._bg_started:
+            return
+        self._bg_started = True
+        t = threading.Thread(target=self._bg_loop, name="sj-reconnect", daemon=True)
+        t.start()
+
+    def _bg_loop(self) -> None:
+        while True:
+            try:
+                time.sleep(45)
+                self._maybe_scheduled_reconnect()
+                self._maybe_stale_reconnect()
+            except Exception as exc:
+                log.warning("shioaji bg loop: %s", exc)
+
+    def _maybe_scheduled_reconnect(self) -> None:
+        now = now_taipei()
+        key = now.strftime("%Y-%m-%d")
+        for h, m in SCHEDULED_SLOTS:
+            slot = f"{key}-{h:02d}{m:02d}"
+            if slot in self._scheduled_done:
+                continue
+            target = now.replace(hour=h, minute=m, second=0, microsecond=0)
+            if abs((now - target).total_seconds()) <= 90:
+                self._scheduled_done.add(slot)
+                log.info("shioaji scheduled reconnect at %02d:%02d", h, m)
+                self.force_reconnect(reason=f"schedule {h:02d}:{m:02d}")
+                return
+
+    def _maybe_stale_reconnect(self) -> None:
+        if self.api is None:
+            return
+        if not (in_cash_session() or in_txf_night()):
+            return
+        age = time.time() - self._last_good
+        if self._last_good > 0 and age > TICK_STALE_SEC:
+            log.info("shioaji stale ticks (%.0fs), reconnect", age)
+            self.force_reconnect(reason="stale ticks")
+
+    def force_reconnect(self, reason: str = "") -> None:
+        now = time.time()
+        if now - self._last_reconnect_attempt < RECONNECT_MIN_INTERVAL:
+            return
+        self._last_reconnect_attempt = now
+        log.info("shioaji force reconnect (%s)", reason or "manual")
+        self._logout()
+        self._sub.clear()
+        self._ticks.clear()
+        try:
+            self.connect()
+        except Exception as exc:
+            log.warning("shioaji reconnect failed: %s", exc)
+
+    def _mark_good(self) -> None:
+        self._last_good = time.time()
 
     def connect(self) -> None:
         if self.api is not None:
@@ -391,6 +458,7 @@ class ShioajiFeed:
             api.login(api_key=key, secret_key=secret)
             self._bind_ticks(api)
             self.api = api
+            self._mark_good()
             atexit.register(self._logout)
 
     def _logout(self) -> None:
@@ -437,6 +505,7 @@ class ShioajiFeed:
                 self._ticks[INDEX_YAHOO] = q
             if code.startswith("TXF"):
                 self._ticks[TXF_FRONT] = q
+            self._mark_good()
 
         def _cb(*args):
             tick = args[-1] if args else None
@@ -459,6 +528,8 @@ class ShioajiFeed:
     def contract(self, ticker: str):
         self.connect()
         api = self.api
+        if api is None:
+            return None
         code = self.to_contract_id(ticker)
         getter = getattr(getattr(api, "contracts", None), "get", None)
         if callable(getter):
@@ -485,6 +556,7 @@ class ShioajiFeed:
             self._sub.add(code)
         except Exception as exc:
             log.warning("shioaji subscribe %s: %s", code, exc)
+            self.force_reconnect(reason=f"subscribe fail {code}")
 
     def last(self, ticker: str) -> Quote | None:
         ticker = ticker or INDEX_YAHOO
@@ -494,6 +566,7 @@ class ShioajiFeed:
             self._subscribe(ticker)
         except Exception as exc:
             log.warning("shioaji last (%s): %s", ticker, exc)
+            self.force_reconnect(reason="last connect/subscribe")
             if str(ticker).upper().startswith("TX"):
                 return None
             return self._yahoo.last(ticker)
@@ -504,13 +577,19 @@ class ShioajiFeed:
                     hit = v
                     break
         if hit is not None and hit.prev_close:
+            self._mark_good()
             return hit
 
         def _snap() -> Quote | None:
             c = self.contract(ticker)
             if c is None:
                 return None
-            snaps = self.api.snapshots([c])
+            try:
+                snaps = self.api.snapshots([c])
+            except Exception as exc:
+                log.warning("shioaji snapshots fail (%s): %s", ticker, exc)
+                self.force_reconnect(reason="snapshots error")
+                return None
             if not snaps:
                 return None
             s = snaps[0]
@@ -540,6 +619,7 @@ class ShioajiFeed:
             self._ticks[code] = q
             if str(code).startswith("TXF"):
                 self._ticks[TXF_FRONT] = q
+            self._mark_good()
             return q
 
         try:
@@ -547,6 +627,7 @@ class ShioajiFeed:
             return _cached(f"sj:snap:{code}", ttl, _snap)
         except Exception as exc:
             log.warning("shioaji snapshot fallback yahoo (%s): %s", ticker, exc)
+            self.force_reconnect(reason="snapshot exception")
             return self._yahoo.last(ticker)
 
     def intraday(self, ticker: str) -> pd.DataFrame:
@@ -559,7 +640,12 @@ class ShioajiFeed:
                 c = self.contract(ticker)
                 if c is None:
                     return pd.DataFrame()
-                raw = self.api.kbars(c, start=day, end=day)
+                try:
+                    raw = self.api.kbars(c, start=day, end=day)
+                except Exception as exc:
+                    log.warning("shioaji kbars error (%s): %s", ticker, exc)
+                    self.force_reconnect(reason="kbars error")
+                    return self._yahoo.intraday(ticker)
                 if raw is None:
                     return pd.DataFrame()
                 if isinstance(raw, pd.DataFrame):
@@ -598,9 +684,11 @@ class ShioajiFeed:
                             mapped[need] = df[src]
                     df = pd.DataFrame(mapped, index=df.index) if mapped else df
                     keep = [c for c in ("Open", "High", "Low", "Close") if c in df.columns]
+                self._mark_good()
                 return df[keep].dropna() if keep else pd.DataFrame()
             except Exception as exc:
                 log.warning("shioaji kbars fallback yahoo (%s): %s", ticker, exc)
+                self.force_reconnect(reason="kbars exception")
                 return self._yahoo.intraday(ticker)
 
         return _cached(f"sj:1m:{ticker}", POLL_SEC, _pull)
@@ -831,12 +919,19 @@ def txf_night_payload() -> dict:
             prev_d -= timedelta(days=1)
         prev_start = datetime(prev_d.year, prev_d.month, prev_d.day, 15, 0, tzinfo=TZ)
         prev_end = prev_start + timedelta(hours=14)
-        kb_span = _txf_kbars_cached(
-            impl.api,
-            c,
-            prev_start.strftime("%Y-%m-%d"),
-            now.strftime("%Y-%m-%d"),
-        )
+        try:
+            kb_span = _txf_kbars_cached(
+                impl.api,
+                c,
+                prev_start.strftime("%Y-%m-%d"),
+                now.strftime("%Y-%m-%d"),
+            )
+        except Exception as exc:
+            log.warning("txf kbars: %s", exc)
+            if hasattr(impl, "force_reconnect"):
+                impl.force_reconnect(reason="txf kbars")
+            out["note"] = "沒有盤後報價"
+            return out
         prev_closes = _txf_session_closes(kb_span, prev_start, prev_end)
         if prev_closes:
             out["ref"] = prev_closes[-1]
@@ -868,6 +963,8 @@ def txf_night_payload() -> dict:
             out["note"] = "沒有盤後報價"
     except Exception as exc:
         log.warning("txf night: %s", exc)
+        if hasattr(impl, "force_reconnect"):
+            impl.force_reconnect(reason="txf night")
         out["note"] = "沒有盤後報價"
     return out
 
