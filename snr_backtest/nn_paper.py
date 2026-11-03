@@ -11,7 +11,9 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import re
 import sys
+import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
@@ -20,12 +22,20 @@ sys.path.insert(0, str(ROOT))
 from config import INITIAL_CAPITAL  # noqa: E402  trade 原本預設 1,000,000
 from nn_strategy import STRATEGY, latest_target  # noqa: E402
 import stock_names  # noqa: E402
+import proc_lock  # noqa: E402
+
+try:
+    import quotes  # noqa: E402
+except ImportError:
+    quotes = None
 
 PAPER = ROOT / "paper_nn"
 TZ = timezone(timedelta(hours=8))
 LEDGER_COLS = ["date", "ticker", "action", "reason", "price", "shares", "cash", "equity", "snr"]
 EQUITY_COLS = ["date", "cash", "market_value", "equity"]
 LIVE_ORDERS_ENABLED = False  # 硬性關閉，不提供真單
+_DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
+DAILY_LOCK = PAPER / "daily.lock"
 
 
 def now() -> str:
@@ -66,15 +76,66 @@ def log(text: str) -> None:
         f.write(text.rstrip() + "\n\n")
 
 
-def fetch_closes(codes: list[str]) -> dict[str, tuple[float, str]]:
-    """最新收盤（yfinance，先 .TW 再 .TWO）。抓不到的不回傳。"""
+def _shioaji_src(ts) -> str:
+    if ts is None:
+        return datetime.now(TZ).strftime("%Y-%m-%d %H:%M")
+    if hasattr(ts, "strftime"):
+        try:
+            return ts.strftime("%Y-%m-%d %H:%M")
+        except Exception:
+            pass
+    return str(ts)[:16]
+
+
+def _pure_date(src: str) -> str | None:
+    m = _DATE_RE.search(src or "")
+    return m.group(1) if m else None
+
+
+def _session_day(live: dict[str, tuple[float, str]]) -> str:
+    dates = [d for v in live.values() if (d := _pure_date(v[1]))]
+    if dates:
+        return max(dates)
+    return datetime.now(TZ).strftime("%Y-%m-%d")
+
+
+def get_shioaji_last(tickers: list[str]) -> dict[str, tuple[float, str]]:
+    """優先用 Shioaji 模擬報價取最新價。失敗或無資料回空 dict。不下單、不碰金鑰。"""
     out: dict[str, tuple[float, str]] = {}
+    if not quotes or not tickers:
+        return out
+    try:
+        feed = quotes.get_feed()
+        if getattr(feed, "name", "") != "shioaji":
+            return out
+        for t in tickers:
+            q = feed.last(t)
+            if q is not None and q.last and q.last > 0:
+                src = f"shioaji {_shioaji_src(q.ts)}"
+                out[t] = (float(q.last), src)
+    except Exception:
+        pass
+    return out
+
+
+def fetch_closes(codes: list[str]) -> dict[str, tuple[float, str]]:
+    """最新價：優先 Shioaji，抓不到或連線失敗再退 yfinance（先 .TW 再 .TWO）。"""
+    out: dict[str, tuple[float, str]] = {}
+    if not codes:
+        return out
+    # 1) Shioaji
+    sj = get_shioaji_last(codes)
+    out.update(sj)
+    # 2) yfinance 補剩下的
+    missing = [c for c in codes if c not in out]
+    if not missing:
+        return out
     try:
         import yfinance as yf
     except ImportError:
         return out
     for suf in (".TW", ".TWO"):
-        need = [c for c in codes if c not in out]
+        need = [c for c in missing if c not in out]
         if not need:
             break
         try:
@@ -88,7 +149,8 @@ def fetch_closes(codes: list[str]) -> dict[str, tuple[float, str]]:
                 if hasattr(s, "columns"):
                     s = s.iloc[:, 0]
                 if len(s):
-                    out[c] = (float(s.iloc[-1]), str(s.index[-1])[:10])
+                    day = str(s.index[-1])[:10]
+                    out[c] = (float(s.iloc[-1]), f"yahoo {day}")
             except Exception:
                 pass
     return out
@@ -115,7 +177,7 @@ def rebalance(acct: dict, mon: str, rows: list[dict]) -> list[dict]:
             v = live.get(p["ticker"])
             px[p["ticker"]] = v[0] if v else p.get("last", p["avg_price"])
             src[p["ticker"]] = v[1] if v else "前次價格"
-    day = max((v[1] for v in live.values()), default=datetime.now(TZ).strftime("%Y-%m-%d"))
+    day = _session_day(live)
     _, eq = _equity(acct, px)
     want = {r["code"]: r for r in rows}
     try:
@@ -199,6 +261,11 @@ def init(reset: bool = False) -> dict:
 
 
 def daily() -> dict:
+    deadline = time.time() + 600  # 最多等約 10 分鐘
+    while not proc_lock.acquire(DAILY_LOCK):
+        if time.time() >= deadline:
+            raise SystemExit("無法取得 daily.lock（超過 10 分鐘），放棄本次執行")
+        time.sleep(5)
     acct = load() or init()
     t = latest_target()
     if t and t[0] != acct.get("last_target"):
@@ -208,7 +275,7 @@ def daily() -> dict:
         for p in acct["positions"]:
             if p["ticker"] in live:
                 p["last"], p["price_src"] = live[p["ticker"]]
-        day = max((v[1] for v in live.values()), default=datetime.now(TZ).strftime("%Y-%m-%d"))
+        day = _session_day(live)
         mv, eq = _equity(acct, {})
         acct["equity"], acct["last_session"] = round(eq, 2), day
         _append("equity.csv", EQUITY_COLS, [{"date": day, "cash": acct["cash"], "market_value": round(mv, 2),

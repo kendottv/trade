@@ -3,7 +3,7 @@
 Weekdays 08:30: start watcher (news is daily TW_News_0830 / TW_News_2130).
 On start: catch up --live from cache if missed days (no 08:30 download).
 Weekdays 09:00-13:30: intraday breakout ALERTS (no fills).
-Weekdays 16:00: backup live if TW_Paper_Account stamp not today.
+Weekdays 16:10+: backup live if TW_Paper_Account stamp not today.
 Weekdays 22:00: exit (scheduled stop_paper_watcher.bat is the backup).
 Logs to paper/watcher.log. Not a broker.
 """
@@ -113,7 +113,7 @@ def in_session(now: datetime) -> bool:
 
 
 def seconds_until_next(now: datetime) -> float:
-    """Wake for 09:00 alerts or 16:00 live, whichever is next."""
+    """Wake for 09:00 alerts or 16:10 live, whichever is next."""
     candidates: list[datetime] = []
     t = now
     for i in range(10):
@@ -121,7 +121,7 @@ def seconds_until_next(now: datetime) -> float:
         if not is_trading_day(day.date()):
             # still wake at 22:00-type slots? holidays: nothing to do
             continue
-        for h, m in ((9, 0), (16, 0), (22, 0)):
+        for h, m in ((9, 0), (16, 10), (22, 0)):
             slot = day.replace(hour=h, minute=m)
             if slot > now:
                 candidates.append(slot)
@@ -153,7 +153,7 @@ def main() -> None:
         if past_stop(now):
             log("watcher stop (22:00)")
             return
-        if is_trading_day(now.date()) and now.hour >= 16:
+        if is_trading_day(now.date()) and (now.hour > 16 or (now.hour == 16 and now.minute >= 10)):
             last = last_session_date()
             if last < now.strftime("%Y-%m-%d"):
                 run_live()
