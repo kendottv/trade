@@ -1,194 +1,196 @@
 {
  "source": "rss_live",
- "as_of": "2026-11-02 21:30:24+08:00",
+ "as_of": "2026-11-03 21:30:09+08:00",
  "window_hours": 24,
- "news_count": 304,
+ "news_count": 323,
  "hot_keywords": [
   {
    "keyword": "AI",
-   "count": 54
+   "count": 49
   },
   {
    "keyword": "輝達",
-   "count": 18
+   "count": 31
   },
   {
    "keyword": "半導體",
-   "count": 16
+   "count": 27
   },
   {
    "keyword": "記憶體",
    "count": 12
   },
   {
-   "keyword": "匯率",
-   "count": 7
+   "keyword": "Fed/利率",
+   "count": 8
   },
   {
-   "keyword": "Fed/利率",
-   "count": 6
+   "keyword": "匯率",
+   "count": 5
   },
   {
    "keyword": "光通訊",
    "count": 4
   },
   {
-   "keyword": "重電/電力",
-   "count": 3
+   "keyword": "電動車",
+   "count": 2
   },
   {
-   "keyword": "PCB/載板",
-   "count": 3
+   "keyword": "先進製程/封裝",
+   "count": 1
   },
   {
    "keyword": "CPO/矽光子",
-   "count": 3
+   "count": 1
   }
  ],
  "hot_stocks": [
   {
    "code": "2330",
    "name": "台積電",
-   "count": 37
-  },
-  {
-   "code": "2317",
-   "name": "鴻海",
-   "count": 18
+   "count": 22
   },
   {
    "code": "2454",
    "name": "聯發科",
-   "count": 15
+   "count": 9
+  },
+  {
+   "code": "2344",
+   "name": "華邦電",
+   "count": 8
   },
   {
    "code": "2308",
    "name": "台達電",
-   "count": 7
+   "count": 6
+  },
+  {
+   "code": "3008",
+   "name": "大立光",
+   "count": 4
   },
   {
    "code": "1473",
    "name": "台南",
-   "count": 4
+   "count": 3
   },
   {
-   "code": "3167",
-   "name": "大量",
+   "code": "2408",
+   "name": "南亞科",
+   "count": 3
+  },
+  {
+   "code": "2317",
+   "name": "鴻海",
+   "count": 3
+  },
+  {
+   "code": "1303",
+   "name": "南亞",
    "count": 2
   },
   {
-   "code": "6443",
-   "name": "元晶",
-   "count": 2
-  },
-  {
-   "code": "5706",
-   "name": "鳳凰",
-   "count": 2
-  },
-  {
-   "code": "2468",
-   "name": "華經",
-   "count": 2
-  },
-  {
-   "code": "3037",
-   "name": "欣興",
+   "code": "2368",
+   "name": "金像電",
    "count": 2
   }
  ],
  "held_mentions": [
   {
    "held": [
-    "3037 欣興",
-    "3711 日月光投控"
+    "1303 南亞"
    ],
-   "title": "台股失守4萬5！法人開出「11月必收20檔」曝光：鴻海竟不在名單內",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%A4%B1%E5%AE%884%E8%90%AC5-%E6%B3%95%E4%BA%BA%E9%96%8B%E5%87%BA-11%E6%9C%88%E5%BF%85%E6%94%B620%E6%AA%94-%E6%9B%9D%E5%85%89-%E9%B4%BB%E6%B5%B7%E7%AB%9F%E4%B8%8D%E5%9C%A8%E5%90%8D%E5%96%AE%E5%85%A7-101100625.html"
+   "title": "台灣併購案受阻 Grab戰略重心回歸東南亞主場",
+   "link": "https://news.cnyes.com/news/id/6645472"
   },
   {
    "held": [
-    "3189 景碩"
+    "2408 南亞科"
    ],
-   "title": "鉅亨速報 - Factset 最新調查：景碩(3189-TW)EPS預估上修至12.77元，預估目標價為1365元",
-   "link": "https://news.cnyes.com/news/id/6644065"
+   "title": "台股大逃殺暴跌1612點！郭哲榮「6明牌全翻黑 」 喊話：仍看好Q4",
+   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%A4%A7%E9%80%83%E6%AE%BA%E6%9A%B4%E8%B7%8C1612%E9%BB%9E-%E9%83%AD%E5%93%B2%E6%A6%AE-6%E6%98%8E%E7%89%8C%E5%85%A8%E7%BF%BB%E9%BB%91-%E5%96%8A%E8%A9%B1-%E4%BB%8D%E7%9C%8B%E5%A5%BDq4-113200329.html"
   },
   {
    "held": [
-    "3711 日月光投控"
+    "2408 南亞科"
    ],
-   "title": "台股跌破半年線爆斷頭危機！外媒點名這2檔可抱10年 法人揭跌深贏家",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E8%B7%8C%E7%A0%B4%E5%8D%8A%E5%B9%B4%E7%B7%9A%E7%88%86%E6%96%B7%E9%A0%AD%E5%8D%B1%E6%A9%9F-%E5%A4%96%E5%AA%92%E9%BB%9E%E5%90%8D%E9%80%992%E6%AA%94%E5%8F%AF%E6%8A%B110%E5%B9%B4-%E6%B3%95%E4%BA%BA%E6%8F%AD%E8%B7%8C%E6%B7%B1%E8%B4%8F%E5%AE%B6-090300827.html"
+   "title": "華邦電、南亞科盤中跌停！記憶體漲價行情遇上美股殺盤 15時法說揭曉獲利關鍵",
+   "link": "https://news.google.com/rss/articles/CBMib0FVX3lxTE12LWhqYmlKOHMzUEttT2VyVm5SZXFma2M4TVVwUW5Jd0IxTnNEWV9SMmg2eThtZTdvM19oZGRwcFhJRlpDdS1VTHViRTJmdlprWmN5U25yaGphSmhaQ0Iyc1dpdVhLTWxCMWNwWUowTQ?oc=5"
   },
   {
    "held": [
-    "3037 欣興"
+    "1303 南亞",
+    "2408 南亞科"
    ],
-   "title": "名師操盤》航運、台光電、欣興7檔救世主？台股3大考驗艱辛",
-   "link": "https://news.google.com/rss/articles/CBMi6wJBVV95cUxOanUyVlpkRzlraU1sV29KSnFYUW5GOTd0VHpoNlg4TzdCV28yQ21XcU1LY2tEdlY4Y0lOWGdOVVhJckRLRUdQbjJSUmlxNjYyeU1TV3lfWEU0SDZ6dnh5c3JPZHEzMGM3NGdfV1BxcV8yVTNpU2tScGRtYXdJaVFqRFhtd0tDV1NjNGZDVzJ3RWdPQjlucVBhMUgza29IcjkzRmpLSENhQ1ZibzNGWkpOVFdlQUdNX0RSZWJFMWIyWk5tMGlETWF3X1dadUY2N01FSDhoS3NTNW5rUTAtX1NnMVM5bDFOZVdhRDBTelhJbnZrVnhIb3NkQWh6cmZCQVc5NU12OGVhV2tSVzMxSjcyYll2ZDFJVE5IYXlCWVdOVXhBdkM2Z0loNExIT0JmRXV2Q3hNcENaWHROZW1fVnlqTnE1dENjRFlNTWh2WTZCMDlsaHhaYkZrLUhmMTFVMVdwTVNIR0VkM3ZMcmM?oc=5"
+   "title": "專家也看傻了！台股盤中狂殺近1600點、上市櫃70檔跌停 華邦電、南亞科、南亞全亮綠燈",
+   "link": "https://news.google.com/rss/articles/CBMioANBVV95cUxQdW5RQkhoRlRQN201dTNGZWlTcFE4WlpCOTJWVjU0WS0waGM4cmIzMWpGQXlmaEZXcHdYdVJYQloyNVVWNVhxdGtFbHZmZ1FXRHBrbFM4V3RNTjMwc01WLVk0UVZueHFhRkZndTg5dXUyTVQwZ1Q1NHVzOTBRd3FDZmNkQVRoQmR1bk96UjI2U3J4c3BlVXR3S1ZSSFRBWnZVX3Q0UWF4TlVvMEhKLXF1V21rdXBQLUZNVlpIRFI0akhxYm5rWVF6akVjZ29FT3hfVG9GOHNBaF9tcTJlVTBudlA0OWxjUE5ra0xBOC1NQlFOYWhjeDg3UWpNOG5uNTc1S3ZIU3Z3Q1B0Y2VmT1dGa1Bjc3NPQmF0QkphT3g3d1NqaC1rSnRpSGo5MERuR00yYm14RUNMMks3MW1icHBySF9TZzhseWFlUjhyZUhnMnAwT1NEU282RER4dndfV1FPbjEtbm9pd28yV09xRm5qVDlGZXVadkNMeU9jNWhvd3dOYXZDM0JvbDJfSW4tZmRRZ01xU29Fakh4MG1UWTdITw?oc=5"
   }
  ],
  "held_mention_count": 4,
  "headlines": [
   {
-   "time": "11-02 21:15",
-   "title": "跌破半年線慘了！陳嘉偉示警台股剛進「初跌段」 揭這時間爆奪命回馬槍",
-   "link": "https://tw.news.yahoo.com/%E8%B7%8C%E7%A0%B4%E5%8D%8A%E5%B9%B4%E7%B7%9A%E6%85%98%E4%BA%86-%E9%99%B3%E5%98%89%E5%81%89%E7%A4%BA%E8%AD%A6%E5%8F%B0%E8%82%A1%E5%89%9B%E9%80%B2-%E5%88%9D%E8%B7%8C%E6%AE%B5-%E6%8F%AD%E9%80%99%E6%99%82%E9%96%93%E7%88%86%E5%A5%AA%E5%91%BD%E5%9B%9E%E9%A6%AC%E6%A7%8D-131500442.html",
-   "publisher": "yahoo_tw_market",
+   "time": "11-03 21:26",
+   "title": "1條飄帶騙走百萬！政院急下架逾5千假帳號 揭應援小物圈套",
+   "link": "https://news.cnyes.com/news/id/6645569",
+   "publisher": "鉅亨網",
+   "stocks": []
+  },
+  {
+   "time": "11-03 21:25",
+   "title": "【美股盤前】資本支出暴增現金流失血！ 法人下修「它」目標價至406美元",
+   "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTFA1emEwREZWSkRBNUFnQUREMEwyd2tfdlM5QUhBeUtuTzVqQ3VDVDFyVTA2Q0tCN2VhUm1kaXdqYndsYjhVNXAwMNIBTEFVX3lxTE1LRXZVZG5wUEVKbDc3RXBLY3RoZjFzMTdWUEUyTjhvWUpLZEEtczdxZ0hSMjRPOXkxWjdmcE5ORVEwbEtiRjBTZDFuWnI?oc=5",
+   "publisher": "三立新聞網SETN.com",
+   "stocks": []
+  },
+  {
+   "time": "11-03 21:22",
+   "title": "華新攜產業夥伴成立「華新世紀核能」布局新式核能 華新持股過半",
+   "link": "https://news.cnyes.com/news/id/6645396",
+   "publisher": "鉅亨網",
    "stocks": [
-    "2330 台積電"
+    "1605 華新",
+    "2072 世紀能源",
+    "2102 泰豐",
+    "8996 高力"
    ]
   },
   {
-   "time": "11-02 21:15",
-   "title": "【美股盤前】ServiceNow、Sandisk股價雙血洗！業績好壞全沒用？",
-   "link": "https://tw.news.yahoo.com/%E7%BE%8E%E8%82%A1%E7%9B%A4%E5%89%8D-servicenow-sandisk%E8%82%A1%E5%83%B9%E9%9B%99%E8%A1%80%E6%B4%97-%E6%A5%AD%E7%B8%BE%E5%A5%BD%E5%A3%9E%E5%85%A8%E6%B2%92%E7%94%A8-131500490.html",
-   "publisher": "yahoo_intl",
+   "time": "11-03 21:22",
+   "title": "台股明終於有望轉紅？夜盤「急殺400點」後又彈回來 一口氣翻漲逾300點 | 張大任 | 新聞",
+   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTE5RTVN1X1p1d25IazUyWHZlSUYtMkNTX0s5SldhSFhBbW45WW9OWW5DLUJOMF94VVZaSHRjY1ZfNUhhRGFJcTF0QWNJb2l0UQ?oc=5",
+   "publisher": "風傳媒",
    "stocks": []
   },
   {
-   "time": "11-02 21:10",
-   "title": "1150億美元押注AI！邁威爾收購Lumentum 挑戰博通",
-   "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE5kVGRtS20wUGZhS2RkeVhWTlZBdVhOTUpTTkdPZGdYekNtbGdnMWdWYUxDdTFLaWRoM2JTaEFXVTluV216bEs0emJWY1BRRWc?oc=5",
+   "time": "11-03 21:21",
+   "title": "綠能融資怎「解套」？中信銀李靜婷曝轉型3要件：從放款變身「投組」",
+   "link": "https://news.cnyes.com/news/id/6645290",
    "publisher": "鉅亨網",
    "stocks": []
   },
   {
-   "time": "11-02 21:10",
-   "title": "大量新興雲端業者將在1到3年內破產？Bernstein警告：商業模式存在「致命」風險",
-   "link": "https://news.cnyes.com/news/id/6643776",
+   "time": "11-03 21:20",
+   "title": "高雄食品展共吸引1.9萬人入場觀展 促成354場商務洽談",
+   "link": "https://news.cnyes.com/news/id/6645473",
+   "publisher": "鉅亨網",
+   "stocks": []
+  },
+  {
+   "time": "11-03 21:20",
+   "title": "牧德10月營收衝破4億元創新高年增95% 前10月已超過去年全年",
+   "link": "https://news.cnyes.com/news/id/6645289",
    "publisher": "鉅亨網",
    "stocks": [
-    "2605 新興",
-    "3167 大量"
+    "3563 牧德"
    ]
   },
   {
-   "time": "11-02 21:09",
-   "title": "「政治干預」輝達駐北士科？北市府強硬回擊",
-   "link": "https://tw.news.yahoo.com/%E6%94%BF%E6%B2%BB%E5%B9%B2%E9%A0%90-%E8%BC%9D%E9%81%94%E9%A7%90%E5%8C%97%E5%A3%AB%E7%A7%91-%E5%8C%97%E5%B8%82%E5%BA%9C%E5%BC%B7%E7%A1%AC%E5%9B%9E%E6%93%8A-084807530.html",
-   "publisher": "yahoo_intl",
-   "stocks": []
-  },
-  {
-   "time": "11-02 21:04",
-   "title": "00949擬配3.02元配息率衝破13% 掀起日股ETF高息話題",
-   "link": "https://news.cnyes.com/news/id/6643443",
+   "time": "11-03 21:14",
+   "title": "金管會預告《虛擬資產服務法》9項子法草案 資本門檻、穩定幣發行規範一次看",
+   "link": "https://news.cnyes.com/news/id/6645579",
    "publisher": "鉅亨網",
-   "stocks": []
-  },
-  {
-   "time": "11-02 21:04",
-   "title": "高盛上調年底與明年油價預測 稱「供應風險加劇」",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE5XY0JPVnItT3BScWFtNDVrQU1DRy05OXdLejUzQnZENzNrOEh0N3BuSGowQm1KYzl4SnVlQ3BuLURZRm4taENzeFBUWm9qT2RrbllISmxpNVM?oc=5",
-   "publisher": "CMoney",
-   "stocks": []
-  },
-  {
-   "time": "11-02 21:03",
-   "title": "美股上市公司Strive增持124枚比特幣 總持倉達43,124枚",
-   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5ESF9oTHdNYUo2YnZpWWI2TmFtVVA5b2R0NU0zdEUwWVZ4eE9KTFVrZUVhRm5hQnp4Tzc5bEo1VVR6Vk5xdjRLQ1l0SEpzaG04d2V1NFVWT0xUSkpVcUMwZUp0RGNRZl9HMEE?oc=5",
-   "publisher": "TradingView",
    "stocks": []
   }
  ],
