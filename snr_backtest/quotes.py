@@ -874,7 +874,7 @@ def txf_night_payload() -> dict:
         "month": "",
         "status": "盤後中" if live else "未開",
         "last": None, "open": None, "high": None, "low": None, "close": None,
-        "chg": None, "chg_pct": None, "ref": None, "asof": "",
+        "chg": None, "chg_pct": None, "ref": None, "ref_src": "", "asof": "",
         "line": [],
         "note": "",
     }
@@ -910,6 +910,7 @@ def txf_night_payload() -> dict:
             ref = _num(info, "reference")
             if ref:
                 out["ref"] = ref
+                out["ref_src"] = "reference"
         if now < start:
             out["status"] = "未開"
             out["ok"] = True
@@ -932,9 +933,21 @@ def txf_night_payload() -> dict:
                 impl.force_reconnect(reason="txf kbars")
             out["note"] = "沒有盤後報價"
             return out
-        prev_closes = _txf_session_closes(kb_span, prev_start, prev_end)
-        if prev_closes:
-            out["ref"] = prev_closes[-1]
+        # 優先：夜盤開始那天的日盤收盤（08:45–13:45）
+        day_d = start.date()
+        day_start = datetime(day_d.year, day_d.month, day_d.day, 8, 45, tzinfo=TZ)
+        day_end = datetime(day_d.year, day_d.month, day_d.day, 13, 46, tzinfo=TZ)
+        day_closes = _txf_session_closes(kb_span, day_start, day_end)
+        if day_closes:
+            out["ref"] = day_closes[-1]
+            out["ref_src"] = "day_close"
+        else:
+            # 退回前一夜盤最後收盤
+            prev_closes = _txf_session_closes(kb_span, prev_start, prev_end)
+            if prev_closes:
+                out["ref"] = prev_closes[-1]
+                out["ref_src"] = "prev_night"
+            # 再不行保留上面 contracts.info 的 reference
         q = impl.last(TXF_FRONT)
         if q is not None and q.last:
             out["last"] = q.last

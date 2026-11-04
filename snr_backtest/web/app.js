@@ -40,7 +40,7 @@ function tk(name,q){if(!q||!q.ok)return `<div class="tk"><span class="n">${name}
  const c=q.chg>0?'up':q.chg<0?'dn':'';const sg=q.chg>0?'+':'';
  return `<div class="tk"><span class="n">${name}${q.status?` <em class="st ${q.status==='盤中'?'live':''}">${q.status}</em>`:''}</span><span class="v">${nf(q.last,2)}</span><span class="${c}">${snf(q.chg,2)}（${q.pct==null?'—':spct(q.pct/100)}）</span><span class="cap">${q.ts}${q.delayed?' 延遲':''}</span></div>`}
 async function loadTicker(){try{const ac=new AbortController();setTimeout(()=>ac.abort(),8000);const t=await (await fetch('/api/ticker',{signal:ac.signal,cache:'no-store'})).json();
- $('ticker').innerHTML=tk('加權指數',t.taiex)+tk('台指期夜盤',t.txf)+`<span class="cap upd">更新 ${t.updated||'—'}</span>`}catch(e){$('ticker').innerHTML='<span class="cap">行情載入失敗：'+e.message+'</span>'}}
+ $('ticker').innerHTML=tk('加權指數',t.taiex)+tk(t.txf&&t.txf.name||'台指期',t.txf)+`<span class="cap upd">更新 ${t.updated||'—'}</span>`}catch(e){$('ticker').innerHTML='<span class="cap">行情載入失敗：'+e.message+'</span>'}}
 load();setInterval(load,60000);loadTicker();setInterval(loadTicker,30000);
 // ---- 權益曲線 ----
 const EQ={a:null,bench:[],benchReason:'',range:'ALL'};
