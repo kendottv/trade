@@ -2,6 +2,7 @@
 規格 v4 AC-4 / AC-6：未知產業上限 15%，其他 30%。
 filtered_rank 為流動性篩選後、產業上限前的同一套名次（緩衝 40 與 Top20 共用）。
 緩衝與 Top20 邊界包含第 40 名與第 20 名（rank <= 40 保留、rank <= 20 視為合格新買）。
+「未知」是一個產業桶，受 15% 上限，不是直接剔除。
 """
 import numpy as np, pandas as pd
 
@@ -30,7 +31,7 @@ def cap_weights(w, cap=0.10, it=50):
 def select(df, n, score="score", prev=(), buffer=None, ind=None, ind_cap=0.30, ind_cap_unknown=0.15):
     """依分數排序挑 n 檔。
     buffer=K：上期持股只要仍在前 K 名（含第 K 名）就續抱，空位再由高分補滿。
-    產業上限：未知 15%（floor），其他 30%。
+    產業上限：未知 15%（floor），其他 30%。「未知」是正常產業桶，受上限而非直接剔除。
     回傳 (codes, rank_map, notes)。
     rank_map 為流動性篩選後、產業上限前的原始名次（1-based）。
     """

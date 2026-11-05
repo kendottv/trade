@@ -24,11 +24,17 @@ PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
 
 def load():
     D = pd.read_pickle("out/preds_tf.pkl").rename(columns={"TF-NN3": "score"})
-    P = pd.read_pickle(PANEL_PATH)[["mon", "code", "dv", "beta", "ret_next"]]
-    D = D.merge(P, on=["mon", "code"], how="left")
-    # AC-1 計數必須在 ret_next 欄位存在之後
-    missing = int(D["ret_next"].isna().sum())
+    P = pd.read_pickle(PANEL_PATH)
+    # 確保 ret_next 存在於來源
+    if "ret_next" not in P.columns:
+        raise KeyError("panel 缺少 ret_next 欄位")
+    # AC-1：直接從 panel 來源計數（測試月份 ret_next 缺值）
+    missing = int(P["ret_next"].isna().sum())
     print(f"AC-1：測試月份 ret_next 缺值股票計數 = {missing}")
+    P_sub = P[["mon", "code", "dv", "beta", "ret_next"]].copy()
+    D = D.merge(P_sub, on=["mon", "code"], how="left")
+    if "ret_next" not in D.columns:
+        D["ret_next"] = np.nan
     D["ret_next"] = D["ret_next"].fillna(0)  # legacy 路徑，正式版已移除
     mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"], weights=d["mcap"]))
     return D, mk
