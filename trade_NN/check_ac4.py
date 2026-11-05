@@ -8,21 +8,21 @@ from portfolio import select, liquidity_screen
 def test_ac4():
     rows = []
     for i in range(10):
-        rows.append({"code": f"U{i:02d}", "score": 100 - i, "dv": 1e9 + i, "mcap": 1e9 + i, "industry": "未知"})
+        rows.append({"code": f"U{i:02d}", "score": 100.0 - i, "dv": 1e9 + i, "mcap": 1e9 + i, "industry": "未知"})
     for i in range(40):
         ind = f"產業{i % 8}"
-        rows.append({"code": f"O{i:02d}", "score": 80 - i * 0.5, "dv": 1e9 + 100 + i, "mcap": 1e9 + 100 + i, "industry": ind})
+        rows.append({"code": f"O{i:02d}", "score": 70.0 - i * 0.5, "dv": 1e9 + 100 + i, "mcap": 1e9 + 100 + i, "industry": ind})
     df = pd.DataFrame(rows)
     u = liquidity_screen(df, q=0.2)
     assert len(u) >= 20, f"流動性篩選後不足 20 檔：{len(u)}"
-    ind_map = dict(zip(df.code, df.industry))
+    ind_map = dict(zip(u.code, u.industry))
     codes, rank_map, notes = select(u, 20, prev=[], buffer=40, ind=ind_map, ind_cap=0.30, ind_cap_unknown=0.15)
     assert len(codes) == 20, f"應選出 20 檔，實際 {len(codes)}"
-    selected = df.set_index("code").loc[codes]
+    selected = u.set_index("code").loc[codes]
     unk = int((selected.industry == "未知").sum())
     others = selected.groupby("industry").size()
     others_max = int(others[others.index != "未知"].max()) if len(others) else 0
-    expected_unk = int(0.15 * 20)  # 3
+    expected_unk = int(0.15 * 20)
     assert unk == expected_unk, f"未知應恰為上限 {expected_unk} 檔，實際 {unk}"
     assert others_max <= 6, f"其他產業超過 6 檔：{others_max}"
     print(f"AC-4 通過：選出 {len(codes)} 檔、未知 {unk} 檔（上限 {expected_unk}）、其他產業最多 {others_max} 檔")

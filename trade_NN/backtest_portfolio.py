@@ -25,18 +25,18 @@ PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
 def load():
     D = pd.read_pickle("out/preds_tf.pkl").rename(columns={"TF-NN3": "score"})
     P = pd.read_pickle(PANEL_PATH)
-    # 確保 ret_next 存在於來源
     if "ret_next" not in P.columns:
-        raise KeyError("panel 缺少 ret_next 欄位")
-    # AC-1：直接從 panel 來源計數（測試月份 ret_next 缺值）
-    missing = int(P["ret_next"].isna().sum())
+        raise KeyError("panel 缺少 ret_next 欄位，請確認 tej loader 的 shift(-1) 與 groupby 正確")
+    # AC-1：從 panel 來源計數（僅統計有預測的月份）
+    pred_mons = set(D["mon"].unique()) if "mon" in D.columns else set()
+    P_pred = P[P["mon"].isin(pred_mons)] if pred_mons else P
+    missing = int(P_pred["ret_next"].isna().sum())
     print(f"AC-1：測試月份 ret_next 缺值股票計數 = {missing}")
-    P_sub = P[["mon", "code", "dv", "beta", "ret_next"]].copy()
+    P_sub = P[["mon", "code", "dv", "beta", "ret_next", "mcap"]].copy()
     D = D.merge(P_sub, on=["mon", "code"], how="left")
-    if "ret_next" not in D.columns:
-        D["ret_next"] = np.nan
-    D["ret_next"] = D["ret_next"].fillna(0)  # legacy 路徑，正式版已移除
-    mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"], weights=d["mcap"]))
+    # legacy 路徑才 fillna(0)；正式 real 路徑不得這樣做
+    D["ret_next"] = D["ret_next"].fillna(0)
+    mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"], weights=d["mcap"]) if d["mcap"].sum() > 0 else 0.0)
     return D, mk
 
 
@@ -93,7 +93,7 @@ def stats(s, m, ppy=12):
     c = (1 + s).cumprod()
     y = len(s) / ppy
     return {"CAGR%": (c.iloc[-1] ** (1 / y) - 1) * 100, "累積報酬%": (c.iloc[-1] - 1) * 100,
-            "Sharpe": s.mean() / s.std() * np.sqrt(ppy),
+            "Sharpe": s.mean() / s.std() * np.sqrt(ppy) if s.std() > 0 else np.nan,
             "最大回撤%": ((c / c.cummax()) - 1).min() * 100, "年化波動%": ann_vol(s),
             "實現beta": realized_beta(s, m), "勝過市場月%": (s > m).mean() * 100}
 

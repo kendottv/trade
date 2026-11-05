@@ -54,17 +54,20 @@ def select(df, n, score="score", prev=(), buffer=None, ind=None, ind_cap=0.30, i
         if c in out:
             continue
         g = (ind or {}).get(c, "未知")
+        if g is None or (isinstance(g, float) and np.isnan(g)):
+            g = "未知"
         is_keep = c in keep
+        current = cnt.get(g, 0)
         if g == "未知":
-            if mx_unk is not None and cnt.get(g, 0) >= mx_unk:
+            if mx_unk is not None and current >= mx_unk:
                 continue
         else:
-            if mx_other is not None and cnt.get(g, 0) >= mx_other:
+            if mx_other is not None and current >= mx_other:
                 continue
         if not is_keep and rank.get(c, 999) > n:
             notes[c] = "產業上限遞補"
         out.append(c)
-        cnt[g] = cnt.get(g, 0) + 1
+        cnt[g] = current + 1
     return out, rank, notes
 
 def weights(df, codes, scheme="ew", cap=0.10):
