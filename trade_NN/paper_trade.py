@@ -1,6 +1,7 @@
 """紙上交易（只模擬，不下任何真實委託；不碰 trade-coach 或任何真實 trades.db）。
 規格 v5：
-- 正式訊號月預測來源：out/preds_tf_real.pkl（nn_tf_real.py 產生，含缺下月報酬股票）
+- 正式訊號月預測來源：out/preds_tf_real.pkl 的 TF-NN3 欄（nn_tf_real.py 產生）。
+  live_preds_all.csv 只提供訊號月份，不可用其獨立模型分數覆蓋正式分數。
 - AC-2：上期結算缺值／下市預設 −100%，正式績效路徑無 fillna(0)
 - AC-6 / AC-7：filtered_rank 為流動性篩選後、產業上限前的同一套名次；續抱 ≤40、新買 ≤20（含邊界）；產業上限遞補標註備註
 - AC-9：覆蓋率 <85% 或 panel 讀取失敗 → 非 0 結束、寫 out/alerts.log 通知（可選環境變數 ALERT_WEBHOOK_URL）、不寫 paper_target
@@ -9,7 +10,7 @@
   月份不一致、檔案缺少、月份欄位讀不到或格式不對 → 非 0 結束、不寫入也不改動目標檔、發一則通知。
 - 資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）
 - 產業：現行 industry.csv，「未知」為產業桶、上限 15%
-流程：python watchlist.py --live → 產生 out/live_preds_all.csv
+流程：python watchlist.py --live → 產生 out/live_preds_all.csv（分數來自正式來源）
       python paper_trade.py [--nav 1000000]
 """
 import argparse, sqlite3, sys, os, numpy as np, pandas as pd
@@ -79,29 +80,63 @@ def check_signal_month(live_path="out/live_preds_all.csv", real_path="out/preds_
         return None, False, f"AC-12 失敗：讀取 preds_tf_real.pkl 錯誤：{e}"
     return mon, True, "OK"
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--nav", type=float, default=1_000_000)
-    ap.add_argument("--db", default=DB_DEFAULT)
-    a = ap.parse_args()
-    db_path = a.db
+def load_formal_scores(mon, real_path="out/preds_tf_real.pkl"):
+    """載入正式訊號月的 TF-NN3 分數（v5 正式來源）。"""
+    R = pd.read_pickle(real_path)
+    R["ym"] = R["mon"].astype(str).str[:7]
+    sub = R[R["ym"] == mon][["code", "TF-NN3"]].copy()
+    if len(sub) == 0:
+        raise ValueError(f"正式來源無訊號月 {mon} 的分數")
+    return sub.rename(columns={"TF-NN3": "score"})
+
+def _load_industry(industry_path=None):
+    """生產預設呼叫 industry_map()；測試可傳入路徑。"""
+    if industry_path is None:
+        return industry_map()
+    df = pd.read_csv(industry_path, dtype={"code": str}, encoding="utf-8-sig")
+    return dict(zip(df["code"], df["industry"].fillna("未知")))
+
+def _load_names(names_path=None):
+    """生產預設讀 data/stock_names.csv；測試可傳入路徑。"""
+    path = names_path or os.path.join(HERE, "data", "stock_names.csv")
+    try:
+        return pd.read_csv(path, dtype={"code": str}, encoding="utf-8-sig").set_index("code")["name"]
+    except FileNotFoundError:
+        return pd.Series(dtype=str)
+
+def main(live_path=None, real_path=None, panel_path=None, out_dir=None, db_path=None,
+         industry_path=None, names_path=None, notifier=None, nav=1_000_000):
+    """Production 主流程。測試可傳入路徑與 notifier；正常 CLI 不傳則使用預設。"""
+    live_path = live_path or "out/live_preds_all.csv"
+    real_path = real_path or "out/preds_tf_real.pkl"
+    panel_path = panel_path or PANEL_PATH
+    out_dir = out_dir or "out"
+    db_path = db_path or DB_DEFAULT
+    _notify = notifier or notify
 
     # AC-12 檢查（在任何寫入、下單、帳戶更新之前）
-    mon, ok, msg = check_signal_month()
+    mon, ok, msg = check_signal_month(live_path, real_path)
     if not ok:
-        notify(msg)
-        sys.exit(1)
+        _notify(msg)
+        return 1
 
     try:
-        L = pd.read_csv("out/live_preds_all.csv", dtype={"code": str})
+        L = pd.read_csv(live_path, dtype={"code": str})
     except FileNotFoundError:
-        notify("錯誤：找不到 out/live_preds_all.csv")
-        sys.exit(1)
-    L = L.rename(columns={"pred_excess_ret": "score"})
+        _notify("錯誤：找不到 live_preds_all.csv")
+        return 1
+
+    # 正式分數覆蓋：只用 preds_tf_real.pkl 的 TF-NN3，不用 live 的 pred_excess_ret
+    try:
+        formal = load_formal_scores(mon, real_path)
+        L = L.drop(columns=["pred_excess_ret", "score"], errors="ignore").merge(formal, on="code", how="inner")
+    except Exception as e:
+        _notify(f"錯誤：無法載入正式分數（{e}）")
+        return 1
 
     # 讀取 panel 計算覆蓋率（AC-9）
     try:
-        P = pd.read_pickle(PANEL_PATH)
+        P = pd.read_pickle(panel_path)
         P["ym"] = P["mon"].dt.strftime("%Y-%m")
         expected = P[P.ym == mon]["code"].nunique()
         valid = L.merge(P[P.ym == mon][["code", "close", "dv", "mcap"]], on="code", how="inner")
@@ -109,26 +144,26 @@ def main():
         coverage = len(valid) / max(expected, 1)
         print(f"覆蓋率：{coverage:.1%}（有效 {len(valid)} / 應有 {expected}）")
     except Exception as e:
-        notify(f"錯誤：無法讀取 panel（{PANEL_PATH}）（{e}），視為失敗，不產生目標檔")
-        sys.exit(1)
+        _notify(f"錯誤：無法讀取 panel（{panel_path}）（{e}），視為失敗，不產生目標檔")
+        return 1
 
     if coverage < 0.85:
-        notify(f"⚠ 覆蓋率 {coverage:.1%} < 85%（有效 {len(valid)} / 應有 {expected}），本月不產生目標檔。請檢查資料來源。")
-        sys.exit(1)
+        _notify(f"⚠ 覆蓋率 {coverage:.1%} < 85%（有效 {len(valid)} / 應有 {expected}），本月不產生目標檔。請檢查資料來源。")
+        return 1
 
     try:
         L = L.merge(P[P.ym == mon][["code", "name", "dv", "mcap", "close", "beta"]], on="code", how="left")
     except Exception:
-        notify("警告：無法合併 panel 資料，部分欄位可能缺失")
+        _notify("警告：無法合併 panel 資料，部分欄位可能缺失")
 
-    try:
-        _N = pd.read_csv(os.path.join(HERE, "data", "stock_names.csv"), dtype={"code": str}, encoding="utf-8-sig").set_index("code")["name"]
+    # 名稱（可注入）
+    _N = _load_names(names_path)
+    if len(_N):
         L["name"] = [f"{c} {_N[c]}" if c in _N.index else f"{c} (名稱待查)" for c in L["code"]]
-    except FileNotFoundError:
-        print("警告：找不到 data/stock_names.csv，沿用原名稱")
-        if "name" not in L.columns:
-            L["name"] = L["code"]
+    elif "name" not in L.columns:
+        L["name"] = L["code"]
 
+    os.makedirs(os.path.dirname(db_path) or ".", exist_ok=True)
     con = sqlite3.connect(db_path)
     con.executescript("""
     create table if not exists portfolios(
@@ -142,12 +177,12 @@ def main():
 
     # ---- 1) mark-to-market 前期（AC-2：缺值／下市預設 −100%）----
     prev_mon = pd.read_sql("select max(mon) m from portfolios where mon<?", con, params=(mon,))["m"].iloc[0]
-    nav = a.nav
+    nav_val = nav
     prev = pd.DataFrame()
     if prev_mon:
         prev = pd.read_sql("select * from portfolios where mon=?", con, params=(prev_mon,))
         nav0 = pd.read_sql("select nav_after from marks order by mon desc limit 1", con)
-        nav = float(nav0.nav_after.iloc[0]) if len(nav0) else a.nav
+        nav_val = float(nav0.nav_after.iloc[0]) if len(nav0) else nav
         nxt = (pd.Period(prev_mon, "M") + 1).strftime("%Y-%m")
         try:
             R = P[P.ym == nxt].set_index("code")
@@ -158,9 +193,9 @@ def main():
                 B = P[P.ym == prev_mon].drop(columns="ret", errors="ignore").merge(R[["ret"]], left_on="code", right_index=True).dropna(subset=["mcap", "ret"])
                 mr = float(np.average(B.ret, weights=B.mcap)) if len(B) else 0.0
                 con.execute("insert or replace into marks values(?,?,?,?,?,?,?)",
-                            (prev_mon, nxt, pr, mr, nav, nav * (1 + pr), "marked"))
-                nav *= 1 + pr
-                print(f"前期 {prev_mon} 投組（持有 {nxt}）: 紙上報酬 {pr:.2%}，市場 {mr:.2%}，NAV {nav:,.0f}")
+                            (prev_mon, nxt, pr, mr, nav_val, nav_val * (1 + pr), "marked"))
+                nav_val *= 1 + pr
+                print(f"前期 {prev_mon} 投組（持有 {nxt}）: 紙上報酬 {pr:.2%}，市場 {mr:.2%}，NAV {nav_val:,.0f}")
             else:
                 print(f"前期 {prev_mon} 投組：{nxt} 報酬尚未進資料，暫不結算")
         except Exception as e:
@@ -168,7 +203,7 @@ def main():
 
     # ---- 2) 目標投組（AC-6 / AC-7）----
     u = liquidity_screen(L.dropna(subset=["dv", "mcap", "close"]))
-    ind = industry_map()
+    ind = _load_industry(industry_path)
     prev_codes = list(prev.code) if len(prev) else []
     codes, rank_map, notes = select(u, 20, prev=prev_codes, buffer=40, ind=ind, ind_cap=0.30, ind_cap_unknown=0.15)
     w = weights(u, codes, "ew")
@@ -179,7 +214,7 @@ def main():
     T["hold_type"] = ["續抱" if c in prev_codes else "新買" for c in T.code]
     T["note"] = T.code.map(notes).fillna("")
     T["weight"] = w.values
-    T["shares"] = np.floor(nav * T.weight / T.close).astype(int)
+    T["shares"] = np.floor(nav_val * T.weight / T.close).astype(int)
     T["mon"] = mon
     T["rank"] = T["filtered_rank"]
 
@@ -187,11 +222,11 @@ def main():
     keep_mask = T.hold_type == "續抱"
     new_mask = T.hold_type == "新買"
     if (T.loc[keep_mask, "filtered_rank"] > 40).any():
-        notify("警告：有續抱股 filtered_rank > 40")
+        _notify("警告：有續抱股 filtered_rank > 40")
     if (T.loc[new_mask, "filtered_rank"] > 20).any():
         bad = T.loc[new_mask & (T.filtered_rank > 20)]
         if not (bad["note"] == "產業上限遞補").all():
-            notify("警告：有新買股 filtered_rank > 20 且未標註產業上限遞補")
+            _notify("警告：有新買股 filtered_rank > 20 且未標註產業上限遞補")
 
     con.execute("delete from portfolios where mon=?", (mon,))
     con.execute("delete from orders where mon=?", (mon,))
@@ -215,10 +250,18 @@ def main():
     con.commit()
 
     # 寫入目標檔（AC-12 已通過）
-    T.to_csv(f"out/paper_target_{mon}.csv", index=False, encoding="utf-8-sig")
-    O.to_csv(f"out/paper_orders_{mon}.csv", index=False, encoding="utf-8-sig")
-    print(f"訊號月 {mon}（持有 {(pd.Period(mon, 'M') + 1).strftime('%Y-%m')}），覆蓋率 {coverage:.1%}，NAV {nav:,.0f}，{len(T)} 檔，{len(O)} 筆模擬委託")
+    os.makedirs(out_dir, exist_ok=True)
+    target_path = os.path.join(out_dir, f"paper_target_{mon}.csv")
+    orders_path = os.path.join(out_dir, f"paper_orders_{mon}.csv")
+    T.to_csv(target_path, index=False, encoding="utf-8-sig")
+    O.to_csv(orders_path, index=False, encoding="utf-8-sig")
+    print(f"訊號月 {mon}（持有 {(pd.Period(mon, 'M') + 1).strftime('%Y-%m')}），覆蓋率 {coverage:.1%}，NAV {nav_val:,.0f}，{len(T)} 檔，{len(O)} 筆模擬委託")
     print(T[["code", "name", "industry", "filtered_rank", "hold_type", "score", "weight", "close", "shares", "note"]].to_string(index=False))
+    return 0
 
 if __name__ == "__main__":
-    main()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--nav", type=float, default=1_000_000)
+    ap.add_argument("--db", default=DB_DEFAULT)
+    a = ap.parse_args()
+    sys.exit(main(db_path=a.db, nav=a.nav))

@@ -1,12 +1,13 @@
 """自選股排名：輸出每月每檔的預測分數與全市場排名（CSV + JSON，給之後的 RAG 用）。
 兩種模式：
   python watchlist.py                 # 歷史：用 out/preds_tf.pkl（每月由當時最新、已訓練的 TF-NN3 做的樣本外預測）
-  python watchlist.py --live          # 最新月：用全部已實現資料重訓 TF-NN3（5 seeds），替最新一個特徵月（尚無下月報酬）打分
+  python watchlist.py --live          # 最新月：從正式來源 out/preds_tf_real.pkl 讀取 TF-NN3（不重新訓練），
+                                      # 產出 out/live_preds_all.csv，分數與正式來源一致。
   可加 --codes 3450,6197,...
 資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）。
 """
 import argparse, json, os, numpy as np, pandas as pd
-from nn_tf import FEAT, fit_ensemble, PANEL_PATH
+from nn_tf import FEAT, PANEL_PATH
 
 DEFAULT = "3450,6197,5314,6617,3694,3023,3605,6279,2392,3533"
 ap = argparse.ArgumentParser()
@@ -30,35 +31,23 @@ if not a.live:
     W = W.rename(columns={"TF-NN3": "pred_excess_ret", "ret_next": "realized_ret_next", "y": "realized_excess_next"})
     tag = "history"
 else:
-    P = pd.read_pickle(PANEL_PATH)
-    P = P.dropna(subset=["mcap", "mom_12"])
-    for c in FEAT:
-        s = P[c].replace([np.inf, -np.inf], np.nan)
-        s = s.groupby(P["mon"]).transform(lambda x: x.clip(x.quantile(.01), x.quantile(.99)))
-        P[c] = s.groupby(P["mon"]).transform(lambda x: (x - x.mean()) / x.std()).fillna(0)
-    R = P.dropna(subset=["ret_next"]).copy()
-    R["rn"] = R.groupby("mon")["ret_next"].transform(lambda s: s.clip(s.quantile(.025), s.quantile(.975)))
-    mk = R.groupby("mon").apply(lambda d: np.average(d["ret_next"], weights=d["mcap"]))
-    R["y"] = R["rn"] - R["mon"].map(mk)
-    months = sorted(R["mon"].unique())
-    nva = 60
-    tr, va = months[:-nva], months[-nva:]
-    l1 = pd.read_csv("out/tf_hyperparams.csv")["l1"].iloc[-1]
-    f = fit_ensemble(R[R.mon.isin(tr)][FEAT].values.astype("float32"), R[R.mon.isin(tr)]["y"].values.astype("float32"),
-                     R[R.mon.isin(va)][FEAT].values.astype("float32"), R[R.mon.isin(va)]["y"].values.astype("float32"), l1)
-    L = P[P["mon"] == P["mon"].max()].copy()
-    L["pred_excess_ret"] = f(L[FEAT].values.astype("float32"))
+    # v5：--live 不重新訓練，直接從正式來源 preds_tf_real.pkl 讀取最新月份的 TF-NN3
+    R = pd.read_pickle("out/preds_tf_real.pkl")
+    R["ym"] = R["mon"].astype(str).str[:7]
+    latest = R["ym"].max()
+    L = R[R["ym"] == latest].copy()
+    L["pred_excess_ret"] = L["TF-NN3"]
+    L["mon"] = latest
     L = rank_table(L, "pred_excess_ret")
     A = L[["mon", "code", "pred_excess_ret", "rank", "n_stocks", "pct", "decile"]].copy()
-    A["mon"] = A["mon"].dt.strftime("%Y-%m")
     A.to_csv("out/live_preds_all.csv", index=False, encoding="utf-8-sig")
     W = L[L.code.isin(codes)][["mon", "code", "pred_excess_ret", "rank", "n_stocks", "pct", "decile"]]
     tag = "live"
-W["mon"] = W["mon"].dt.strftime("%Y-%m")
+W["mon"] = W["mon"].astype(str)
 W = W.sort_values(["mon", "rank"])
 miss = sorted(set(codes) - set(W.code))
 print("缺資料的代號:", miss)
 W.to_csv(f"out/watchlist_{tag}.csv", index=False, encoding="utf-8-sig")
-json.dump({"model": "TF-NN3 (32-16-8, BN, L1, 5-seed ensemble)", "target": "next-month return minus sample VW market return",
+json.dump({"model": "TF-NN3 (formal preds_tf_real.pkl for live)", "target": "next-month return minus sample VW market return",
   "mode": tag, "missing_codes": miss, "records": W.round(6).to_dict("records")}, open(f"out/watchlist_{tag}.json", "w"), ensure_ascii=False, indent=1)
 print(W.tail(len(codes)).to_string(index=False))
