@@ -1,9 +1,10 @@
 """【LEGACY】投組回測（非 real 口徑）。
 正式回測請改用 backtest_real.py（下市 −100%、開盤成交、無 fillna(0) 路徑）。
-規格 v3 AC-2 / AC-3。
+規格 v4 AC-2 / AC-3。
+資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）。
 輸出：out/portfolio_metrics.csv、portfolio_monthly.csv、portfolio_subperiods.csv、ic_monthly.csv、cumret_portfolio.png
 """
-import numpy as np, pandas as pd, matplotlib
+import os, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 from matplotlib import font_manager as fm
@@ -16,10 +17,14 @@ from portfolio import liquidity_screen, select, weights
 from risk import industry_map, realized_beta, ann_vol, beta_neutral
 from costs import trade_cost
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_PANEL = os.path.join(HERE, "data", "panel.pkl")
+PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
+
 
 def load():
     D = pd.read_pickle("out/preds_tf.pkl").rename(columns={"TF-NN3": "score"})
-    P = pd.read_pickle("data/panel.pkl")[["mon", "code", "dv", "beta"]]
+    P = pd.read_pickle(PANEL_PATH)[["mon", "code", "dv", "beta"]]
     D = D.merge(P, on=["mon", "code"], how="left")
     D["ret_next"] = D["ret_next"].fillna(0)  # legacy 路徑，正式版已移除
     mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"], weights=d["mcap"]))

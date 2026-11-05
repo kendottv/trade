@@ -1,20 +1,22 @@
 """【LEGACY】佳必琪(6197) NN 量化專案 — TensorFlow/Keras 版 NN3
 此為舊版（非 real 口徑）。正式回測請改用 nn_tf_real.py + backtest_real.py。
-規格 v3 AC-3：舊輸出標為 legacy。
-資料：沿用本機 data/panel.pkl（gitignore 排除），前處理與切分完全照舊：
-  y = 下月含息報酬(每月2.5%縮尾) − 樣本市值加權市場報酬
-  X = 14 個價量特徵，每月 1/99% 縮尾後 z-score，缺值補 0
-  切分 30/20/50：訓練 2001/09–2009/02、驗證 2009/03–2014/02、測試 2014/03–2026/08，每 12 個月擴張式重訓
+規格 v4 AC-3：舊輸出標為 legacy。
+資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）。
 """
 import os, numpy as np, pandas as pd, tensorflow as tf
 from tensorflow import keras
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_PANEL = os.path.join(HERE, "data", "panel.pkl")
+PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
+SRC = os.path.dirname(PANEL_PATH)  # 相容舊 watchlist.py 的 from nn_tf import SRC
 
 FEAT = "mom_1,mom_6,mom_12,mom_36,chmom_6,retvol,maxret,mvel1,dolvol,turn,stdturn,stddolvol,ill,beta".split(",")
 
 
 def load_panel():
     """讀 panel 並做和 run_models.py 一模一樣的前處理（只用 t 月以前的資訊，沒有 look-ahead）。"""
-    P = pd.read_pickle("data/panel.pkl")
+    P = pd.read_pickle(PANEL_PATH)
     P = P.dropna(subset=["ret_next", "mcap", "mom_12"])
     P = P[P["mon"] <= pd.Timestamp("2026-08-31")]
     P["rn"] = P.groupby("mon")["ret_next"].transform(lambda s: s.clip(s.quantile(.025), s.quantile(.975)))

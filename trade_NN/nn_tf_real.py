@@ -3,12 +3,12 @@
 避免用未來資訊把要下市的股票事先剔除。
 輸出 out/preds_tf_real.pkl、out/tf_hyperparams_real.csv。
 規格 v4 AC-1。不改模型或特徵。
+資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）。
 """
 import os, numpy as np, pandas as pd
-from nn_tf import FEAT, fit_ensemble
+from nn_tf import FEAT, fit_ensemble, PANEL_PATH
 
-SRC = "."
-P = pd.read_pickle(f"{SRC}/data/panel.pkl")
+P = pd.read_pickle(PANEL_PATH)
 P = P.dropna(subset=["mcap", "mom_12"])
 P = P[P["mon"] <= pd.Timestamp("2026-08-31")].copy()
 L = P.dropna(subset=["ret_next"])

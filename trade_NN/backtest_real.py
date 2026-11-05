@@ -3,20 +3,24 @@
 - AC-1：測試月份包含 ret_next 缺值股票（計數>0）
 - AC-2：下市持股預設 −100%，無 fillna(0) 路徑
 - AC-4 / AC-5：select 使用未知 15%、其他 30%；產業為現行分類，查不到歸「未知」
+資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）。
 與 backtest_portfolio.py（legacy）的差異見 REAL_RULES.md。
 """
 import sys, numpy as np, pandas as pd, os
 from portfolio import liquidity_screen, select
 from risk import industry_map
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_PANEL = os.path.join(HERE, "data", "panel.pkl")
+PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
 FEE, TAX, SLIP, MINFEE = 0.001425, 0.003, 0.001, 20
 DELIST = float(sys.argv[1]) if len(sys.argv) > 1 else -1.0
 TAG = "" if DELIST == -1.0 else f"_delist{int(DELIST*100)}"
 
 
 def daily():
-    a = pd.read_pickle("data/px_daily.pkl") if os.path.exists("data/px_daily.pkl") else pd.DataFrame()
-    b = pd.read_pickle("data/real/px_daily_extra.pkl") if os.path.exists("data/real/px_daily_extra.pkl") else a
+    a = pd.read_pickle(os.path.join(HERE, "data", "px_daily.pkl")) if os.path.exists(os.path.join(HERE, "data", "px_daily.pkl")) else pd.DataFrame()
+    b = pd.read_pickle(os.path.join(HERE, "data", "real", "px_daily_extra.pkl")) if os.path.exists(os.path.join(HERE, "data", "real", "px_daily_extra.pkl")) else a
     D = {}
     for df in (a, b):
         if df.empty:
@@ -30,7 +34,7 @@ def daily():
             if len(x):
                 D[code if t != "0050.TW" else "0050"] = x
     try:
-        z = pd.read_pickle("data/real/px_0050.pkl")[["Open", "High", "Close", "Adj Close"]]
+        z = pd.read_pickle(os.path.join(HERE, "data", "real", "px_0050.pkl"))[["Open", "High", "Close", "Adj Close"]]
         D["0050"] = z[(z.Open > 0) & (z.Close > 0)]
     except Exception:
         pass
@@ -38,12 +42,12 @@ def daily():
 
 
 DLY = daily()
-P = pd.read_pickle("data/panel.pkl")
+P = pd.read_pickle(PANEL_PATH)
 last_mon = P.groupby("code").mon.max()
 days = pd.DatetimeIndex(sorted(set().union(*[set(v.index) for k, v in DLY.items() if k in ("2330", "0050")]))) if DLY else pd.DatetimeIndex([])
 first_day = {p: days[days.to_period("M") == p][0] for p in days.to_period("M").unique()} if len(days) else {}
 try:
-    TRI = pd.read_csv("data/real/taiex_tri_daily.csv", parse_dates=["date"]).set_index("date")["tri"]
+    TRI = pd.read_csv(os.path.join(HERE, "data", "real", "taiex_tri_daily.csv"), parse_dates=["date"]).set_index("date")["tri"]
     tri_m = TRI.groupby(TRI.index.to_period("M")).last()
 except Exception:
     tri_m = pd.Series(dtype=float)
@@ -101,7 +105,7 @@ def run(D, ind, nav0=1_000_000):
             break
         u = liquidity_screen(D[D.mon == m].dropna(subset=["dv", "mcap"]))
         prevc = [c for c, v in val.items() if v > 0]
-        longs = select(u, 20, prev=prevc, buffer=40, ind=ind, ind_cap=0.30, ind_cap_unknown=0.15)
+        longs, _, _ = select(u, 20, prev=prevc, buffer=40, ind=ind, ind_cap=0.30, ind_cap_unknown=0.15)
         info = {c: bar(c, d0) for c in set(longs) | set(val)}
         px = {c: (info[c]["open"] if info[c] else Pc.get((m, c), np.nan)) for c in info}
         tgt = nav / max(len(longs), 1)

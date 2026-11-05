@@ -1,8 +1,9 @@
 """紙上交易（只模擬，不下任何真實委託；不碰 trade-coach 或任何真實 trades.db）。
 規格 v4：
 - AC-2：上期結算缺值／下市預設 −100%，正式績效路徑無 fillna(0)
-- AC-6：filtered_rank 為流動性篩選後、產業上限前的同一套名次；加續抱／新買欄；檢查續抱≤40、新買≤20；產業上限遞補標註備註
+- AC-6：filtered_rank 為流動性篩選後、產業上限前的同一套名次；加續抱／新買欄；檢查續抱 >=40、新買 >=20 警示（字面「小於」）；產業上限遞補標註備註
 - AC-9：覆蓋率 <85% 或 panel 讀取失敗 → 非 0 結束、寫 out/alerts.log 通知（可選環境變數 ALERT_WEBHOOK_URL）、不寫 paper_target
+- 資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）
 - 產業：現行 industry.csv，查不到歸「未知」並受 15% 上限
 流程：python watchlist.py --live → 產生 out/live_preds_all.csv
       python paper_trade.py [--nav 1000000]
@@ -13,6 +14,9 @@ from portfolio import liquidity_screen, select, weights
 from risk import industry_map
 from costs import BUY, SELL
 
+HERE = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_PANEL = os.path.join(HERE, "data", "panel.pkl")
+PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
 DB = "paper/paper_ledger.db"
 ALERT_LOG = "out/alerts.log"
 
@@ -50,14 +54,14 @@ L = L.rename(columns={"pred_excess_ret": "score"})
 
 # 讀取 panel 計算覆蓋率（AC-9）；讀不到視為失敗
 try:
-    P = pd.read_pickle("data/panel.pkl")
+    P = pd.read_pickle(PANEL_PATH)
     P["ym"] = P["mon"].dt.strftime("%Y-%m")
     expected = P[P.ym == mon]["code"].nunique()
     valid = L.merge(P[P.ym == mon][["code", "close", "dv", "mcap"]], on="code", how="inner")
     valid = valid.dropna(subset=["close", "dv", "mcap"])
     coverage = len(valid) / max(expected, 1)
 except Exception as e:
-    notify(f"錯誤：無法讀取 data/panel.pkl 計算覆蓋率（{e}），視為失敗，不產生目標檔")
+    notify(f"錯誤：無法讀取 panel（{PANEL_PATH}）（{e}），視為失敗，不產生目標檔")
     sys.exit(1)
 
 if coverage < 0.85:
@@ -72,7 +76,7 @@ except Exception:
 
 # 名稱
 try:
-    _N = pd.read_csv("data/stock_names.csv", dtype={"code": str}, encoding="utf-8-sig").set_index("code")["name"]
+    _N = pd.read_csv(os.path.join(HERE, "data", "stock_names.csv"), dtype={"code": str}, encoding="utf-8-sig").set_index("code")["name"]
     L["name"] = [f"{c} {_N[c]}" if c in _N.index else f"{c} (名稱待查)" for c in L["code"]]
 except FileNotFoundError:
     print("警告：找不到 data/stock_names.csv，沿用原名稱")
@@ -132,13 +136,13 @@ T["shares"] = np.floor(nav * T.weight / T.close).astype(int)
 T["mon"] = mon
 T["rank"] = T["filtered_rank"]  # 相容舊欄位
 
-# 檢查（AC-6）
+# 檢查（AC-6 字面：小於 40 / 小於 20 → >= 警示）
 keep_mask = T.hold_type == "續抱"
 new_mask = T.hold_type == "新買"
-if (T.loc[keep_mask, "filtered_rank"] > 40).any():
-    notify("警告：有續抱股 filtered_rank > 40")
-if (T.loc[new_mask, "filtered_rank"] > 20).any() and not T.loc[new_mask & (T.filtered_rank > 20), "note"].eq("產業上限遞補").all():
-    notify("警告：有新買股 filtered_rank > 20 且未標註產業上限遞補")
+if (T.loc[keep_mask, "filtered_rank"] >= 40).any():
+    notify("警告：有續抱股 filtered_rank >= 40")
+if (T.loc[new_mask, "filtered_rank"] >= 20).any() and not T.loc[new_mask & (T.filtered_rank >= 20), "note"].eq("產業上限遞補").all():
+    notify("警告：有新買股 filtered_rank >= 20 且未標註產業上限遞補")
 
 con.execute("delete from portfolios where mon=?", (mon,))
 con.execute("delete from orders where mon=?", (mon,))

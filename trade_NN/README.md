@@ -4,7 +4,7 @@
 舊版 `nn_tf.py` / `backtest_portfolio.py` 標為 **legacy**，僅供對照。所有數字都是實際跑出來的。
 
 ## 資料與方法（real 口徑）
-- **資料**：TEJ 月資料（本機 `data/panel.pkl`，gitignore 排除）。只取上市櫃 4 碼普通股，含已下市公司。
+- **資料**：TEJ 月資料。路徑由環境變數 `PANEL_PATH` 決定，預設 `trade_NN/data/panel.pkl`（相對於檔案所在資料夾，非 cwd）。gitignore 排除。
 - **y**：下月含息報酬，每月上下 2.5% 縮尾，再減掉樣本市值加權的市場報酬。
 - **X**：14 個價量特徵，每月先在 1%/99% 縮尾，再做 z-score，缺值補 0。
   - mom_1, mom_6, mom_12, mom_36, chmom_6
@@ -27,19 +27,19 @@
   - 產業：使用 `data/industry.csv`（來自 TWSE ISIN 和 TPEx OpenAPI 的現行分類，欄位 code,name,market,industry），不加日期維度。最新月份 panel 查不到產業的一律歸「未知」並受 15% 上限。
   - **回測使用現行產業分類，非當時分類。**
   - 產業上限：未知 15%（n=20 時最多 3 檔），其他 30%（最多 6 檔）。
-  - 名次口徑：Top20 = 新買入門檻（前 20 名）；緩衝 40 = 續抱門檻（仍在前 40 名可續抱）。目標檔有「篩選後名次」欄。
+  - 名次口徑：Top20 = 新買入門檻（前 20 名）；緩衝 40 = 續抱門檻（仍在前 40 名可續抱）。目標檔有「篩選後名次」欄。  
+    **AC-6 字面實作**：續抱 filtered_rank >= 40、新買 filtered_rank >= 20 時發出警示（規格寫「小於」）。若實務上應包含第 20／第 40 名，可再調整。
   - yfinance 僅暫補，標「暫定」，可重算；正式來源 TEJ。
-  - 覆蓋率 < 85%：非 0 結束碼、印通知、不寫 `paper_target`。
+  - 覆蓋率 < 85%：非 0 結束碼、印通知（out/alerts.log + 可選 ALERT_WEBHOOK_URL）、不寫 `paper_target`。
 - **成本**：買進手續費 0.1425%（每筆最低 NT$20）；賣出 0.1425% 手續費 + 0.3% 證交稅；滑價 0.1%。
 
 ## 執行順序（本機，out/ 不上傳 git）
-```
-python nn_tf_real.py
-python backtest_real.py
-python watchlist.py --live
-python paper_trade.py
-python monitor.py
-```
+
+    python nn_tf_real.py
+    python backtest_real.py
+    python watchlist.py --live
+    python paper_trade.py
+    python monitor.py
 
 ## 檔案說明
 - `nn_tf_real.py` / `backtest_real.py`：正式 real 口徑
@@ -49,6 +49,7 @@ python monitor.py
 - `risk.py`：讀取現行 industry.csv，查不到歸「未知」
 - `paper_trade.py`：覆蓋率檢查、篩選後名次、完整上期結算
 - `snr_backtest/nn_paper.py`：費用改走 `broker.py`（最低 NT$20）
+- `check_ac4.py` / `check_ac13.py`：驗收測試
 
 ## 使用者決定（2026-11-05）
 公開 repo `kendottv/trade` 僅收程式與 README。  
@@ -65,3 +66,4 @@ python monitor.py
 - **下市處理**：正式口徑下市 −100%，legacy 路徑曾以 0 計，已標為 legacy。
 - **產業**：回測使用現行產業分類，非當時分類；查不到歸「未知」（上限 15%）。
 - **覆蓋率**：最新月份有效資料 < 85% 時不產生目標檔。
+- **名次口徑**：AC-6 目前依字面「小於」實作（>= 警示），實務上前 20／前 40 通常含第 20、40 名，可再確認。
