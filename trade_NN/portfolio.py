@@ -6,10 +6,14 @@ import numpy as np, pandas as pd
 
 def liquidity_screen(df, q=0.2):
     """剔除當月成交值(dv)或市值(mcap)落在後 20% 的股票（只用 t 月底已知資料）。"""
-    return df[(df.dv > df.dv.quantile(q)) & (df.mcap > df.mcap.quantile(q))]
+    if len(df) == 0:
+        return df
+    return df[(df.dv > df.dv.quantile(q)) & (df.mcap > df.mcap.quantile(q))].copy()
 
 def cap_weights(w, cap=0.10, it=50):
     w = pd.Series(w, dtype=float)
+    if w.sum() == 0:
+        return w
     w = w / w.sum()
     for _ in range(it):
         over = w > cap + 1e-12
@@ -17,27 +21,31 @@ def cap_weights(w, cap=0.10, it=50):
             break
         ex = (w[over] - cap).sum()
         w[over] = cap
-        w[~over] += ex * w[~over] / w[~over].sum()
+        if w[~over].sum() > 0:
+            w[~over] += ex * w[~over] / w[~over].sum()
     return w
 
 def select(df, n, score="score", prev=(), buffer=None, ind=None, ind_cap=0.30, ind_cap_unknown=0.15):
     """依分數排序挑 n 檔。
     buffer=K：上期持股只要仍在前 K 名就續抱，空位再由高分補滿。
     產業上限：未知 15%（floor），其他 30%。
-    回傳選出的 codes（順序為最終持有順序）。
-    名次為流動性篩選後、產業上限前的原始名次。
+    回傳 (codes, rank_map, notes)。
+    rank_map 為流動性篩選後、產業上限前的原始名次（1-based）。
     """
-    d = df.sort_values(score, ascending=False)
+    if len(df) == 0 or n <= 0:
+        return [], {}, {}
+    d = df.sort_values(score, ascending=False).reset_index(drop=True)
     codes = list(d.code)
-    rank = {c: i + 1 for i, c in enumerate(codes)}  # 1-based, 產業上限前
-    keep = [c for c in prev if c in rank and rank[c] <= buffer] if buffer else []
+    rank = {c: i + 1 for i, c in enumerate(codes)}
+    keep = [c for c in prev if c in rank and (buffer is None or rank[c] <= buffer)]
     keep = sorted(keep, key=lambda c: rank[c])
     out = []
     cnt = {}
+    notes = {}
     mx_other = int(np.floor(ind_cap * n)) if ind_cap else None
     mx_unk = int(np.floor(ind_cap_unknown * n)) if ind_cap_unknown else None
-    notes = {}
-    for c in keep + codes:
+    candidates = keep + [c for c in codes if c not in keep]
+    for c in candidates:
         if len(out) >= n:
             break
         if c in out:
@@ -50,14 +58,15 @@ def select(df, n, score="score", prev=(), buffer=None, ind=None, ind_cap=0.30, i
         else:
             if mx_other is not None and cnt.get(g, 0) >= mx_other:
                 continue
-        # 因產業上限導致的遞補例外：新買且原始名次 > n
-        if not is_keep and rank[c] > n:
+        if not is_keep and rank.get(c, 999) > n:
             notes[c] = "產業上限遞補"
         out.append(c)
         cnt[g] = cnt.get(g, 0) + 1
     return out, rank, notes
 
 def weights(df, codes, scheme="ew", cap=0.10):
+    if not codes:
+        return pd.Series(dtype=float)
     if scheme == "ew":
         w = pd.Series(1.0, index=codes)
     else:

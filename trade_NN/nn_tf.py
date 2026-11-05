@@ -9,7 +9,7 @@ from tensorflow import keras
 HERE = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_PANEL = os.path.join(HERE, "data", "panel.pkl")
 PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
-SRC = os.path.dirname(PANEL_PATH)  # 相容舊 watchlist.py 的 from nn_tf import SRC
+SRC = os.path.dirname(PANEL_PATH)
 
 FEAT = "mom_1,mom_6,mom_12,mom_36,chmom_6,retvol,maxret,mvel1,dolvol,turn,stdturn,stddolvol,ill,beta".split(",")
 
@@ -34,7 +34,7 @@ def load_panel():
 def build_nn3(n_in, l1=1e-5, lr=1e-3, seed=0):
     """NN3：32-16-8，每層 Dense → BatchNorm → ReLU，權重加 L1 懲罰（論文 / GKX 作法）。"""
     keras.utils.set_random_seed(seed)
-    reg = keras.regularizers.l1(l1)
+    reg = keras.regularizers.l1(np.float32(l1))  # 修 float32 / float64 型別不符
     inp = keras.Input((n_in,))
     x = inp
     for h in (32, 16, 8):

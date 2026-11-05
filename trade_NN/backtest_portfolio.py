@@ -24,8 +24,11 @@ PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
 
 def load():
     D = pd.read_pickle("out/preds_tf.pkl").rename(columns={"TF-NN3": "score"})
-    P = pd.read_pickle(PANEL_PATH)[["mon", "code", "dv", "beta"]]
+    P = pd.read_pickle(PANEL_PATH)[["mon", "code", "dv", "beta", "ret_next"]]
     D = D.merge(P, on=["mon", "code"], how="left")
+    # AC-1 計數（測試月份 ret_next 缺值）
+    missing = D["ret_next"].isna().sum()
+    print(f"AC-1：測試月份 ret_next 缺值股票計數 = {missing}")
     D["ret_next"] = D["ret_next"].fillna(0)  # legacy 路徑，正式版已移除
     mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"], weights=d["mcap"]))
     return D, mk
@@ -58,7 +61,7 @@ def run(D, mk, ind):
             u = liquidity_screen(D[D.mon == m])
             N = len(u) // 10 if n == "dec" else n
             K = {None: None, "dec2": 2 * N}.get(buf, buf)
-            longs = select(u, N, prev=list(prev[prev > 0].index), buffer=K, ind=ind, ind_cap=icap)
+            longs, _, _ = select(u, N, prev=list(prev[prev > 0].index), buffer=K, ind=ind, ind_cap=icap)
             w = weights(u, longs, sch)
             if ls:
                 shorts = list(u.sort_values("score").code[:N])

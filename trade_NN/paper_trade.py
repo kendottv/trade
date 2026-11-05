@@ -3,6 +3,7 @@
 - AC-2：上期結算缺值／下市預設 −100%，正式績效路徑無 fillna(0)
 - AC-6：filtered_rank 為流動性篩選後、產業上限前的同一套名次；加續抱／新買欄；檢查續抱 >=40、新買 >=20 警示（字面「小於」）；產業上限遞補標註備註
 - AC-9：覆蓋率 <85% 或 panel 讀取失敗 → 非 0 結束、寫 out/alerts.log 通知（可選環境變數 ALERT_WEBHOOK_URL）、不寫 paper_target
+- AC-12：寫目標檔前檢查 paper_target 訊號月、preds_tf.pkl 最新月、live_preds_all.csv 月份一致，不一致非 0 結束＋通知
 - 資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）
 - 產業：現行 industry.csv，查不到歸「未知」並受 15% 上限
 流程：python watchlist.py --live → 產生 out/live_preds_all.csv
@@ -37,6 +38,18 @@ def notify(msg: str):
         except Exception:
             pass
 
+def migrate_portfolios(con):
+    """對既有 paper_ledger.db 做 migration：加上 filtered_rank、hold_type、note（已存在則跳過）。"""
+    cur = con.execute("PRAGMA table_info(portfolios)")
+    cols = {row[1] for row in cur.fetchall()}
+    if "filtered_rank" not in cols:
+        con.execute("ALTER TABLE portfolios ADD COLUMN filtered_rank int")
+    if "hold_type" not in cols:
+        con.execute("ALTER TABLE portfolios ADD COLUMN hold_type text")
+    if "note" not in cols:
+        con.execute("ALTER TABLE portfolios ADD COLUMN note text")
+    con.commit()
+
 ap = argparse.ArgumentParser()
 ap.add_argument("--nav", type=float, default=1_000_000)
 ap.add_argument("--db", default=DB)
@@ -52,6 +65,18 @@ except FileNotFoundError:
 mon = L["mon"].iloc[0]
 L = L.rename(columns={"pred_excess_ret": "score"})
 
+# AC-12：檢查訊號月份一致
+signal_months = {mon}
+try:
+    preds = pd.read_pickle("out/preds_tf.pkl")
+    if "mon" in preds.columns and len(preds):
+        signal_months.add(str(preds["mon"].max())[:7])
+except Exception:
+    pass
+if len(signal_months) > 1:
+    notify(f"AC-12 失敗：訊號月份不一致 {signal_months}（paper_target 用 {mon}），不產生目標檔")
+    sys.exit(1)
+
 # 讀取 panel 計算覆蓋率（AC-9）；讀不到視為失敗
 try:
     P = pd.read_pickle(PANEL_PATH)
@@ -60,6 +85,7 @@ try:
     valid = L.merge(P[P.ym == mon][["code", "close", "dv", "mcap"]], on="code", how="inner")
     valid = valid.dropna(subset=["close", "dv", "mcap"])
     coverage = len(valid) / max(expected, 1)
+    print(f"覆蓋率：{coverage:.1%}（有效 {len(valid)} / 應有 {expected}）")
 except Exception as e:
     notify(f"錯誤：無法讀取 panel（{PANEL_PATH}）（{e}），視為失敗，不產生目標檔")
     sys.exit(1)
@@ -92,6 +118,7 @@ create table if not exists portfolios(
 create table if not exists orders(mon text, code text, name text, side text, shares int, price real, est_cost real, note text);
 create table if not exists marks(mon text primary key, held_month text, port_ret real, mkt_ret real, nav_before real, nav_after real, status text);
 """)
+migrate_portfolios(con)
 
 # ---- 1) mark-to-market 前期（AC-2：缺值／下市預設 −100%，無 fillna(0)）----
 prev_mon = pd.read_sql("select max(mon) m from portfolios where mon<?", con, params=(mon,))["m"].iloc[0]
@@ -134,15 +161,17 @@ T["note"] = T.code.map(notes).fillna("")
 T["weight"] = w.values
 T["shares"] = np.floor(nav * T.weight / T.close).astype(int)
 T["mon"] = mon
-T["rank"] = T["filtered_rank"]  # 相容舊欄位
+T["rank"] = T["filtered_rank"]
 
 # 檢查（AC-6 字面：小於 40 / 小於 20 → >= 警示）
 keep_mask = T.hold_type == "續抱"
 new_mask = T.hold_type == "新買"
 if (T.loc[keep_mask, "filtered_rank"] >= 40).any():
     notify("警告：有續抱股 filtered_rank >= 40")
-if (T.loc[new_mask, "filtered_rank"] >= 20).any() and not T.loc[new_mask & (T.filtered_rank >= 20), "note"].eq("產業上限遞補").all():
-    notify("警告：有新買股 filtered_rank >= 20 且未標註產業上限遞補")
+if (T.loc[new_mask, "filtered_rank"] >= 20).any():
+    bad = T.loc[new_mask & (T.filtered_rank >= 20)]
+    if not (bad["note"] == "產業上限遞補").all():
+        notify("警告：有新買股 filtered_rank >= 20 且未標註產業上限遞補")
 
 con.execute("delete from portfolios where mon=?", (mon,))
 con.execute("delete from orders where mon=?", (mon,))
