@@ -1,7 +1,8 @@
 """紙上交易（只模擬，不下任何真實委託；不碰 trade-coach 或任何真實 trades.db）。
 規格 v4：
 - AC-2：上期結算缺值／下市預設 −100%，正式績效路徑無 fillna(0)
-- AC-6：filtered_rank 為流動性篩選後、產業上限前的同一套名次；加續抱／新買欄；檢查續抱 >=40、新買 >=20 警示（字面「小於」）；產業上限遞補標註備註
+- AC-6：filtered_rank 為流動性篩選後、產業上限前的同一套名次；加續抱／新買欄；
+  緩衝與 Top20 邊界包含第 40 名與第 20 名（rank <= 40 保留、rank <= 20 不警示）
 - AC-9：覆蓋率 <85% 或 panel 讀取失敗 → 非 0 結束、寫 out/alerts.log 通知（可選環境變數 ALERT_WEBHOOK_URL）、不寫 paper_target
 - AC-12：寫目標檔前檢查 paper_target 訊號月、preds_tf.pkl 最新月、live_preds_all.csv 月份一致，不一致非 0 結束＋通知
 - 資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）
@@ -163,15 +164,15 @@ T["shares"] = np.floor(nav * T.weight / T.close).astype(int)
 T["mon"] = mon
 T["rank"] = T["filtered_rank"]
 
-# 檢查（AC-6 字面：小於 40 / 小於 20 → >= 警示）
+# 檢查（邊界含第 20 / 第 40 名：僅 > 時警示）
 keep_mask = T.hold_type == "續抱"
 new_mask = T.hold_type == "新買"
-if (T.loc[keep_mask, "filtered_rank"] >= 40).any():
-    notify("警告：有續抱股 filtered_rank >= 40")
-if (T.loc[new_mask, "filtered_rank"] >= 20).any():
-    bad = T.loc[new_mask & (T.filtered_rank >= 20)]
+if (T.loc[keep_mask, "filtered_rank"] > 40).any():
+    notify("警告：有續抱股 filtered_rank > 40")
+if (T.loc[new_mask, "filtered_rank"] > 20).any():
+    bad = T.loc[new_mask & (T.filtered_rank > 20)]
     if not (bad["note"] == "產業上限遞補").all():
-        notify("警告：有新買股 filtered_rank >= 20 且未標註產業上限遞補")
+        notify("警告：有新買股 filtered_rank > 20 且未標註產業上限遞補")
 
 con.execute("delete from portfolios where mon=?", (mon,))
 con.execute("delete from orders where mon=?", (mon,))

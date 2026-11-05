@@ -1,14 +1,16 @@
 """投組建構：流動性篩選、Top-N / 十分位選股、等權 / 分數加權、單一個股上限、產業上限、持有緩衝區。
 規格 v4 AC-4 / AC-6：未知產業上限 15%，其他 30%。
 filtered_rank 為流動性篩選後、產業上限前的同一套名次（緩衝 40 與 Top20 共用）。
+緩衝與 Top20 邊界包含第 40 名與第 20 名（rank <= 40 保留、rank <= 20 視為合格新買）。
 """
 import numpy as np, pandas as pd
 
 def liquidity_screen(df, q=0.2):
-    """剔除當月成交值(dv)或市值(mcap)落在後 20% 的股票（只用 t 月底已知資料）。"""
+    """剔除當月成交值(dv)或市值(mcap)落在後 20% 的股票（只用 t 月底已知資料）。
+    使用 >= quantile，避免全相同值時全部被嚴格 > 刪除。"""
     if len(df) == 0:
         return df
-    return df[(df.dv > df.dv.quantile(q)) & (df.mcap > df.mcap.quantile(q))].copy()
+    return df[(df.dv >= df.dv.quantile(q)) & (df.mcap >= df.mcap.quantile(q))].copy()
 
 def cap_weights(w, cap=0.10, it=50):
     w = pd.Series(w, dtype=float)
@@ -27,7 +29,7 @@ def cap_weights(w, cap=0.10, it=50):
 
 def select(df, n, score="score", prev=(), buffer=None, ind=None, ind_cap=0.30, ind_cap_unknown=0.15):
     """依分數排序挑 n 檔。
-    buffer=K：上期持股只要仍在前 K 名就續抱，空位再由高分補滿。
+    buffer=K：上期持股只要仍在前 K 名（含第 K 名）就續抱，空位再由高分補滿。
     產業上限：未知 15%（floor），其他 30%。
     回傳 (codes, rank_map, notes)。
     rank_map 為流動性篩選後、產業上限前的原始名次（1-based）。

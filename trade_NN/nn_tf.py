@@ -34,7 +34,7 @@ def load_panel():
 def build_nn3(n_in, l1=1e-5, lr=1e-3, seed=0):
     """NN3：32-16-8，每層 Dense → BatchNorm → ReLU，權重加 L1 懲罰（論文 / GKX 作法）。"""
     keras.utils.set_random_seed(seed)
-    reg = keras.regularizers.l1(np.float32(l1))  # 修 float32 / float64 型別不符
+    reg = keras.regularizers.l1(float(l1))  # 使用 Python float，避免 float32/float64 與 ValueError
     inp = keras.Input((n_in,))
     x = inp
     for h in (32, 16, 8):

@@ -26,8 +26,8 @@ def load():
     D = pd.read_pickle("out/preds_tf.pkl").rename(columns={"TF-NN3": "score"})
     P = pd.read_pickle(PANEL_PATH)[["mon", "code", "dv", "beta", "ret_next"]]
     D = D.merge(P, on=["mon", "code"], how="left")
-    # AC-1 計數（測試月份 ret_next 缺值）
-    missing = D["ret_next"].isna().sum()
+    # AC-1 計數必須在 ret_next 欄位存在之後
+    missing = int(D["ret_next"].isna().sum())
     print(f"AC-1：測試月份 ret_next 缺值股票計數 = {missing}")
     D["ret_next"] = D["ret_next"].fillna(0)  # legacy 路徑，正式版已移除
     mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"], weights=d["mcap"]))
