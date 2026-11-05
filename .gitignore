@@ -47,3 +47,8 @@ shioaji.log
 snr_backtest/paper_nn/sim_*
 snr_backtest/paper_nn/SIM_STOP
 
+
+# 既有內容保留，新增以下（公開 repo，不上傳 data/out/paper）
+trade_NN/data/
+trade_NN/out/
+trade_NN/paper/
