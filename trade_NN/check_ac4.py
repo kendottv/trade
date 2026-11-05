@@ -1,18 +1,21 @@
 """AC-4 測試：10 檔高分「未知」股票、n=20。
 斷言選出 20 檔、未知恰為上限（floor(0.15*20)=3）、其他產業 ≤6。
 「未知」必須被當成產業桶受 15% 上限，而非直接剔除。
-逐步追蹤：liquidity_screen 後未知剩幾檔、排名後、產業上限後。
+測試資料的未知股票 dv/mcap 與其他產業相同或更高，確保能通過流動性篩選。
+不修改 liquidity_screen 邏輯。
 """
 import pandas as pd
 from portfolio import select, liquidity_screen
 
 def test_ac4():
     rows = []
+    # 未知股票：高分 + 高流動性（dv/mcap 與其他相同或更高）
     for i in range(10):
-        rows.append({"code": f"U{i:02d}", "score": 100.0 - i, "dv": 1e9 + i, "mcap": 1e9 + i, "industry": "未知"})
+        rows.append({"code": f"U{i:02d}", "score": 100.0 - i, "dv": 2e9, "mcap": 2e9, "industry": "未知"})
+    # 其他產業：較低分 + 正常流動性
     for i in range(40):
         ind = f"產業{i % 8}"
-        rows.append({"code": f"O{i:02d}", "score": 70.0 - i * 0.5, "dv": 1e9 + 100 + i, "mcap": 1e9 + 100 + i, "industry": ind})
+        rows.append({"code": f"O{i:02d}", "score": 70.0 - i * 0.5, "dv": 1e9 + i, "mcap": 1e9 + i, "industry": ind})
     df = pd.DataFrame(rows)
     u = liquidity_screen(df, q=0.2)
     unk_after_liq = int((u.industry == "未知").sum())

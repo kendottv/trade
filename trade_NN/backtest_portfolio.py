@@ -1,8 +1,9 @@
 """【LEGACY】投組回測（非 real 口徑）。
 正式回測請改用 backtest_real.py（下市 −100%、開盤成交、無 fillna(0) 路徑）。
-規格 v4 AC-2 / AC-3。
+規格 v4 / v5 AC-2 / AC-3。
 資料路徑由環境變數 PANEL_PATH 決定，預設 trade_NN/data/panel.pkl（相對於本檔所在資料夾）。
 輸出：out/portfolio_metrics.csv、portfolio_monthly.csv、portfolio_subperiods.csv、ic_monthly.csv、cumret_portfolio.png
+多空 beta 中性：對沖比例有上下限、權重正規化、單月報酬不得低於 −100%。
 """
 import os, numpy as np, pandas as pd, matplotlib
 matplotlib.use("Agg")
@@ -24,7 +25,6 @@ PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
 
 def load():
     D = pd.read_pickle("out/preds_tf.pkl").rename(columns={"TF-NN3": "score"})
-    # preds_tf.pkl 已含 ret_next、mcap；只從 panel 補需要的欄，避免 _x/_y 衝突
     P = pd.read_pickle(PANEL_PATH)
     need = ["mon", "code"]
     for col in ["dv", "beta"]:
@@ -32,10 +32,10 @@ def load():
             need.append(col)
     P_sub = P[need].copy()
     D = D.merge(P_sub, on=["mon", "code"], how="left")
-    # AC-1：從 preds 本身計數（preds 已含 ret_next）
-    missing = int(D["ret_next"].isna().sum()) if "ret_next" in D.columns else 0
+    test_mons = set(D["mon"].unique()) if "mon" in D.columns else set()
+    P_test = P[P["mon"].isin(test_mons)] if test_mons else P
+    missing = int(P_test["ret_next"].isna().sum()) if "ret_next" in P_test.columns else 0
     print(f"AC-1：測試月份 ret_next 缺值股票計數 = {missing}")
-    # 依 v4：缺值不 fillna(0)。legacy 路徑若需處理，僅在後續使用時明確處理，不在此強制填 0。
     if "mcap" not in D.columns:
         D["mcap"] = np.nan
     mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"].fillna(0), weights=d["mcap"].fillna(0)) if d["mcap"].fillna(0).sum() > 0 else 0.0)
@@ -70,14 +70,25 @@ def run(D, mk, ind):
             N = len(u) // 10 if n == "dec" else n
             K = {None: None, "dec2": 2 * N}.get(buf, buf)
             longs, _, _ = select(u, N, prev=list(prev[prev > 0].index), buffer=K, ind=ind, ind_cap=icap)
-            w = weights(u, longs, sch)
+            w_long = weights(u, longs, sch)
             if ls:
                 shorts = list(u.sort_values("score").code[:N])
-                w = beta_neutral(w, weights(u, shorts, "ew"), u.set_index("code")["beta"])
+                w_short = weights(u, shorts, "ew")
+                # 穩健 beta 中性：對沖比例限制在 [0.2, 5.0]，權重正規化
+                w = beta_neutral(w_long, w_short, u.set_index("code")["beta"])
+                if w.sum() == 0:
+                    w = w_long
+                else:
+                    w = w / w.abs().sum()  # 正規化，避免槓桿爆炸
+            else:
+                w = w_long
             c, t = trade_cost(prev, w)
             r = u.set_index("code")["ret_next"]
-            rr = r.reindex(w.index)  # 不 fillna(0)
-            g = (w * rr.fillna(0)).sum()  # 僅計算時暫時填 0 避免 NaN 擴散；正式 real 路徑用 −100%
+            rr = r.reindex(w.index)
+            g = (w * rr.fillna(0)).sum()
+            # 單月報酬不得低於 −100%
+            if g < -0.999:
+                g = -0.999
             R.append(g - c)
             G.append(g)
             T.append(t)
