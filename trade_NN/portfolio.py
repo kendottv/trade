@@ -32,6 +32,7 @@ def select(df, n, score="score", prev=(), buffer=None, ind=None, ind_cap=0.30, i
     """依分數排序挑 n 檔。
     buffer=K：上期持股只要仍在前 K 名（含第 K 名）就續抱，空位再由高分補滿。
     產業上限：未知 15%（floor），其他 30%。「未知」是正常產業桶，受上限而非直接剔除。
+    若 df 含 industry 欄，優先使用；否則用 ind dict，缺值歸「未知」。
     回傳 (codes, rank_map, notes)。
     rank_map 為流動性篩選後、產業上限前的原始名次（1-based）。
     """
@@ -40,6 +41,11 @@ def select(df, n, score="score", prev=(), buffer=None, ind=None, ind_cap=0.30, i
     d = df.sort_values(score, ascending=False).reset_index(drop=True)
     codes = list(d.code)
     rank = {c: i + 1 for i, c in enumerate(codes)}
+    # 產業來源：優先 df.industry，其次 ind dict
+    if "industry" in d.columns:
+        ind_series = d.set_index("code")["industry"].fillna("未知")
+    else:
+        ind_series = pd.Series({c: (ind or {}).get(c, "未知") for c in codes})
     keep = [c for c in prev if c in rank and (buffer is None or rank[c] <= buffer)]
     keep = sorted(keep, key=lambda c: rank[c])
     out = []
@@ -53,8 +59,8 @@ def select(df, n, score="score", prev=(), buffer=None, ind=None, ind_cap=0.30, i
             break
         if c in out:
             continue
-        g = (ind or {}).get(c, "未知")
-        if g is None or (isinstance(g, float) and np.isnan(g)):
+        g = ind_series.get(c, "未知")
+        if g is None or (isinstance(g, float) and np.isnan(g)) or str(g).strip() == "":
             g = "未知"
         is_keep = c in keep
         current = cnt.get(g, 0)

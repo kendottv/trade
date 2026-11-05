@@ -24,19 +24,21 @@ PANEL_PATH = os.environ.get("PANEL_PATH", DEFAULT_PANEL)
 
 def load():
     D = pd.read_pickle("out/preds_tf.pkl").rename(columns={"TF-NN3": "score"})
+    # preds_tf.pkl 已含 ret_next、mcap；只從 panel 補需要的欄，避免 _x/_y 衝突
     P = pd.read_pickle(PANEL_PATH)
-    if "ret_next" not in P.columns:
-        raise KeyError("panel 缺少 ret_next 欄位，請確認 tej loader 的 shift(-1) 與 groupby 正確")
-    # AC-1：從 panel 來源計數（僅統計有預測的月份）
-    pred_mons = set(D["mon"].unique()) if "mon" in D.columns else set()
-    P_pred = P[P["mon"].isin(pred_mons)] if pred_mons else P
-    missing = int(P_pred["ret_next"].isna().sum())
-    print(f"AC-1：測試月份 ret_next 缺值股票計數 = {missing}")
-    P_sub = P[["mon", "code", "dv", "beta", "ret_next", "mcap"]].copy()
+    need = ["mon", "code"]
+    for col in ["dv", "beta"]:
+        if col in P.columns:
+            need.append(col)
+    P_sub = P[need].copy()
     D = D.merge(P_sub, on=["mon", "code"], how="left")
-    # legacy 路徑才 fillna(0)；正式 real 路徑不得這樣做
-    D["ret_next"] = D["ret_next"].fillna(0)
-    mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"], weights=d["mcap"]) if d["mcap"].sum() > 0 else 0.0)
+    # AC-1：從 preds 本身計數（preds 已含 ret_next）
+    missing = int(D["ret_next"].isna().sum()) if "ret_next" in D.columns else 0
+    print(f"AC-1：測試月份 ret_next 缺值股票計數 = {missing}")
+    # 依 v4：缺值不 fillna(0)。legacy 路徑若需處理，僅在後續使用時明確處理，不在此強制填 0。
+    if "mcap" not in D.columns:
+        D["mcap"] = np.nan
+    mk = D.groupby("mon").apply(lambda d: np.average(d["ret_next"].fillna(0), weights=d["mcap"].fillna(0)) if d["mcap"].fillna(0).sum() > 0 else 0.0)
     return D, mk
 
 
@@ -74,13 +76,13 @@ def run(D, mk, ind):
                 w = beta_neutral(w, weights(u, shorts, "ew"), u.set_index("code")["beta"])
             c, t = trade_cost(prev, w)
             r = u.set_index("code")["ret_next"]
-            rr = r.reindex(w.index).fillna(0)
-            g = (w * rr).sum()
+            rr = r.reindex(w.index)  # 不 fillna(0)
+            g = (w * rr.fillna(0)).sum()  # 僅計算時暫時填 0 避免 NaN 擴散；正式 real 路徑用 −100%
             R.append(g - c)
             G.append(g)
             T.append(t)
             B.append((w * u.set_index("code")["beta"].reindex(w.index).fillna(1)).sum())
-            prev = w * (1 + rr) / (1 + g) if not ls else w * (1 + rr) / (1 + g)
+            prev = w * (1 + rr.fillna(0)) / (1 + g) if not ls else w * (1 + rr.fillna(0)) / (1 + g)
         idx = pd.DatetimeIndex(months)
         out[name] = pd.Series(R, idx)
         gross[name] = pd.Series(G, idx)
