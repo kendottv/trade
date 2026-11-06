@@ -14,7 +14,6 @@ tr.hl td{background:rgba(88,166,255,.14);font-weight:600}.up{color:var(--red)}.d
 .tk{display:flex;gap:.6rem;align-items:baseline;flex-wrap:wrap}.tk .n{color:var(--dim);font-size:.85rem}.tk .v{font-size:1.15rem;font-weight:600}.tk .cap{margin:0}
 .st{font-style:normal;font-size:.72rem;border:1px solid var(--line);border-radius:8px;padding:0 .35rem;color:var(--dim)}.st.live{color:var(--green);border-color:#238636}.upd{margin-left:auto!important}
 .err{margin:.4rem 1.4rem;padding:.6rem .9rem;border:1px solid #f85149;background:#f8514922;border-radius:8px;color:#ffb3ad}
-
 body,button,table{font-family:Inter,"Segoe UI Variable","Segoe UI","Microsoft JhengHei UI","Noto Sans TC",system-ui,sans-serif;font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 td,th{font-variant-numeric:tabular-nums}td:not(.l),th:not(.l){text-align:right}
 .up{color:#f85149!important}.dn{color:#3fb950!important}
@@ -28,10 +27,8 @@ td,th{font-variant-numeric:tabular-nums}td:not(.l),th:not(.l){text-align:right}
 .eqsum .note{grid-column:1/-1;color:var(--dim);font-size:.82rem;border-top:1px solid var(--line);padding-top:.6rem}
 .eqsum .big,.metric .v{white-space:nowrap}
 .eqsum{grid-template-columns:minmax(260px,auto) repeat(3,minmax(130px,1fr));column-gap:2rem}@media(max-width:700px){.eqsum{grid-template-columns:1fr 1fr}}
-
 .simtabs{display:flex;gap:.3rem;margin:.6rem 0 .4rem;border-bottom:1px solid var(--line)}.simtabs button{background:none;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--dim);padding:.35rem .9rem;cursor:pointer;font:inherit;margin-bottom:-1px}.simtabs button:hover{color:var(--txt)}.simtabs button.on{color:var(--txt);background:var(--card);border-color:var(--line);border-bottom:1px solid var(--card)}
 .pagetabs{display:flex;gap:.4rem;margin:.6rem 1.4rem 0;border-bottom:1px solid var(--line)}.pagetabs button{background:none;border:1px solid transparent;border-bottom:none;border-radius:8px 8px 0 0;color:var(--dim);padding:.45rem 1.1rem;cursor:pointer;font:inherit;font-size:.95rem;margin-bottom:-1px}.pagetabs button:hover{color:var(--txt)}.pagetabs button.on{color:var(--txt);background:var(--card);border-color:var(--line);border-bottom:1px solid var(--card);font-weight:600}
-
 /* sticky top-level page tabs */
 .pagetabs{
   position:sticky;
@@ -46,7 +43,6 @@ td,th{font-variant-numeric:tabular-nums}td:not(.l),th:not(.l){text-align:right}
 .pagetabs button{
   margin-bottom:0;
 }
-
 /* compact sim summary cards only */
 #simmetrics{
   gap:.35rem;
@@ -73,3 +69,18 @@ td,th{font-variant-numeric:tabular-nums}td:not(.l),th:not(.l){text-align:right}
   }
   #simmetrics .metric .v{font-size:1.05rem}
 }
+
+/* 持股熱力圖 v1 — squarified absolute */
+.hm-head { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; margin-bottom: 0.4rem; }
+.hm-controls button, .hm-controls select { margin-left: 4px; background: var(--card); color: var(--txt); border: 1px solid var(--line); border-radius: 6px; padding: 0.25rem 0.6rem; cursor: pointer; font: inherit; font-size: 0.85rem; }
+.hm-controls button.on { background: #1f6feb; border-color: #1f6feb; }
+.heatmap { min-height: 360px; margin: 6px 0; position: relative; }
+.hm-abs { position: relative; width: 100%; height: 360px; overflow: hidden; }
+.hm-cell { display: flex; flex-direction: column; justify-content: center; align-items: center;
+  color: #fff; font-size: 10px; overflow: hidden; cursor: pointer; text-align: center; box-sizing: border-box; border: 1px solid rgba(0,0,0,.15); }
+.hm-name { white-space: nowrap; text-overflow: ellipsis; max-width: 100%; padding: 0 2px; pointer-events: none; }
+.hm-pct { font-weight: 600; pointer-events: none; }
+.unalloc { margin-top: 6px; font-size: 13px; }
+.unalloc-item { padding: 2px 0; cursor: pointer; }
+.hm-detail { margin-top: 8px; padding: 8px; background: #0d1117; border: 1px solid var(--line); border-radius: 6px; font-size: 0.85rem; }
+.empty { padding: 16px; text-align: center; color: var(--dim); }
