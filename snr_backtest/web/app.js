@@ -175,17 +175,6 @@ function squarifyJS(values, x, y, w, h) {
   }
   return rec(areas, x, y, w, h, values.map((_,i)=>i));
 }
-function renderTable(prefix, positions) {
-  const tableId = prefix === 'paper' ? 'pos' : 'simpos';
-  const tbl = $(tableId);
-  if (!tbl) return;
-  const rows = (positions || []).map(p => {
-    const day = p.day_chg == null ? '—' : (p.day_chg*100).toFixed(2)+'%';
-    const pnl = p.pnl_pct_display == null ? '—' : (p.pnl_pct_display*100).toFixed(2)+'%';
-    return `<tr><td class="l">${p.code || p.ticker || ''} ${p.name || p.label || ''}</td><td>${nf(p.shares)}</td><td>${nf(p.mv)}</td><td>${day}</td><td>${pnl}</td></tr>`;
-  }).join('');
-  tbl.innerHTML = `<tr><th class="l">股票</th><th>股數</th><th>市值</th><th>今日漲跌</th><th>買入後損益</th></tr>` + (rows || '<tr><td colspan="5" class="l">沒有持股</td></tr>');
-}
 function renderHeatmap(containerId, unallocId, detailId, timeId, positions, mode, accountLabel, snapshotTs, quoteTs, stale) {
   const el = $(containerId), un = $(unallocId), det = $(detailId), te = $(timeId);
   if (!el) return;
@@ -271,9 +260,9 @@ function bindHeatmap(prefix) {
     if (isHeat) {
       renderHeatmap(prefix + '-heatmap', prefix + '-unalloc', prefix + '-detail', prefix + '-time',
         data.positions, mode, prefix === 'paper' ? '紙上' : '模擬', data.snapshotTs, data.quoteTs, data.stale);
-    } else {
-      renderTable(prefix, data.positions);
     }
+    // 表格模式僅切換 visibility，不覆寫 #pos / #simpos。
+    // 正式面板原欄由既有 render() / renderSim() 填滿（紙上 8 欄、模擬 7 欄含 legacy）。
   }
   if (heatBtn) heatBtn.onclick = () => { heatBtn.classList.add('on'); if (tableBtn) tableBtn.classList.remove('on'); show(); };
   if (tableBtn) tableBtn.onclick = () => { tableBtn.classList.add('on'); if (heatBtn) heatBtn.classList.remove('on'); show(); };

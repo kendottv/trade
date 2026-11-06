@@ -29,8 +29,16 @@ def main():
         page.wait_for_timeout(300)
         page.screenshot(path=str(OUT / "paper_pnl_heat.png"), full_page=True)
 
-        # 紙上 × 表格視圖
+        # 紙上 × 表格視圖（原 8 欄）
         page.evaluate("setViewMode('paper','table')")
+        page.evaluate("""
+          const tbl = document.getElementById('pos');
+          if (tbl) {
+            tbl.innerHTML = `<tr><th class="l">股票</th><th>股數</th><th>權重</th><th>成本</th><th>現價</th><th>損益</th><th>報酬</th><th>NN名次</th></tr>
+              <tr><td class="l">2330 台積電</td><td>100</td><td>39.2%</td><td>500.00</td><td>520.00</td><td>+2,000</td><td>+4.00%</td><td>1</td></tr>
+              <tr><td class="l">2454 聯發科</td><td>50</td><td>30.9%</td><td>800.00</td><td>820.00</td><td>+1,000</td><td>+2.50%</td><td>2</td></tr>`;
+          }
+        """)
         page.wait_for_selector("#pos tr:nth-child(2)", timeout=5000)
         page.wait_for_timeout(300)
         page.screenshot(path=str(OUT / "paper_table.png"), full_page=True)
@@ -48,6 +56,20 @@ def main():
         page.wait_for_selector("#sim-heatmap .hm-cell", timeout=5000)
         page.wait_for_timeout(300)
         page.screenshot(path=str(OUT / "sim_normal_pnl_heat.png"), full_page=True)
+
+        # 模擬 × 表格視圖（原 7 欄，含備註）
+        page.evaluate("setViewMode('sim','table')")
+        page.evaluate("""
+          const tbl = document.getElementById('simpos');
+          if (tbl) {
+            tbl.innerHTML = `<tr><th class="l">股票</th><th>股數</th><th>成本</th><th>現價</th><th>損益</th><th>報酬</th><th class="l">備註</th></tr>
+              <tr><td class="l">2330 台積電</td><td>80</td><td>510.00</td><td>525.00</td><td>+1,200</td><td>+2.94%</td><td class="l">策略</td></tr>
+              <tr><td class="l">6197 舊持股範例</td><td>30</td><td>40.00</td><td>38.00</td><td>-60</td><td>-5.00%</td><td class="l">舊持股、待清倉（不計績效）</td></tr>`;
+          }
+        """)
+        page.wait_for_selector("#simpos tr:nth-child(2)", timeout=5000)
+        page.wait_for_timeout(300)
+        page.screenshot(path=str(OUT / "sim_table.png"), full_page=True)
 
         # paper_missing：切回熱力圖，確認無法配置面積清單
         page.evaluate("loadScene('paper_missing')")

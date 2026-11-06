@@ -11,7 +11,7 @@ import sys
 import urllib.request
 from pathlib import Path
 from typing import Any
-from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutTimeout
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutTimeout, as_completed
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
@@ -165,10 +165,11 @@ def _names() -> dict:
     return n
 
 
-# ---- 持股熱力圖顯示用報價（帶逾時） ----
+# ---- 持股熱力圖顯示用報價（帶逾時 + 整批總時限） ----
 _QUOTE_CACHE: dict[str, tuple[float, Any]] = {}
 _QUOTE_TTL = 60.0
 _QUOTE_TIMEOUT = 3.0
+_BATCH_QUOTE_TIMEOUT = 9.0  # 整批總時限，明顯小於前端 15s
 _executor = ThreadPoolExecutor(max_workers=4)
 
 
@@ -190,10 +191,14 @@ def _safe_quote(code: str):
         return None
 
 
-def _enrich_pos_display(pos: dict, is_paper: bool = True) -> dict:
+def _enrich_pos_display(pos: dict, is_paper: bool = True, prefetched_quote: Any = None, quote_provided: bool = False) -> dict:
     from holdings_heatmap import day_change, buy_pnl_pct, valid_mv
     code = str(pos.get("code") or pos.get("ticker") or "")
-    q = _safe_quote(code) if code else None
+    # quote_provided=True 時（batch 路徑）直接使用傳入值，即使為 None 也不再呼叫 _safe_quote
+    if quote_provided:
+        q = prefetched_quote
+    else:
+        q = _safe_quote(code) if code else None
     last = pos.get("last")
     avg = pos.get("avg") or pos.get("avg_price")
     dc = day_change(q.last if q else None, q.prev_close if q else None) if q else None
@@ -228,6 +233,51 @@ def _enrich_pos_display(pos: dict, is_paper: bool = True) -> dict:
     return pos
 
 
+def _enrich_positions_batch(positions: list[dict], is_paper: bool = True) -> list[dict]:
+    """整批 enrichment，總時限內完成；逾時的檔位報價視為失敗但不阻斷其餘。
+    batch 階段取得的 quote／None 直接傳給 _enrich_pos_display 並設 quote_provided=True，不再二次同步 fetch。
+    """
+    if not positions:
+        return positions
+    deadline = time.time() + _BATCH_QUOTE_TIMEOUT
+    futs = {}
+    for p in positions:
+        code = str(p.get("code") or p.get("ticker") or "")
+        if not code:
+            continue
+        futs[_executor.submit(_safe_quote, code)] = code
+    results: dict[str, Any] = {}
+    finished = set()
+    try:
+        for fut in as_completed(futs, timeout=max(0.1, deadline - time.time())):
+            finished.add(fut)
+            code = futs[fut]
+            try:
+                results[code] = fut.result(timeout=0.1)
+            except Exception:
+                results[code] = None
+            if time.time() > deadline:
+                break
+    except TimeoutError:
+        pass
+    # 未完成的直接記為 None
+    for fut, code in futs.items():
+        if fut not in finished:
+            results[code] = None
+            _QUOTE_CACHE[code] = (time.time(), None)
+    for p in positions:
+        code = str(p.get("code") or p.get("ticker") or "")
+        q = results.get(code) if code else None
+        _enrich_pos_display(p, is_paper=is_paper, prefetched_quote=q, quote_provided=True)
+    return positions
+
+
+def _sim_snapshot_stale(age_s: float, market_hours: bool) -> bool:
+    """模擬快照過期判斷（與 api_sim 共用）。盤中 300s、非盤中 3600s。"""
+    limit = 300 if market_hours else 3600
+    return age_s > limit
+
+
 def account() -> dict:
     a = _json(PAPER / "account.json")
     eq = _f(a.get("equity"), 0) or 0
@@ -240,7 +290,8 @@ def account() -> dict:
                 "avg": p["avg_price"], "last": last, "mv": mv, "weight": mv / eq if eq else 0,
                 "pnl": mv - cost, "pnl_pct": (mv / cost - 1) if cost else 0,
                 "nn_rank": p.get("nn_rank"), "industry": p.get("industry", "")}
-        pos.append(_enrich_pos_display(item, is_paper=True))
+        pos.append(item)
+    _enrich_positions_batch(pos, is_paper=True)
     curve = {}
     for r in _csv(PAPER / "equity.csv"):
         curve[r["date"][:10]] = _f(r.get("equity"))
@@ -368,19 +419,19 @@ def api_sim() -> JSONResponse:
         from quotes import now_taipei
         mtime = SIM_SNAP.stat().st_mtime if SIM_SNAP.exists() else 0
         age = time.time() - mtime
-        limit = 300 if _sim_market_hours(now_taipei()) else 3600
-        stale = age > limit
+        stale = _sim_snapshot_stale(age, _sim_market_hours(now_taipei()))
     except Exception:
         stale = True
     snap["stale"] = stale
     snap["stale_threshold_s"] = 300 if _sim_market_hours() else 3600
-    for p in snap.get("positions") or []:
+    positions = snap.get("positions") or []
+    for p in positions:
         p["label"] = _sim_lab(p["code"]); p["legacy"] = p["code"] in legacy
         if "mv" not in p:
             last = float(p.get("last") or 0)
             shares = float(p.get("shares") or 0)
             p["mv"] = last * shares
-        _enrich_pos_display(p, is_paper=False)
+    _enrich_positions_batch(positions, is_paper=False)
     for t in snap.get("trades") or []:
         t["label"] = _sim_lab(t["code"])
     mon = _dt.now().strftime("%Y-%m")
