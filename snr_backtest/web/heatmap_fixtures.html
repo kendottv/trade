@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<title>持股熱力圖 Fixture（離線）</title>
+<link rel="stylesheet" href="site.css">
+<style>
+.fixture-nav { padding: 8px; background: #111; position: sticky; top: 0; z-index: 100; }
+.fixture-nav button { margin: 4px; }
+.heatmap { min-height: 360px; position: relative; }
+.scene-info { padding: 6px 12px; color: #aaa; font-size: 13px; }
+.hm-controls { display: inline-block; margin-left: 12px; }
+</style>
+</head>
+<body>
+<div class="fixture-nav" id="nav"></div>
+<div class="scene-info" id="scene-info"></div>
+
+<div class="hm-head">
+  <h2>紙上持股</h2>
+  <div class="hm-controls">
+    <button id="paper-mode-heat" class="on">熱力圖</button>
+    <button id="paper-mode-table">表格</button>
+    <select id="paper-color"><option value="day" selected>今日漲跌</option><option value="pnl">買入後損益</option></select>
+  </div>
+</div>
+<div id="paper-heatmap" class="heatmap"></div>
+<div id="paper-unalloc" class="unalloc" hidden></div>
+<div id="paper-detail" class="hm-detail" hidden></div>
+<div class="cap" id="paper-time"></div>
+<div class="tw" id="paper-table-wrap" hidden><table id="pos"></table></div>
+
+<div class="hm-head" style="margin-top:24px;">
+  <h2>模擬持股</h2>
+  <div class="hm-controls">
+    <button id="sim-mode-heat" class="on">熱力圖</button>
+    <button id="sim-mode-table">表格</button>
+    <select id="sim-color"><option value="day" selected>今日漲跌</option><option value="pnl">買入後損益</option></select>
+  </div>
+</div>
+<div id="sim-heatmap" class="heatmap"></div>
+<div id="sim-unalloc" class="unalloc" hidden></div>
+<div id="sim-detail" class="hm-detail" hidden></div>
+<div class="cap" id="sim-time"></div>
+<div class="tw" id="sim-table-wrap" hidden><table id="simpos"></table></div>
+
+<script>window.HEATMAP_FIXTURE = true;</script>
+<script src="app.js"></script>
+<script>
+const SCENES = {
+  paper_normal: {
+    positions: [
+      {code:"2330", name:"台積電", shares:100, avg:500, last:520, mv:52000, industry:"半導體", mv_valid:true, day_chg:0.04, pnl_pct_display:0.04, legacy:false},
+      {code:"2317", name:"鴻海", shares:200, avg:100, last:105, mv:21000, industry:"電子", mv_valid:true, day_chg:0.05, pnl_pct_display:0.05, legacy:false},
+      {code:"2454", name:"聯發科", shares:50, avg:800, last:820, mv:41000, industry:"半導體", mv_valid:true, day_chg:0.025, pnl_pct_display:0.025, legacy:false},
+      {code:"2881", name:"富邦金", shares:300, avg:60, last:62, mv:18600, industry:"金融", mv_valid:true, day_chg:0.033, pnl_pct_display:0.033, legacy:false}
+    ],
+    snapshotTs: "2026-11-06 15:00",
+    quoteTs: "2026-11-06 15:02",
+    stale: false
+  },
+  paper_missing: {
+    positions: [
+      {code:"2330", name:"台積電", shares:100, avg:500, last:520, mv:52000, industry:"半導體", mv_valid:true, day_chg:0.04, pnl_pct_display:0.04, legacy:false},
+      {code:"0000", name:"無效市值", shares:10, avg:10, last:10, mv:0, industry:"未知", mv_valid:false, day_chg:null, pnl_pct_display:null, legacy:false},
+      {code:"9999", name:"負市值", shares:5, avg:20, last:15, mv:-100, industry:"未知", mv_valid:false, day_chg:null, pnl_pct_display:null, legacy:false}
+    ],
+    snapshotTs: "2026-11-06 15:00",
+    quoteTs: "2026-11-06 15:02",
+    stale: false
+  },
+  paper_empty: {
+    positions: [],
+    snapshotTs: "2026-11-06 15:00",
+    quoteTs: "",
+    stale: false
+  },
+  paper_invalid_cost: {
+    positions: [
+      {code:"2330", name:"台積電", shares:100, avg:0, last:520, mv:52000, industry:"半導體", mv_valid:true, day_chg:0.04, pnl_pct_display:null, legacy:false},
+      {code:"2317", name:"鴻海", shares:200, avg:-5, last:105, mv:21000, industry:"電子", mv_valid:true, day_chg:0.05, pnl_pct_display:null, legacy:false}
+    ],
+    snapshotTs: "2026-11-06 15:00",
+    quoteTs: "2026-11-06 15:02",
+    stale: false
+  },
+  sim_normal: {
+    positions: [
+      {code:"2330", name:"台積電", shares:80, avg:510, last:525, mv:42000, industry:"半導體", mv_valid:true, day_chg:0.029, pnl_pct_display:0.0294, legacy:false},
+      {code:"2317", name:"鴻海", shares:150, avg:98, last:102, mv:15300, industry:"電子", mv_valid:true, day_chg:0.041, pnl_pct_display:0.0408, legacy:false},
+      {code:"2454", name:"聯發科", shares:40, avg:790, last:810, mv:32400, industry:"半導體", mv_valid:true, day_chg:0.025, pnl_pct_display:0.0253, legacy:false}
+    ],
+    snapshotTs: "2026-11-06 15:05",
+    quoteTs: "2026-11-06 15:06",
+    stale: false
+  },
+  sim_stale: {
+    positions: [
+      {code:"2330", name:"台積電", shares:80, avg:510, last:520, mv:41600, industry:"半導體", mv_valid:true, day_chg:0.02, pnl_pct_display:0.0196, legacy:false},
+      {code:"6197", name:"舊持股範例", shares:30, avg:40, last:38, mv:1140, industry:"未知", mv_valid:true, day_chg:-0.05, pnl_pct_display:-0.05, legacy:true}
+    ],
+    snapshotTs: "2026-11-05 10:00",
+    quoteTs: "2026-11-06 15:02",
+    stale: true
+  },
+  load_fail: {
+    positions: [],
+    snapshotTs: "",
+    quoteTs: "",
+    stale: false,
+    error: "資料載入失敗：逾時"
+  }
+};
+
+function setColorMode(prefix, mode) {
+  const sel = document.getElementById(prefix + "-color");
+  if (sel) {
+    sel.value = mode;
+    sel.dispatchEvent(new Event("change"));
+  }
+}
+function setViewMode(prefix, view) {
+  const heat = document.getElementById(prefix + "-mode-heat");
+  const table = document.getElementById(prefix + "-mode-table");
+  if (view === "table" && table) {
+    table.click();
+  } else if (heat) {
+    heat.click();
+  }
+}
+function loadScene(name) {
+  const s = SCENES[name] || SCENES.paper_normal;
+  const info = document.getElementById("scene-info");
+  if (info) info.textContent = "場景：" + name + (s.error ? " · " + s.error : "");
+  if (name.startsWith("sim")) {
+    window._paperData = {positions:[], snapshotTs:"", quoteTs:"", stale:false};
+    window._simData = s;
+  } else {
+    window._paperData = s;
+    window._simData = {positions:[], snapshotTs:"", quoteTs:"", stale:false};
+  }
+  if (typeof window._paperShow === "function") window._paperShow();
+  if (typeof window._simShow === "function") window._simShow();
+}
+document.getElementById("nav").innerHTML = Object.keys(SCENES).map(k =>
+  `<button onclick="loadScene('${k}')">${k}</button>`).join("");
+loadScene("paper_normal");
+</script>
+</body>
+</html>

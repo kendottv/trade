@@ -11,6 +11,7 @@ import sys
 import urllib.request
 from pathlib import Path
 from typing import Any
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutTimeout
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
@@ -164,6 +165,69 @@ def _names() -> dict:
     return n
 
 
+# ---- 持股熱力圖顯示用報價（帶逾時） ----
+_QUOTE_CACHE: dict[str, tuple[float, Any]] = {}
+_QUOTE_TTL = 60.0
+_QUOTE_TIMEOUT = 3.0
+_executor = ThreadPoolExecutor(max_workers=4)
+
+
+def _safe_quote(code: str):
+    now = time.time()
+    cached = _QUOTE_CACHE.get(code)
+    if cached and now - cached[0] < _QUOTE_TTL:
+        return cached[1]
+    def _do():
+        from quotes import get_feed
+        return get_feed().last(code)
+    try:
+        fut = _executor.submit(_do)
+        q = fut.result(timeout=_QUOTE_TIMEOUT)
+        _QUOTE_CACHE[code] = (now, q)
+        return q
+    except (FutTimeout, Exception):
+        _QUOTE_CACHE[code] = (now, None)
+        return None
+
+
+def _enrich_pos_display(pos: dict, is_paper: bool = True) -> dict:
+    from holdings_heatmap import day_change, buy_pnl_pct, valid_mv
+    code = str(pos.get("code") or pos.get("ticker") or "")
+    q = _safe_quote(code) if code else None
+    last = pos.get("last")
+    avg = pos.get("avg") or pos.get("avg_price")
+    dc = day_change(q.last if q else None, q.prev_close if q else None) if q else None
+    quote_ts = q.ts.isoformat() if q and q.ts else None
+    is_today = False
+    if q and q.ts:
+        try:
+            from quotes import now_taipei
+            is_today = q.ts.astimezone(now_taipei().tzinfo).date() == now_taipei().date()
+        except Exception:
+            is_today = False
+    industry = str(pos.get("industry") or "").strip() or "未知"
+    if not is_paper and industry == "未知":
+        try:
+            t = nn_strategy.latest_target()
+            if t:
+                for r in t[1]:
+                    if str(r.get("code")) == code:
+                        industry = str(r.get("industry") or "").strip() or "未知"
+                        break
+        except Exception:
+            pass
+    pos["industry"] = industry
+    pos["day_chg"] = dc if (dc is not None and is_today) else None
+    pos["day_chg_valid"] = dc is not None and is_today
+    pos["pnl_pct_display"] = buy_pnl_pct(last, avg)
+    pos["pnl_pct_valid"] = pos["pnl_pct_display"] is not None
+    pos["mv_valid"] = valid_mv(pos.get("mv"))
+    pos["quote_ts"] = quote_ts
+    pos["quote_is_today"] = is_today
+    pos["quote_source"] = getattr(q, "source", None) if q else None
+    return pos
+
+
 def account() -> dict:
     a = _json(PAPER / "account.json")
     eq = _f(a.get("equity"), 0) or 0
@@ -172,10 +236,11 @@ def account() -> dict:
         last = _f(p.get("last"), p["avg_price"])
         mv = last * p["shares"]
         cost = p["avg_price"] * p["shares"]
-        pos.append({"code": p["ticker"], "name": stock_names.label(p["ticker"]), "shares": p["shares"],
-                    "avg": p["avg_price"], "last": last, "mv": mv, "weight": mv / eq if eq else 0,
-                    "pnl": mv - cost, "pnl_pct": (mv / cost - 1) if cost else 0,
-                    "nn_rank": p.get("nn_rank"), "industry": p.get("industry", "")})
+        item = {"code": p["ticker"], "name": stock_names.label(p["ticker"]), "shares": p["shares"],
+                "avg": p["avg_price"], "last": last, "mv": mv, "weight": mv / eq if eq else 0,
+                "pnl": mv - cost, "pnl_pct": (mv / cost - 1) if cost else 0,
+                "nn_rank": p.get("nn_rank"), "industry": p.get("industry", "")}
+        pos.append(_enrich_pos_display(item, is_paper=True))
     curve = {}
     for r in _csv(PAPER / "equity.csv"):
         curve[r["date"][:10]] = _f(r.get("equity"))
@@ -297,8 +362,25 @@ def api_sim() -> JSONResponse:
     state = _json(PAPER / "sim_state.json")
     status = _json(PAPER / "sim_status.json")
     legacy = set(snap.get("legacy_codes") or [])
+    # 過期判斷（台北時間）
+    stale = False
+    try:
+        from quotes import now_taipei
+        mtime = SIM_SNAP.stat().st_mtime if SIM_SNAP.exists() else 0
+        age = time.time() - mtime
+        limit = 300 if _sim_market_hours(now_taipei()) else 3600
+        stale = age > limit
+    except Exception:
+        stale = True
+    snap["stale"] = stale
+    snap["stale_threshold_s"] = 300 if _sim_market_hours() else 3600
     for p in snap.get("positions") or []:
         p["label"] = _sim_lab(p["code"]); p["legacy"] = p["code"] in legacy
+        if "mv" not in p:
+            last = float(p.get("last") or 0)
+            shares = float(p.get("shares") or 0)
+            p["mv"] = last * shares
+        _enrich_pos_display(p, is_paper=False)
     for t in snap.get("trades") or []:
         t["label"] = _sim_lab(t["code"])
     mon = _dt.now().strftime("%Y-%m")

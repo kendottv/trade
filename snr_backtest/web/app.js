@@ -16,7 +16,8 @@ function line(el,series,opts){const W=640,H=200,P=28;const all=series.flatMap(s=
  g+=`<text x="${P}" y="14" class="lbl">${opts.fmt(hi)}</text><text x="${P}" y="${H-6}" class="lbl">${opts.fmt(lo)}</text>`;
  if(opts.x)g+=`<text x="${W-P}" y="${H-6}" class="lbl" text-anchor="end">${opts.x}</text>`;
  el.innerHTML=g+'</svg>'+(opts.legend?`<div class="legend">${series.map(s=>`<span><i style="background:${s.color}"></i>${s.name}</span>`).join('')}</div>`:'')}
-async function load(){let s;const E=$('err');try{const ac=new AbortController();const to=setTimeout(()=>ac.abort(),15000);const r=await fetch('/api/state',{signal:ac.signal,cache:'no-store'});clearTimeout(to);if(!r.ok)throw new Error('HTTP '+r.status);s=await r.json();E.hidden=true}catch(e){E.hidden=false;E.textContent='資料載入失敗：'+(e.name==='AbortError'?'逾時 15 秒':e.message)+'。請確認面板有在跑（start_dashboard.bat），按 Ctrl+F5 重新整理。';if($('strat').textContent==='載入中…')$('strat').textContent='載入失敗';return}
+const IS_FIXTURE = (typeof window !== 'undefined' && (window.HEATMAP_FIXTURE === true || location.protocol === 'file:'));
+async function load(){if(IS_FIXTURE)return;let s;const E=$('err');try{const ac=new AbortController();const to=setTimeout(()=>ac.abort(),15000);const r=await fetch('/api/state',{signal:ac.signal,cache:'no-store'});clearTimeout(to);if(!r.ok)throw new Error('HTTP '+r.status);s=await r.json();E.hidden=true}catch(e){E.hidden=false;E.textContent='資料載入失敗：'+(e.name==='AbortError'?'逾時 15 秒':e.message)+'。請確認面板有在跑（start_dashboard.bat），按 Ctrl+F5 重新整理。';if($('strat').textContent==='載入中…')$('strat').textContent='載入失敗';return}
  try{render(s)}catch(e){E.hidden=false;E.textContent='畫面錯誤：'+e.message;console.error(e)}}
 function render(s){const a=s.account;
  $('strat').textContent=`${s.strategy.label} · 目標月份 ${a.target_month||'—'} · 更新 ${a.as_of||'—'}`;
@@ -35,16 +36,19 @@ function render(s){const a=s.account;
  const N=s.news;$('newscap').textContent=`${N.note} · ${N.as_of?N.as_of.slice(0,16):'尚未抓取'} · ${N.count||0} 則`;
  const lk=h=>`<li><a href="${h.link}" target="_blank" rel="noopener">${h.title}</a>${h.held?` <span class="tag">${h.held.join('、')}</span>`:''}</li>`;
  $('news').innerHTML=`<div class="chips">${N.keywords.map(k=>`<span class="chip">${k.keyword} ${k.count}</span>`).join('')}</div>`+
-  (N.held.length?`<h3>提到持股</h3><ul class="nl">${N.held.map(lk).join('')}</ul>`:'')+`<h3>頭條</h3><ul class="nl">${N.headlines.map(lk).join('')}</ul>`;}
+  (N.held.length?`<h3>提到持股</h3><ul class="nl">${N.held.map(lk).join('')}</ul>`:'')+`<h3>頭條</h3><ul class="nl">${N.headlines.map(lk).join('')}</ul>`;
+ window._paperData = {positions: a.positions || [], snapshotTs: a.as_of || '', quoteTs: (a.positions && a.positions[0] && a.positions[0].quote_ts) || '', stale: false};
+ if (window._paperShow) window._paperShow();
+}
 function tk(name,q){if(!q||!q.ok)return `<div class="tk"><span class="n">${name}</span><span class="v">—</span><span class="cap">${q?q.reason:'無資料'}</span></div>`;
  const c=q.chg>0?'up':q.chg<0?'dn':'';const sg=q.chg>0?'+':'';
  return `<div class="tk"><span class="n">${name}${q.status?` <em class="st ${q.status==='盤中'?'live':''}">${q.status}</em>`:''}</span><span class="v">${nf(q.last,2)}</span><span class="${c}">${snf(q.chg,2)}（${q.pct==null?'—':spct(q.pct/100)}）</span><span class="cap">${q.ts}${q.delayed?' 延遲':''}</span></div>`}
-async function loadTicker(){try{const ac=new AbortController();setTimeout(()=>ac.abort(),8000);const t=await (await fetch('/api/ticker',{signal:ac.signal,cache:'no-store'})).json();
+async function loadTicker(){if(IS_FIXTURE)return;try{const ac=new AbortController();setTimeout(()=>ac.abort(),8000);const t=await (await fetch('/api/ticker',{signal:ac.signal,cache:'no-store'})).json();
  $('ticker').innerHTML=tk('加權指數',t.taiex)+tk(t.txf&&t.txf.name||'台指期',t.txf)+`<span class="cap upd">更新 ${t.updated||'—'}</span>`}catch(e){$('ticker').innerHTML='<span class="cap">行情載入失敗：'+e.message+'</span>'}}
-load();setInterval(load,60000);loadTicker();setInterval(loadTicker,30000);
+if(!IS_FIXTURE){load();setInterval(load,60000);loadTicker();setInterval(loadTicker,30000);}
 // ---- 權益曲線 ----
 const EQ={a:null,bench:[],benchReason:'',range:'ALL'};
-async function loadBench(){try{const b=await (await fetch('/api/bench',{cache:'no-store'})).json();EQ.bench=b.data||[];EQ.benchReason=b.reason||'';if(EQ.a)eqDraw()}catch(e){EQ.benchReason='加權指數日線載入失敗'}}
+async function loadBench(){if(IS_FIXTURE)return;try{const b=await (await fetch('/api/bench',{cache:'no-store'})).json();EQ.bench=b.data||[];EQ.benchReason=b.reason||'';if(EQ.a)eqDraw()}catch(e){EQ.benchReason='加權指數日線載入失敗'}}
 document.querySelectorAll('#eqtabs button').forEach(b=>b.onclick=()=>{EQ.range=b.dataset.r;document.querySelectorAll('#eqtabs button').forEach(x=>x.classList.toggle('on',x===b));eqDraw()});
 window.addEventListener('resize',()=>EQ.a&&eqDraw());
 function eqRange(c){if(EQ.range==='ALL'||!c.length)return c;const end=new Date(c.at(-1).date);let s;
@@ -82,12 +86,12 @@ function eqDraw(){const a=EQ.a,el=$('curve'),init=a.initial||0,all=a.curve.filte
   const dc=i?c[i].equity-c[i-1].equity:null,cu=init?c[i].equity/init-1:null;
   tip.innerHTML=`<b>${c[i].date}</b><div>權益 NT$ ${nf(c[i].equity)}</div><div>當日 <span class="${cls(dc)}">${snf(dc)}</span></div><div>累積 <span class="${cls(cu)}">${spct(cu)}</span></div>${bp[i]!=null?`<div class="cap">加權指數 ${spct(bp[i]/base-1)}</div>`:''}`;
   tip.hidden=false;tip.style.left=Math.min(x+12,W-170)+'px';tip.style.top=Math.max(4,y-70)+'px'}}
-loadBench();setInterval(loadBench,3600000);
+if(!IS_FIXTURE){loadBench();setInterval(loadBench,3600000);}
 
-async function loadSim(){try{const d=await (await fetch('/api/sim',{cache:'no-store'})).json();renderSim(d)}catch(e){$('simcap').textContent='模擬帳戶載入失敗：'+e.message}}
+async function loadSim(){if(IS_FIXTURE)return;try{const d=await (await fetch('/api/sim',{cache:'no-store'})).json();renderSim(d)}catch(e){$('simcap').textContent='模擬帳戶載入失敗：'+e.message}}
 function renderSim(d){const S=d.snapshot||{},B=S.baseline,SL=S.sleeve,st=d.status||{};
  const n=v=>v==null||v===''?'—':nf(+v),n2=v=>v==null||v===''?'—':nf(+v,2);
- $('simcap').innerHTML=(S.updated?`快照 ${S.updated}（盤中每 5 分鐘、盤後每小時更新，只讀）`:'尚無快照')+(B?` · 策略起算 ${B.start_date}，只算 100 萬策略部分`:' · 策略尚未開始（11/2 第一次送單後起算）')+(st.message?` · 最近動作：${st.message}`:'')+((S.errors||[]).length?` · <span class="dn">${S.errors.join('；')}</span>`:'');
+ $('simcap').innerHTML=(S.updated?`快照 ${S.updated}（盤中每 5 分鐘、盤後每小時更新，只讀）`:'尚無快照')+(B?` · 策略起算 ${B.start_date}，只算 100 萬策略部分`:' · 策略尚未開始（11/2 第一次送單後起算）')+(st.message?` · 最近動作：${st.message}`:'')+((S.errors||[]).length?` · <span class="dn">${S.errors.join('；')}</span>`:'')+(S.stale?' · <span class="warn">快照可能過期</span>':'');
  const bal=S.balance&&S.balance.acc_balance,m=[];
  if(SL){m.push(['策略權益',nf(SL.equity)],['策略損益',`<span class="${cls(SL.equity-SL.initial)}">${snf(SL.equity-SL.initial)}</span>`,`<span class="${cls(SL.equity-SL.initial)}">${spct((SL.equity-SL.initial)/SL.initial)}</span>`],['策略市值',nf(SL.mv)])}
  else m.push(['策略權益','—','尚未開始']);
@@ -107,11 +111,174 @@ const C=d.compare||[];$('simcmpcap').textContent=`策略目標 ${d.compare_mon||
 $('simcmp').innerHTML='<tr><th class="l">股票</th><th>權重</th><th>目標股數</th><th>實際股數</th><th>差額</th><th class="l">狀態</th></tr>'+(C.length?C.map(r=>`<tr><td class="l">${r.label||r.code}</td><td>${r.weight==null?'—':pct(r.weight,1)}</td><td>${n(r.target_shares)}</td><td>${n(r.sim_shares)}</td><td class="${cls(r.diff)}">${r.diff==null?'—':snf(r.diff)}</td><td class="l${r.status==='符合'?'':' warn'}">${r.status}</td></tr>`).join(''):'<tr><td class="l" colspan="6">沒有目標或持股</td></tr>');
 const R=d.reconcile||[];$('simreccap').textContent=d.reconcile_file?`${d.reconcile_file}（差額 = 實際 − 目標）`:'尚未對帳';
  $('simrec').innerHTML='<tr><th class="l">股票</th><th>目標股數</th><th>模擬股數</th><th>差額</th></tr>'+R.map(r=>`<tr><td class="l">${r.label||r.code}</td><td>${n(r.target_shares)}</td><td>${n(r.sim_shares)}</td><td class="${cls(+r.diff)}">${r.diff}</td></tr>`).join('');
+ window._simData = {positions: P, snapshotTs: S.updated || '', quoteTs: (P[0] && P[0].quote_ts) || '', stale: !!S.stale};
+ if (window._simShow) window._simShow();
 }
 document.querySelectorAll('.simtabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.simtabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.simpane').forEach(p=>p.hidden=p.id!=='pane-'+b.dataset.t)});
-loadSim();setInterval(loadSim,60000);
-
+if(!IS_FIXTURE){loadSim();setInterval(loadSim,60000);}
 (function(){const go=p=>{if(p!=='sim')p='paper';document.querySelectorAll('.pagetabs button').forEach(b=>b.classList.toggle('on',b.dataset.p===p));document.querySelectorAll('.page').forEach(x=>x.hidden=x.id!=='page-'+p);try{localStorage.setItem('page',p)}catch(e){}if(location.hash!=='#'+p)history.replaceState(null,'','#'+p);window.dispatchEvent(new Event('resize'))};
 document.querySelectorAll('.pagetabs button').forEach(b=>b.onclick=()=>go(b.dataset.p));
 window.addEventListener('hashchange',()=>go(location.hash.slice(1)));
 let p0=location.hash.slice(1);if(!p0){try{p0=localStorage.getItem('page')}catch(e){}}go(p0||'paper')})();
+
+// ---- 持股熱力圖 v1（squarified absolute） ----
+function hmColor(v) {
+  if (v == null || isNaN(v)) return '#888';
+  if (v > 0) return `hsl(0,70%,${50 - Math.min(Math.abs(v)*180, 28)}%)`;
+  if (v < 0) return `hsl(140,55%,${50 - Math.min(Math.abs(v)*180, 28)}%)`;
+  return '#aaa';
+}
+function squarifyJS(values, x, y, w, h) {
+  if (!values.length || w <= 0 || h <= 0) return [];
+  const total = values.reduce((a,b)=>a+b,0);
+  if (total <= 0) return [];
+  const areas = values.map(v => v/total * w * h);
+  function worst(row, short) {
+    if (!row.length) return Infinity;
+    const s = row.reduce((a,b)=>a+b,0);
+    const m = Math.max(...row), n = Math.min(...row);
+    return Math.max((short*short*m)/(s*s), (s*s)/(short*short*n));
+  }
+  function rec(areas, x, y, w, h, idxs) {
+    if (!areas.length) return [];
+    if (areas.length === 1) return [{i: idxs[0], x, y, w, h}];
+    const short = Math.min(w, h);
+    let row = [], rowIdx = [], i = 0;
+    while (i < areas.length) {
+      const cand = row.concat([areas[i]]);
+      if (!row.length || worst(row, short) >= worst(cand, short)) {
+        row.push(areas[i]); rowIdx.push(idxs[i]); i++;
+      } else break;
+    }
+    const rowSum = row.reduce((a,b)=>a+b,0);
+    let out = [];
+    if (w >= h) {
+      const rw = rowSum / h;
+      let cy = y;
+      for (let k = 0; k < row.length; k++) {
+        const rh = row[k] / rw;
+        out.push({i: rowIdx[k], x, y: cy, w: rw, h: rh});
+        cy += rh;
+      }
+      out = out.concat(rec(areas.slice(i), x + rw, y, w - rw, h, idxs.slice(i)));
+    } else {
+      const rh = rowSum / w;
+      let cx = x;
+      for (let k = 0; k < row.length; k++) {
+        const rw = row[k] / rh;
+        out.push({i: rowIdx[k], x: cx, y, w: rw, h: rh});
+        cx += rw;
+      }
+      out = out.concat(rec(areas.slice(i), x, y + rh, w, h - rh, idxs.slice(i)));
+    }
+    return out;
+  }
+  return rec(areas, x, y, w, h, values.map((_,i)=>i));
+}
+function renderTable(prefix, positions) {
+  const tableId = prefix === 'paper' ? 'pos' : 'simpos';
+  const tbl = $(tableId);
+  if (!tbl) return;
+  const rows = (positions || []).map(p => {
+    const day = p.day_chg == null ? '—' : (p.day_chg*100).toFixed(2)+'%';
+    const pnl = p.pnl_pct_display == null ? '—' : (p.pnl_pct_display*100).toFixed(2)+'%';
+    return `<tr><td class="l">${p.code || p.ticker || ''} ${p.name || p.label || ''}</td><td>${nf(p.shares)}</td><td>${nf(p.mv)}</td><td>${day}</td><td>${pnl}</td></tr>`;
+  }).join('');
+  tbl.innerHTML = `<tr><th class="l">股票</th><th>股數</th><th>市值</th><th>今日漲跌</th><th>買入後損益</th></tr>` + (rows || '<tr><td colspan="5" class="l">沒有持股</td></tr>');
+}
+function renderHeatmap(containerId, unallocId, detailId, timeId, positions, mode, accountLabel, snapshotTs, quoteTs, stale) {
+  const el = $(containerId), un = $(unallocId), det = $(detailId), te = $(timeId);
+  if (!el) return;
+  if (!positions || !positions.length) {
+    el.innerHTML = '<div class="empty">沒有持股</div>';
+    if (un) un.hidden = true;
+    if (det) det.hidden = true;
+    if (te) te.textContent = '';
+    return;
+  }
+  const valid = positions.filter(p => p.mv_valid);
+  const invalid = positions.filter(p => !p.mv_valid);
+  const total = valid.reduce((s, p) => s + (+p.mv || 0), 0);
+  const W = el.clientWidth || 800, H = 360;
+  const values = valid.map(p => +p.mv || 0);
+  const rects = squarifyJS(values, 0, 0, W, H);
+  let html = `<div class="hm-abs" style="position:relative;width:${W}px;height:${H}px;">`;
+  rects.forEach(r => {
+    const p = valid[r.i];
+    const val = mode === 'day' ? p.day_chg : p.pnl_pct_display;
+    const show = val == null ? '—' : (val > 0 ? '+' : '') + (val * 100).toFixed(2) + '%';
+    html += `<div class="hm-cell" style="position:absolute;left:${r.x}px;top:${r.y}px;width:${r.w}px;height:${r.h}px;background:${hmColor(val)}" data-code="${p.code || p.ticker}">
+      <span class="hm-name">${(p.name || p.label || p.code || '').slice(0, 10)}</span>
+      <span class="hm-pct">${show}</span>
+    </div>`;
+  });
+  html += '</div>';
+  el.innerHTML = html;
+  el.querySelectorAll('.hm-cell').forEach(cell => {
+    cell.onclick = () => {
+      const code = cell.dataset.code;
+      const p = positions.find(x => (x.code || x.ticker) === code);
+      if (!p || !det) return;
+      const share = total ? (+p.mv / total * 100).toFixed(2) : '—';
+      det.innerHTML = `<b>${p.code || p.ticker} ${p.name || p.label || ''}</b><br>
+        產業：${p.industry || '未知'}<br>
+        股數：${nf(p.shares)}<br>
+        市值：${nf(p.mv)}<br>
+        持股內占比：${share}%${invalid.length ? '（未含無法配置項目）' : ''}<br>
+        今日漲跌：${p.day_chg == null ? '—' : (p.day_chg*100).toFixed(2)+'%'}<br>
+        買入後損益：${p.pnl_pct_display == null ? '—' : (p.pnl_pct_display*100).toFixed(2)+'%'}
+        ${p.legacy ? '<br>舊持股' : ''}`;
+      det.hidden = false;
+    };
+  });
+  if (invalid.length && un) {
+    un.hidden = false;
+    un.innerHTML = '<div class="cap">無法配置面積（市值無效或非正）— 比例未含下列項目</div>' +
+      invalid.map(p => `<div class="unalloc-item" data-code="${p.code || p.ticker}">${p.code || p.ticker} ${p.name || p.label || ''}${p.legacy ? '（舊持股）' : ''}</div>`).join('');
+    un.querySelectorAll('.unalloc-item').forEach(it => {
+      it.onclick = () => {
+        const code = it.dataset.code;
+        const p = positions.find(x => (x.code || x.ticker) === code);
+        if (!p || !det) return;
+        det.innerHTML = `<b>${p.code || p.ticker} ${p.name || p.label || ''}</b><br>
+          產業：${p.industry || '未知'}<br>
+          股數：${nf(p.shares)}<br>
+          市值：${nf(p.mv)}（無法配置面積）<br>
+          今日漲跌：${p.day_chg == null ? '—' : (p.day_chg*100).toFixed(2)+'%'}<br>
+          買入後損益：${p.pnl_pct_display == null ? '—' : (p.pnl_pct_display*100).toFixed(2)+'%'}
+          ${p.legacy ? '<br>舊持股' : ''}`;
+        det.hidden = false;
+      };
+    });
+  } else if (un) un.hidden = true;
+  if (te) {
+    te.textContent = `${accountLabel} 持倉快照時點：${snapshotTs || '時間未知'} · 報價時點：${quoteTs || '時間未知'}${stale ? ' · 快照可能過期' : ''} · 非即時行情保證`;
+  }
+}
+function bindHeatmap(prefix) {
+  const heatBtn = $(prefix + '-mode-heat'), tableBtn = $(prefix + '-mode-table');
+  const colorSel = $(prefix + '-color');
+  const heat = $(prefix + '-heatmap'), un = $(prefix + '-unalloc');
+  const tableWrap = $(prefix + '-table-wrap');
+  const dataKey = prefix === 'paper' ? '_paperData' : '_simData';
+  function show() {
+    const data = window[dataKey] || {positions: [], snapshotTs: '', quoteTs: '', stale: false};
+    const mode = (colorSel && colorSel.value) || 'day';
+    const isHeat = !heatBtn || heatBtn.classList.contains('on');
+    if (heat) heat.hidden = !isHeat;
+    if (un) un.hidden = !isHeat;
+    if (tableWrap) tableWrap.hidden = isHeat;
+    if (isHeat) {
+      renderHeatmap(prefix + '-heatmap', prefix + '-unalloc', prefix + '-detail', prefix + '-time',
+        data.positions, mode, prefix === 'paper' ? '紙上' : '模擬', data.snapshotTs, data.quoteTs, data.stale);
+    } else {
+      renderTable(prefix, data.positions);
+    }
+  }
+  if (heatBtn) heatBtn.onclick = () => { heatBtn.classList.add('on'); if (tableBtn) tableBtn.classList.remove('on'); show(); };
+  if (tableBtn) tableBtn.onclick = () => { tableBtn.classList.add('on'); if (heatBtn) heatBtn.classList.remove('on'); show(); };
+  if (colorSel) colorSel.onchange = show;
+  return show;
+}
+window._paperShow = bindHeatmap('paper');
+window._simShow = bindHeatmap('sim');
