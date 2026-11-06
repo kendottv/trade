@@ -1,0 +1,17 @@
+import nbformat as nbf
+nb=nbf.v4.new_notebook(); C=[]
+md=lambda s:C.append(nbf.v4.new_markdown_cell(s)); code=lambda s:C.append(nbf.v4.new_code_cell(s))
+md("# 用 TensorFlow 做 NN3 預測台股超額報酬：教學筆記\n\n這份筆記照 Choi, Jiang & Zhang（2025）〈Alpha Go Everywhere〉的方法，用 TEJ 台股資料訓練一個三層神經網路，最後看佳必琪（6197）的預測效果。\n\n流程分五步：資料 → 前處理 → 建模 → 擴張式重訓 → 評估。完整的訓練程式在 `nn_tf.py`，評估程式在 `evaluate.py`，這份筆記只是逐步解說。")
+md("## 1. 資料與目標\n- **y**：下個月的含息報酬，減掉市場報酬。市場報酬用樣本的市值加權平均當代理。\n  - 為什麼要減市場？我們要學的是「哪檔股票會比大家好」，也就是橫斷面的差異，不是去猜大盤會漲還是跌。\n- **X**：14 個價量特徵，都只用 t 月以前的資料算：\n  - 動能：mom_1, mom_6, mom_12, mom_36, chmom_6\n  - 波動：retvol, maxret, beta\n  - 規模與流動性：mvel1, dolvol, turn, stdturn, stddolvol, ill")
+code("import numpy as np, pandas as pd\nfrom nn_tf import load_panel, build_nn3, fit_ensemble, FEAT\nP = load_panel()   # 讀 TEJ panel，並做縮尾、減市場、每月 z-score\nP[['mon','code','y']+FEAT].head()")
+md("## 2. 前處理（在 `load_panel` 裡）\n1. 每月把報酬上下 2.5% 縮尾，避免極端值主導訓練。\n2. 每個特徵每月先在 1%/99% 縮尾，再做 z-score（平均 0、標準差 1）。\n   - 這樣每個月的特徵尺度都一樣。\n   - 只用同一個月的橫斷面資料，所以沒有 look-ahead。\n3. 缺值補 0，等於補成當月平均。")
+md("## 3. 切分：30% 訓練 / 20% 驗證 / 50% 測試\n- 依時間順序切，不能隨機切。隨機切的話，模型會偷看到未來。\n- 訓練：2001/09–2009/02\n- 驗證：2009/03–2014/02\n- 測試：2014/03–2026/08\n- 每過 12 個月重訓一次。訓練期逐年加長（expanding），驗證期固定 60 個月，跟著往前滾。")
+code("months = sorted(P['mon'].unique()); T = len(months)\nntr, nva = round(.3*T), round(.2*T)\nprint('訓練期到', months[ntr-1].date(), '｜驗證期到', months[ntr+nva-1].date(), '｜測試從', months[ntr+nva].date())")
+md("## 4. 模型：NN3（32-16-8）\n- 每層都是 Dense → BatchNormalization → ReLU。\n  - BatchNorm 讓每層的輸入分布比較穩定，訓練比較快。\n  - ReLU 是非線性函數，讓網路可以學到特徵之間的交互作用。\n- **L1 正則化**：懲罰權重的絕對值，逼不重要的權重變成 0，可以減少過擬合。強度在驗證集上從 1e-5、1e-4、1e-3 裡挑。\n- **Early stopping**：驗證集的 loss 連續 5 個 epoch 沒有改善就停下來，並回到最好的那組權重。\n- **5 個 seed 平均（ensemble）**：神經網路每次的初始權重不同，結果會跳動，平均幾個可以降低這種雜訊。")
+code("m = build_nn3(len(FEAT)); m.summary()")
+md("## 5. 示範：只跑第一個測試年\n跑完整 13 年要用 `python nn_tf.py`。這裡只示範一次，而且只用一個 L1 值。")
+code("k = ntr+nva; tr, va, te = months[:k-nva], months[k-nva:k], months[k:k+12]\nget = lambda s: (P[P.mon.isin(s)][FEAT].values.astype('float32'), P[P.mon.isin(s)]['y'].values.astype('float32'))\n(Xtr,ytr),(Xva,yva),(Xte,yte) = get(tr), get(va), get(te)\nf = fit_ensemble(Xtr, ytr, Xva, yva, l1=1e-4, seeds=2)\npred = f(Xte)\nprint('樣本外 R2 =', 1 - ((yte-pred)**2).sum() / (yte**2).sum())")
+md("## 6. 評估（`evaluate.py`）\n- **樣本外 R²**：分母用沒有去平均的 y²，照 GKX 的作法。月報酬本來就很難預測，所以 R² 接近 0 甚至是負的很正常。\n- **十分組多空**：每月依預測值把股票分成 10 組，做多最高組、放空最低組，算年化 Sharpe。這是論文的主要指標。\n- **6197 擇時**：預測超額 > 0 就持有 6197，否則持有市場；另外算一版扣掉手續費和證交稅的。")
+code("pd.read_csv('out/6197_metrics.csv')")
+md("## 7. 限制\n- 只用一檔股票、約 150 個月，樣本很小，結果的雜訊很大。\n- 論文的 36 個特徵這裡只有 12 個，另外 2 個是自己加的（mom_36、beta）。\n- 市場報酬是用樣本市值加權平均代理的。\n- 有扣手續費和證交稅，但沒有考慮滑價和流動性。")
+nb["cells"]=C; nbf.write(nb,"nn_tutorial.ipynb")
