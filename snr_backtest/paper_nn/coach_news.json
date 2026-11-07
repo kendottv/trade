@@ -1,47 +1,47 @@
 {
  "source": "rss_live",
- "as_of": "2026-11-06 21:30:07+08:00",
+ "as_of": "2026-11-07 21:30:07+08:00",
  "window_hours": 24,
- "news_count": 313,
+ "news_count": 287,
  "hot_keywords": [
   {
    "keyword": "AI",
-   "count": 62
+   "count": 66
   },
   {
    "keyword": "半導體",
-   "count": 22
+   "count": 41
   },
   {
    "keyword": "輝達",
-   "count": 17
-  },
-  {
-   "keyword": "匯率",
-   "count": 9
+   "count": 31
   },
   {
    "keyword": "Fed/利率",
-   "count": 6
+   "count": 22
+  },
+  {
+   "keyword": "記憶體",
+   "count": 17
   },
   {
    "keyword": "電動車",
-   "count": 4
+   "count": 9
+  },
+  {
+   "keyword": "匯率",
+   "count": 7
   },
   {
    "keyword": "伺服器",
-   "count": 4
-  },
-  {
-   "keyword": "關稅/貿易",
-   "count": 3
-  },
-  {
-   "keyword": "重電/電力",
    "count": 2
   },
   {
-   "keyword": "PCB/載板",
+   "keyword": "關稅/貿易",
+   "count": 1
+  },
+  {
+   "keyword": "散熱",
    "count": 1
   }
  ],
@@ -49,51 +49,51 @@
   {
    "code": "2330",
    "name": "台積電",
-   "count": 22
+   "count": 45
+  },
+  {
+   "code": "2344",
+   "name": "華邦電",
+   "count": 6
+  },
+  {
+   "code": "2496",
+   "name": "卓越",
+   "count": 3
+  },
+  {
+   "code": "6285",
+   "name": "啟碁",
+   "count": 3
+  },
+  {
+   "code": "6239",
+   "name": "力成",
+   "count": 2
+  },
+  {
+   "code": "1802",
+   "name": "台玻",
+   "count": 2
   },
   {
    "code": "2454",
    "name": "聯發科",
-   "count": 5
-  },
-  {
-   "code": "1303",
-   "name": "南亞",
-   "count": 3
-  },
-  {
-   "code": "2002",
-   "name": "中鋼",
    "count": 2
   },
   {
-   "code": "6505",
-   "name": "台塑化",
+   "code": "2455",
+   "name": "全新",
    "count": 2
   },
   {
-   "code": "1416",
-   "name": "廣豐",
+   "code": "3661",
+   "name": "世芯-KY",
    "count": 2
   },
   {
-   "code": "6443",
-   "name": "元晶",
-   "count": 2
-  },
-  {
-   "code": "2408",
-   "name": "南亞科",
-   "count": 2
-  },
-  {
-   "code": "2308",
-   "name": "台達電",
-   "count": 2
-  },
-  {
-   "code": "3605",
-   "name": "宏致",
+   "code": "2492",
+   "name": "華新科",
    "count": 1
   }
  ],
@@ -102,106 +102,69 @@
    "held": [
     "1303 南亞"
    ],
-   "title": "輝達強化東南亞晶片監控 擬以雲端認證誘因堵走私漏洞",
-   "link": "https://news.cnyes.com/news/id/6651155"
-  },
-  {
-   "held": [
-    "1303 南亞"
-   ],
-   "title": "輝達祭新規！全面追蹤東南亞AI晶片流向",
-   "link": "https://tw.news.yahoo.com/%E8%BC%9D%E9%81%94%E7%A5%AD%E6%96%B0%E8%A6%8F-%E5%85%A8%E9%9D%A2%E8%BF%BD%E8%B9%A4%E6%9D%B1%E5%8D%97%E4%BA%9Eai%E6%99%B6%E7%89%87%E6%B5%81%E5%90%91-121457577.html"
-  },
-  {
-   "held": [
-    "1303 南亞"
-   ],
-   "title": "嚴管晶片繞道東南亞走私 輝達推新系統追蹤晶片位置",
-   "link": "https://tw.news.yahoo.com/%E5%9A%B4%E7%AE%A1%E6%99%B6%E7%89%87%E7%B9%9E%E9%81%93%E6%9D%B1%E5%8D%97%E4%BA%9E%E8%B5%B0%E7%A7%81-%E8%BC%9D%E9%81%94%E6%8E%A8%E6%96%B0%E7%B3%BB%E7%B5%B1%E8%BF%BD%E8%B9%A4%E6%99%B6%E7%89%87%E4%BD%8D%E7%BD%AE-120425458.html"
-  },
-  {
-   "held": [
-    "3443 創意"
-   ],
-   "title": "台股綠油油！竹北福興公園五星級公廁成亮點 網笑喊：睡公園也體面",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E7%B6%A0%E6%B2%B9%E6%B2%B9-%E7%AB%B9%E5%8C%97%E7%A6%8F%E8%88%88%E5%85%AC%E5%9C%92%E4%BA%94%E6%98%9F%E7%B4%9A%E5%85%AC%E5%BB%81%E6%88%90%E4%BA%AE%E9%BB%9E-%E7%B6%B2%E7%AC%91%E5%96%8A-%E7%9D%A1%E5%85%AC%E5%9C%92%E4%B9%9F%E9%AB%94%E9%9D%A2-113841319.html"
-  },
-  {
-   "held": [
-    "2408 南亞科"
-   ],
-   "title": "台積跌105元台股跌幅收斂失守4萬點 ETF族群愈跌成交爆巨量",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E7%A9%8D%E8%B7%8C105%E5%85%83%E5%8F%B0%E8%82%A1%E8%B7%8C%E5%B9%85%E6%94%B6%E6%96%82%E5%A4%B1%E5%AE%884%E8%90%AC%E9%BB%9E-etf%E6%97%8F%E7%BE%A4%E6%84%88%E8%B7%8C%E6%88%90%E4%BA%A4%E7%88%86%E5%B7%A8%E9%87%8F-105928184.html"
-  },
-  {
-   "held": [
-    "2408 南亞科"
-   ],
-   "title": "2408 南亞科- 美股盤前大漲，恭喜今天抄底成功的股民朋友🙂，也請跌停價賣出... - 股市爆料同學會",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1kekNwLVVoR2NBS3FNZnM3NE1FWHRBeFJzdzVLaThCN2ZsT01zUFd5elpVTVBUajdYRHphOWlGNUFwZHJ4U1UzQ1dQM2xPYW44M2dFN2hnY0M?oc=5"
+   "title": "被盯上？逾3.7億台幣輝達晶片自加州運往德州途中離奇失蹤",
+   "link": "https://tw.news.yahoo.com/%E8%A2%AB%E7%9B%AF%E4%B8%8A-%E9%80%BE3-7%E5%84%84%E5%8F%B0%E5%B9%A3%E8%BC%9D%E9%81%94%E6%99%B6%E7%89%87%E8%87%AA%E5%8A%A0%E5%B7%9E%E9%81%8B%E5%BE%80%E5%BE%B7%E5%B7%9E%E9%80%94%E4%B8%AD%E9%9B%A2%E5%A5%87%E5%A4%B1%E8%B9%A4-084324768.html"
   }
  ],
- "held_mention_count": 6,
+ "held_mention_count": 1,
  "headlines": [
   {
-   "time": "11-06 21:19",
-   "title": "台股史詩暴跌 2檔正2成交破百萬張",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%8F%B2%E8%A9%A9%E6%9A%B4%E8%B7%8C-2%E6%AA%94%E6%AD%A32%E6%88%90%E4%BA%A4%E7%A0%B4%E7%99%BE%E8%90%AC%E5%BC%B5-131921208.html",
+   "time": "11-07 21:10",
+   "title": "美民主黨掌控國會難撼川普關稅政策！電動車補貼、AI監管成新焦點",
+   "link": "https://news.cnyes.com/news/id/6652060",
+   "publisher": "鉅亨網",
+   "stocks": [
+    "6239 力成"
+   ]
+  },
+  {
+   "time": "11-07 20:55",
+   "title": "輝達晶片滯香港 港媒：北京對短期需求與長期技術自主戰略取捨",
+   "link": "https://tw.news.yahoo.com/%E8%BC%9D%E9%81%94%E6%99%B6%E7%89%87%E6%BB%AF%E9%A6%99%E6%B8%AF-%E6%B8%AF%E5%AA%92-%E5%8C%97%E4%BA%AC%E5%B0%8D%E7%9F%AD%E6%9C%9F%E9%9C%80%E6%B1%82%E8%88%87%E9%95%B7%E6%9C%9F%E6%8A%80%E8%A1%93%E8%87%AA%E4%B8%BB%E6%88%B0%E7%95%A5%E5%8F%96%E6%8D%A8-125547197.html",
+   "publisher": "yahoo_intl",
+   "stocks": []
+  },
+  {
+   "time": "11-07 20:52",
+   "title": "美股新股解讀｜欲從貿易商向解決方案商轉變，業績高增的萌訊機械（PNIG.US）謀變求存作者智通財經 - Investing.com 香港",
+   "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBuenlDSHlqeUQxdWstN2oyY1NqTnJydHF1TDF4Qy0yNFJ4UkhfNmtzdnpIRjBwTFlmSXFiRFI3emJWN0VGRy10cVZkUld3NWx2VS1EYXhSU0dFMFBiVjFTMm5Mam1RYmhEU3UteEs0ZXQ?oc=5",
+   "publisher": "Investing.com 香港 - 股市報價& 財經新聞",
+   "stocks": []
+  },
+  {
+   "time": "11-07 20:45",
+   "title": "股災前兆？證交所一口氣點名38檔注意股！華新科6日跌47% 「這2檔」下週起關禁閉",
+   "link": "https://news.google.com/rss/articles/CBMi8AJBVV95cUxQVUk2bXJENWw5YVZKSnNqaktLZVloMWJCc0lBMEt6NzQwMjJaQkNNUld5d0xfMTVhOVIzdFJ4UEx4T0tiVDhSN29INHRoQmZud0JPM2RhVFRLR3Z1c2tsWlNrNDN0LWlXZ1RYVkhpUmhaaVlKWXVZQTBSZERoNHVnMU9TUDVqQk9JZVpXb3BTSFFUNXYxLVJJbjM3Uk02ZzFyaktRaS1kZGxGVTNJVUtzcUlUNkxlaVFMNjdGclNraHA0QTVCZWYybEs3Q3U1SjFNNGlPSmJmV3lQODZDdml6VXBrdmFVcGQySEZEaEFKekhLSGlwLUtfRWZlX01BVXhMN2l2Y29DY3ZaN1BWeEYzYWVwQ1gxWlRGWENaY3BIX0JFRDZZT1BRNUNCRzlTZFQyTEthR01KdUlZeWdYdVc5MGtqUzZmczBKT2M0U21xX0RsY1FRc1dRc2pQWWwwVTJVemlOMWdvb0NRYzNSTUYyRA?oc=5",
+   "publisher": "Yahoo股市",
+   "stocks": [
+    "2492 華新科"
+   ]
+  },
+  {
+   "time": "11-07 20:35",
+   "title": "台股黑色星期五狠摔！郭哲榮鞠躬道歉重壓2億 狂喊明年5萬7",
+   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E9%BB%91%E8%89%B2%E6%98%9F%E6%9C%9F%E4%BA%94%E7%8B%A0%E6%91%94-%E9%83%AD%E5%93%B2%E6%A6%AE%E9%9E%A0%E8%BA%AC%E9%81%93%E6%AD%89%E9%87%8D%E5%A3%932%E5%84%84-%E7%8B%82%E5%96%8A%E6%98%8E%E5%B9%B45%E8%90%AC7-123507259.html",
    "publisher": "yahoo_tw_market",
    "stocks": []
   },
   {
-   "time": "11-06 21:14",
-   "title": "宏致斥2.6億元收購捷盛跨入PCBA代工 強化AI、網通及工業應用布局",
-   "link": "https://news.cnyes.com/news/id/6651518",
-   "publisher": "鉅亨網",
-   "stocks": [
-    "3605 宏致"
-   ]
-  },
-  {
-   "time": "11-06 21:12",
-   "title": "彰銀前10月狂賺近190億 勝過去年一整年 EPS達1.58元",
-   "link": "https://news.cnyes.com/news/id/6651519",
-   "publisher": "鉅亨網",
-   "stocks": [
-    "2801 彰銀"
-   ]
-  },
-  {
-   "time": "11-06 21:11",
-   "title": "2.5 兆美元一夜蒸發，美國 AI 怎麼了？",
-   "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE4xUEphd181WGZVR19ON3k5Y1VkUllvOTdQUG9LQjRmZk1jU3QyUi1pZEM1M2JGcHpVX1hIczlDYnlxY3MtOHFsbg?oc=5",
-   "publisher": "鉅亨號",
+   "time": "11-07 20:34",
+   "title": "5000億銀彈都買哪幾檔？國安基金護盤10大迷思：會歐印嗎、勞退基金被挪去救市？ | 李瑋萱 | 新聞",
+   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFA3cHQxVzAwNjNqd2ZtWXl5cVpNbUYzekJzVjUwOGFZTE5uTzJLMndTMGF2WVVWNHJoXzhCNmUtM0h1dDZUUUNZdk1GY3Rodw?oc=5",
+   "publisher": "風傳媒",
    "stocks": []
   },
   {
-   "time": "11-06 21:09",
-   "title": "美股上演史詩級暴跌，全球資本市場上演黑色星期五，韓股跌至熔斷、日股暴跌6%，A股四大指數下挫，券商集體解讀，流動性收縮是核心矛盾",
-   "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE9uZEN4VWtUM19uTUdRbHYyR1BVWmxjMndiWWx6RVo3eFdfLWFTTl9xcGxZc2pRLVFpSEpES19rR2QzVmlCSGl4NQ?oc=5",
-   "publisher": "鉅亨號",
+   "time": "11-07 20:32",
+   "title": "TWA00 加權指數- 台股跌破四萬點，法人逆勢布局金融與電子類股- 股市爆料同學會",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1zaWM1MWVEdDJUS295TTFnNVlWRm5sNVdWVjBJQ1o1MFo5T1VUWDdLTjlHZFJuWllFbnN6TnpITkg3RFlMZTdzYXhzVlNrRGg5bjl2U1dkMmg?oc=5",
+   "publisher": "CMoney",
    "stocks": []
   },
   {
-   "time": "11-06 21:02",
-   "title": "〈群聯法說〉潘健成：明年企業級SSD需求看增 維持6成毛利率不合理、追求總額成長",
-   "link": "https://news.cnyes.com/news/id/6651468",
-   "publisher": "鉅亨網",
-   "stocks": []
-  },
-  {
-   "time": "11-06 21:01",
-   "title": "緯穎前3季獲利524億元超越去年 對美國及馬來西亞子公司增資共4.5億美元",
-   "link": "https://news.cnyes.com/news/id/6651467",
-   "publisher": "鉅亨網",
-   "stocks": [
-    "6669 緯穎"
-   ]
-  },
-  {
-   "time": "11-06 21:00",
-   "title": "Enbridge天然氣業務獲利成長逾30億加元輸氣工程投運",
-   "link": "https://news.cnyes.com/news/id/6651513",
+   "time": "11-07 20:30",
+   "title": "美國就業意外強勁！12月升息機率衝上80%，聯準會警告AI投資仍推高通膨",
+   "link": "https://news.cnyes.com/news/id/6652118",
    "publisher": "鉅亨網",
    "stocks": []
   }
@@ -210,7 +173,7 @@
   "yahoo_tw_market": "ok (50)",
   "yahoo_intl": "ok (50)",
   "gnews_tw": "ok (100)",
-  "gnews_us": "ok (100)",
+  "gnews_us": "ok (99)",
   "cnyes_tw_stock": "ok (30)",
   "cnyes_us_stock": "ok (30)"
  },
