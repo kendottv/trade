@@ -1,79 +1,74 @@
 {
  "source": "rss_live",
- "as_of": "2026-11-07 21:30:07+08:00",
+ "as_of": "2026-11-08 21:30:06+08:00",
  "window_hours": 24,
- "news_count": 287,
+ "news_count": 252,
  "hot_keywords": [
   {
    "keyword": "AI",
-   "count": 66
-  },
-  {
-   "keyword": "半導體",
-   "count": 41
+   "count": 53
   },
   {
    "keyword": "輝達",
-   "count": 31
+   "count": 23
   },
   {
-   "keyword": "Fed/利率",
-   "count": 22
-  },
-  {
-   "keyword": "記憶體",
+   "keyword": "半導體",
    "count": 17
   },
   {
-   "keyword": "電動車",
+   "keyword": "記憶體",
    "count": 9
   },
   {
-   "keyword": "匯率",
+   "keyword": "電動車",
    "count": 7
+  },
+  {
+   "keyword": "Fed/利率",
+   "count": 5
+  },
+  {
+   "keyword": "機器人",
+   "count": 3
+  },
+  {
+   "keyword": "匯率",
+   "count": 3
+  },
+  {
+   "keyword": "關稅/貿易",
+   "count": 2
   },
   {
    "keyword": "伺服器",
    "count": 2
-  },
-  {
-   "keyword": "關稅/貿易",
-   "count": 1
-  },
-  {
-   "keyword": "散熱",
-   "count": 1
   }
  ],
  "hot_stocks": [
   {
    "code": "2330",
    "name": "台積電",
-   "count": 45
+   "count": 28
   },
   {
    "code": "2344",
    "name": "華邦電",
-   "count": 6
-  },
-  {
-   "code": "2496",
-   "name": "卓越",
    "count": 3
   },
   {
-   "code": "6285",
-   "name": "啟碁",
-   "count": 3
-  },
-  {
-   "code": "6239",
-   "name": "力成",
+   "code": "2467",
+   "name": "志聖",
    "count": 2
   },
   {
-   "code": "1802",
-   "name": "台玻",
+   "code": "2317",
+   "name": "鴻海",
+   "count": 2
+  },
+  {
+   "code": "2516",
+   "name": "新建",
    "count": 2
   },
   {
@@ -82,90 +77,95 @@
    "count": 2
   },
   {
-   "code": "2455",
-   "name": "全新",
+   "code": "1108",
+   "name": "幸福",
    "count": 2
   },
   {
-   "code": "3661",
-   "name": "世芯-KY",
-   "count": 2
+   "code": "2832",
+   "name": "台產",
+   "count": 1
   },
   {
-   "code": "2492",
-   "name": "華新科",
+   "code": "2303",
+   "name": "聯電",
+   "count": 1
+  },
+  {
+   "code": "3037",
+   "name": "欣興",
    "count": 1
   }
  ],
  "held_mentions": [
   {
    "held": [
-    "1303 南亞"
+    "2059 川湖"
    ],
-   "title": "被盯上？逾3.7億台幣輝達晶片自加州運往德州途中離奇失蹤",
-   "link": "https://tw.news.yahoo.com/%E8%A2%AB%E7%9B%AF%E4%B8%8A-%E9%80%BE3-7%E5%84%84%E5%8F%B0%E5%B9%A3%E8%BC%9D%E9%81%94%E6%99%B6%E7%89%87%E8%87%AA%E5%8A%A0%E5%B7%9E%E9%81%8B%E5%BE%80%E5%BE%B7%E5%B7%9E%E9%80%94%E4%B8%AD%E9%9B%A2%E5%A5%87%E5%A4%B1%E8%B9%A4-084324768.html"
+   "title": "川湖迎Vera Rubin量產與周邊機櫃導入導軌 2027年獲利動能看俏",
+   "link": "https://news.cnyes.com/news/id/6651767"
   }
  ],
  "held_mention_count": 1,
  "headlines": [
   {
-   "time": "11-07 21:10",
-   "title": "美民主黨掌控國會難撼川普關稅政策！電動車補貼、AI監管成新焦點",
-   "link": "https://news.cnyes.com/news/id/6652060",
+   "time": "11-08 21:15",
+   "title": "黃仁勳之女突然取消訪韓 理由是「家庭因素」",
+   "link": "https://news.cnyes.com/news/id/6652440",
    "publisher": "鉅亨網",
    "stocks": [
-    "6239 力成"
+    "2832 台產"
    ]
   },
   {
-   "time": "11-07 20:55",
-   "title": "輝達晶片滯香港 港媒：北京對短期需求與長期技術自主戰略取捨",
-   "link": "https://tw.news.yahoo.com/%E8%BC%9D%E9%81%94%E6%99%B6%E7%89%87%E6%BB%AF%E9%A6%99%E6%B8%AF-%E6%B8%AF%E5%AA%92-%E5%8C%97%E4%BA%AC%E5%B0%8D%E7%9F%AD%E6%9C%9F%E9%9C%80%E6%B1%82%E8%88%87%E9%95%B7%E6%9C%9F%E6%8A%80%E8%A1%93%E8%87%AA%E4%B8%BB%E6%88%B0%E7%95%A5%E5%8F%96%E6%8D%A8-125547197.html",
+   "time": "11-08 21:15",
+   "title": "習川本月將三會！傳陸對美提5要求 包括取消全部加徵關稅",
+   "link": "https://tw.news.yahoo.com/%E7%BF%92%E5%B7%9D%E6%9C%AC%E6%9C%88%E5%B0%87%E4%B8%89%E6%9C%83-%E5%82%B3%E9%99%B8%E5%B0%8D%E7%BE%8E%E6%8F%905%E8%A6%81%E6%B1%82-%E5%8C%85%E6%8B%AC%E5%8F%96%E6%B6%88%E5%85%A8%E9%83%A8%E5%8A%A0%E5%BE%B5%E9%97%9C%E7%A8%85-131521685.html",
    "publisher": "yahoo_intl",
    "stocks": []
   },
   {
-   "time": "11-07 20:52",
-   "title": "美股新股解讀｜欲從貿易商向解決方案商轉變，業績高增的萌訊機械（PNIG.US）謀變求存作者智通財經 - Investing.com 香港",
-   "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTFBuenlDSHlqeUQxdWstN2oyY1NqTnJydHF1TDF4Qy0yNFJ4UkhfNmtzdnpIRjBwTFlmSXFiRFI3emJWN0VGRy10cVZkUld3NWx2VS1EYXhSU0dFMFBiVjFTMm5Mam1RYmhEU3UteEs0ZXQ?oc=5",
-   "publisher": "Investing.com 香港 - 股市報價& 財經新聞",
+   "time": "11-08 21:00",
+   "title": "馬斯克揭特斯拉、SpaceX未來布局！太空AI資料中心、Terafab晶圓廠與Optimus機器人全曝光",
+   "link": "https://news.cnyes.com/news/id/6652258",
+   "publisher": "鉅亨網",
    "stocks": []
   },
   {
-   "time": "11-07 20:45",
-   "title": "股災前兆？證交所一口氣點名38檔注意股！華新科6日跌47% 「這2檔」下週起關禁閉",
-   "link": "https://news.google.com/rss/articles/CBMi8AJBVV95cUxQVUk2bXJENWw5YVZKSnNqaktLZVloMWJCc0lBMEt6NzQwMjJaQkNNUld5d0xfMTVhOVIzdFJ4UEx4T0tiVDhSN29INHRoQmZud0JPM2RhVFRLR3Z1c2tsWlNrNDN0LWlXZ1RYVkhpUmhaaVlKWXVZQTBSZERoNHVnMU9TUDVqQk9JZVpXb3BTSFFUNXYxLVJJbjM3Uk02ZzFyaktRaS1kZGxGVTNJVUtzcUlUNkxlaVFMNjdGclNraHA0QTVCZWYybEs3Q3U1SjFNNGlPSmJmV3lQODZDdml6VXBrdmFVcGQySEZEaEFKekhLSGlwLUtfRWZlX01BVXhMN2l2Y29DY3ZaN1BWeEYzYWVwQ1gxWlRGWENaY3BIX0JFRDZZT1BRNUNCRzlTZFQyTEthR01KdUlZeWdYdVc5MGtqUzZmczBKT2M0U21xX0RsY1FRc1dRc2pQWWwwVTJVemlOMWdvb0NRYzNSTUYyRA?oc=5",
-   "publisher": "Yahoo股市",
-   "stocks": [
-    "2492 華新科"
-   ]
-  },
-  {
-   "time": "11-07 20:35",
-   "title": "台股黑色星期五狠摔！郭哲榮鞠躬道歉重壓2億 狂喊明年5萬7",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E9%BB%91%E8%89%B2%E6%98%9F%E6%9C%9F%E4%BA%94%E7%8B%A0%E6%91%94-%E9%83%AD%E5%93%B2%E6%A6%AE%E9%9E%A0%E8%BA%AC%E9%81%93%E6%AD%89%E9%87%8D%E5%A3%932%E5%84%84-%E7%8B%82%E5%96%8A%E6%98%8E%E5%B9%B45%E8%90%AC7-123507259.html",
+   "time": "11-08 20:45",
+   "title": "台股大跌如恐怖攻擊！唐綺陽揭轉折點示警：發財夢已成過去",
+   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%A4%A7%E8%B7%8C%E5%A6%82%E6%81%90%E6%80%96%E6%94%BB%E6%93%8A-%E5%94%90%E7%B6%BA%E9%99%BD%E6%8F%AD%E8%BD%89%E6%8A%98%E9%BB%9E%E7%A4%BA%E8%AD%A6-%E7%99%BC%E8%B2%A1%E5%A4%A2%E5%B7%B2%E6%88%90%E9%81%8E%E5%8E%BB-124548889.html",
    "publisher": "yahoo_tw_market",
    "stocks": []
   },
   {
-   "time": "11-07 20:34",
-   "title": "5000億銀彈都買哪幾檔？國安基金護盤10大迷思：會歐印嗎、勞退基金被挪去救市？ | 李瑋萱 | 新聞",
-   "link": "https://news.google.com/rss/articles/CBMiTkFVX3lxTFA3cHQxVzAwNjNqd2ZtWXl5cVpNbUYzekJzVjUwOGFZTE5uTzJLMndTMGF2WVVWNHJoXzhCNmUtM0h1dDZUUUNZdk1GY3Rodw?oc=5",
-   "publisher": "風傳媒",
+   "time": "11-08 20:45",
+   "title": "沒在怕AI股災！女股神「逆勢加碼」心法曝",
+   "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE4tQmQtVzk4YlB6cVBqSEJWenFEXzJpblh5Ty1rS1JrbzlFaVJrbi1aNExqZ2pnUGtZeGNqY190NkFJTHFqMWZWNmJUcXQ1ajVwR2d6MktfbUttUjJDVVHSAWJBVV95cUxPVjVINjRLY1dMUU5mb2hsN0kyQmk3OG95bmhmNTZJLTlLSF9UMExfZ0V4VFpWU2NKaHdCQXlYUXNhbjU4ZE5sMTNPeDZ2ejNSNjYxRTY1OWljUFM3dzNGZ0dMdw?oc=5",
+   "publisher": "鏡週刊Mirror Media",
    "stocks": []
   },
   {
-   "time": "11-07 20:32",
-   "title": "TWA00 加權指數- 台股跌破四萬點，法人逆勢布局金融與電子類股- 股市爆料同學會",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1zaWM1MWVEdDJUS295TTFnNVlWRm5sNVdWVjBJQ1o1MFo5T1VUWDdLTjlHZFJuWllFbnN6TnpITkg3RFlMZTdzYXhzVlNrRGg5bjl2U1dkMmg?oc=5",
+   "time": "11-08 20:40",
+   "title": "台股大跌如恐怖攻擊！唐綺陽揭轉折點示警：發財夢已成過去- 綜合星聞",
+   "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE44WnNPY0Fjb3VfbEJZRFZHemltcmdnUDc0SFA2UHBzclJYOEgwNXNhcHJMTjB1Z3M4U3RLME0tS04yWl9jTlhoSjdKTnpYdkZ5SmoyUEsxOUJDVVhVd01qMUhIaUxyYXZEOUYzT0hn?oc=5",
+   "publisher": "中時新聞網",
+   "stocks": []
+  },
+  {
+   "time": "11-08 20:40",
+   "title": "2330 台積電 - 歐美日韓澳..等外國都再升息，難怪外資一直提款- 股市爆料同學會",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE84emthb0NZX3Q2aVB5TF9QNGJKY2NaM2d4bVowUENmMm1vYzMwbGxfa1V2MXRPdDd4WE5qS0t4M1lBYWdmR1c5UktBWGFBOUd2b1RXbUtlQnE?oc=5",
    "publisher": "CMoney",
-   "stocks": []
+   "stocks": [
+    "2330 台積電"
+   ]
   },
   {
-   "time": "11-07 20:30",
-   "title": "美國就業意外強勁！12月升息機率衝上80%，聯準會警告AI投資仍推高通膨",
-   "link": "https://news.cnyes.com/news/id/6652118",
-   "publisher": "鉅亨網",
+   "time": "11-08 20:35",
+   "title": "AIDC審查恐拉高成本、美股急洩別慌？摩根解析：標普500回檔仍在歷史常態範圍- 股市爆料同學會",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1YMDM0a0VJYmFuSXN4M3prSk95YmNmMFQ5YkhNYzNRa3A3VWNSRFpSNDhhT3c1dHFTLW5iRkUwajVmcG9OOW1tX1pObHBBQ2Z5WnUtUElYaFg?oc=5",
+   "publisher": "CMoney",
    "stocks": []
   }
  ],
@@ -173,7 +173,7 @@
   "yahoo_tw_market": "ok (50)",
   "yahoo_intl": "ok (50)",
   "gnews_tw": "ok (100)",
-  "gnews_us": "ok (99)",
+  "gnews_us": "ok (82)",
   "cnyes_tw_stock": "ok (30)",
   "cnyes_us_stock": "ok (30)"
  },
