@@ -1,64 +1,84 @@
 {
  "source": "rss_live",
- "as_of": "2026-11-08 21:30:06+08:00",
+ "as_of": "2026-11-09 21:30:08+08:00",
  "window_hours": 24,
- "news_count": 252,
+ "news_count": 321,
  "hot_keywords": [
   {
-   "keyword": "AI",
-   "count": 53
+   "keyword": "輝達",
+   "count": 60
   },
   {
-   "keyword": "輝達",
-   "count": 23
+   "keyword": "AI",
+   "count": 38
   },
   {
    "keyword": "半導體",
-   "count": 17
-  },
-  {
-   "keyword": "記憶體",
-   "count": 9
-  },
-  {
-   "keyword": "電動車",
-   "count": 7
-  },
-  {
-   "keyword": "Fed/利率",
-   "count": 5
-  },
-  {
-   "keyword": "機器人",
-   "count": 3
+   "count": 15
   },
   {
    "keyword": "匯率",
-   "count": 3
+   "count": 10
   },
   {
-   "keyword": "關稅/貿易",
-   "count": 2
+   "keyword": "AI伺服器",
+   "count": 4
   },
   {
    "keyword": "伺服器",
-   "count": 2
+   "count": 4
+  },
+  {
+   "keyword": "PCB/載板",
+   "count": 4
+  },
+  {
+   "keyword": "記憶體",
+   "count": 4
+  },
+  {
+   "keyword": "光通訊",
+   "count": 3
+  },
+  {
+   "keyword": "Fed/利率",
+   "count": 3
   }
  ],
  "hot_stocks": [
   {
    "code": "2330",
    "name": "台積電",
-   "count": 28
+   "count": 23
   },
   {
-   "code": "2344",
-   "name": "華邦電",
+   "code": "2454",
+   "name": "聯發科",
+   "count": 11
+  },
+  {
+   "code": "2308",
+   "name": "台達電",
+   "count": 7
+  },
+  {
+   "code": "2303",
+   "name": "聯電",
    "count": 3
   },
   {
-   "code": "2467",
-   "name": "志聖",
+   "code": "3189",
+   "name": "景碩",
+   "count": 3
+  },
+  {
+   "code": "2352",
+   "name": "佳世達",
+   "count": 2
+  },
+  {
+   "code": "2850",
+   "name": "新產",
    "count": 2
   },
   {
@@ -67,105 +87,102 @@
    "count": 2
   },
   {
-   "code": "2516",
-   "name": "新建",
+   "code": "9921",
+   "name": "巨大",
    "count": 2
   },
   {
-   "code": "2454",
-   "name": "聯發科",
+   "code": "3038",
+   "name": "全台",
    "count": 2
-  },
-  {
-   "code": "1108",
-   "name": "幸福",
-   "count": 2
-  },
-  {
-   "code": "2832",
-   "name": "台產",
-   "count": 1
-  },
-  {
-   "code": "2303",
-   "name": "聯電",
-   "count": 1
-  },
-  {
-   "code": "3037",
-   "name": "欣興",
-   "count": 1
   }
  ],
  "held_mentions": [
   {
    "held": [
-    "2059 川湖"
+    "3189 景碩"
    ],
-   "title": "川湖迎Vera Rubin量產與周邊機櫃導入導軌 2027年獲利動能看俏",
-   "link": "https://news.cnyes.com/news/id/6651767"
-  }
- ],
- "held_mention_count": 1,
- "headlines": [
-  {
-   "time": "11-08 21:15",
-   "title": "黃仁勳之女突然取消訪韓 理由是「家庭因素」",
-   "link": "https://news.cnyes.com/news/id/6652440",
-   "publisher": "鉅亨網",
-   "stocks": [
-    "2832 台產"
-   ]
+   "title": "台股急殺引發槓桿斷鏈！景碩、富喬、聯亞爆違約交割 總額逾1.17億元",
+   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E8%82%A1%E6%80%A5%E6%AE%BA%E5%BC%95%E7%99%BC%E6%A7%93%E6%A1%BF%E6%96%B7%E9%8F%88-%E6%99%AF%E7%A2%A9-%E5%AF%8C%E5%96%AC-%E8%81%AF%E4%BA%9E%E7%88%86%E9%81%95%E7%B4%84%E4%BA%A4%E5%89%B2-%E7%B8%BD%E9%A1%8D%E9%80%BE1-121950951.html"
   },
   {
-   "time": "11-08 21:15",
-   "title": "習川本月將三會！傳陸對美提5要求 包括取消全部加徵關稅",
-   "link": "https://tw.news.yahoo.com/%E7%BF%92%E5%B7%9D%E6%9C%AC%E6%9C%88%E5%B0%87%E4%B8%89%E6%9C%83-%E5%82%B3%E9%99%B8%E5%B0%8D%E7%BE%8E%E6%8F%905%E8%A6%81%E6%B1%82-%E5%8C%85%E6%8B%AC%E5%8F%96%E6%B6%88%E5%85%A8%E9%83%A8%E5%8A%A0%E5%BE%B5%E9%97%9C%E7%A8%85-131521685.html",
+   "held": [
+    "3189 景碩"
+   ],
+   "title": "TWA00 加權指數- 台股反彈外資大賣九百億，景碩爆違約交割- 股市爆料同學會",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFB2X0JLUXNoTmwzVmgtdTU1SXQ2Zjh2QzdKbjA2aldNN2g1NHhsRWlYX0VyYzF5UXJmeUl2QmlmWTdrMHc1OG5VQzItS091Z1hnbFBTVXo3bUk?oc=5"
+  },
+  {
+   "held": [
+    "3189 景碩"
+   ],
+   "title": "台股2檔「抓去關」新名單 載板飆股景碩明起處置到11／16",
+   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1tOWJubzRxZnZqUzJ0MGJFaGVXT1Rwcng0a3k3ZkdXVW5fdDJvbzdkQk14WUE0STk2cjlPZXlQdGMyQk1mT3loVTlrNEZzV2piR3fSAVBBVV95cUxQWF9FbjdmemtVN0lDNU5SU3RFODRFQzJEaV8tbERqTDhIMWQ0YmFlMjNjaXJyWDQ4RGthQk5xbHE3OHhCTHY3MmJBYjJYVDNjUQ?oc=5"
+  },
+  {
+   "held": [
+    "2059 川湖"
+   ],
+   "title": "防出軌靠川湖！滑軌大廠如何護輝達？",
+   "link": "https://tw.news.yahoo.com/%E9%98%B2%E5%87%BA%E8%BB%8C%E9%9D%A0%E5%B7%9D%E6%B9%96-%E6%BB%91%E8%BB%8C%E5%A4%A7%E5%BB%A0%E5%A6%82%E4%BD%95%E8%AD%B7%E8%BC%9D%E9%81%94-090314011.html"
+  }
+ ],
+ "held_mention_count": 4,
+ "headlines": [
+  {
+   "time": "11-09 21:17",
+   "title": "卡瑪達第三季每股盈餘0.14美元勝預期 但營收5,200萬美元不及分析師預估",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1pblZMZGQ4RUFfLVdOZU9OcElIX3hYSFlrclVldXRia2k4bzlWaWNDV19LSERhcC0zU2NTZW1acDdkWkNxdGpyU19SUU1tWWo3cjk2cjRIb0JWa2JtQ3ZPaTVITzBBTDg?oc=5",
+   "publisher": "CMoney",
+   "stocks": []
+  },
+  {
+   "time": "11-09 21:17",
+   "title": "Monday.com公佈Q3財報雙超預期！調整後EPS 2.14美元、營收377.5M，但股價仍下挫",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5fV29JQ2xiZjhUTHEyUUxuRnlwNk5YSG9xTEtFVkRSVV8wX3hmb0R1R2VtT01wVURnNm1la1BIRmswQzZQOURKemlfeGx2dmxwWjhOVUg3eExxN1RBOU13YmYwVDVnUlk?oc=5",
+   "publisher": "CMoney",
+   "stocks": []
+  },
+  {
+   "time": "11-09 21:17",
+   "title": "制服大廠Superior第三季表現分歧：營收超預期但每股盈餘仍落後",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB4V0JyS0h2cVZsXzRmSkNqTzA3V2l3b25wVWRaRlFELUhYRGdJdGNVd0FXQnNsaS1IN1B2MEg0dTRPdVBNNTV3cEFnQjA2TTJRdlNfRlhqZXEycUhZZmttaXRrNTg0d1E?oc=5",
+   "publisher": "CMoney",
+   "stocks": []
+  },
+  {
+   "time": "11-09 21:17",
+   "title": "Ocular Therapeutix第三季慘賠9,480萬美元！每股虧0.42、營收不及預期引投資人戒慎恐懼",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5EbDB4d2UyXzBWb3NZZ0E5TzV2eVlSTkZQcDlEdDNxODlzQWt5T3JfWXN4eHp0am1FRUh4ejJ3RWRRaG53dFhpQ3ppTmRDUTUyTmM5S2Y3cVY5Qmo2VzJiQjM2MXJZczg?oc=5",
+   "publisher": "CMoney",
+   "stocks": []
+  },
+  {
+   "time": "11-09 21:15",
+   "title": "黃仁勳認出軌 輝達董事會啟動調查",
+   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E8%AA%8D%E5%87%BA%E8%BB%8C-%E8%BC%9D%E9%81%94%E8%91%A3%E4%BA%8B%E6%9C%83%E5%95%9F%E5%8B%95%E8%AA%BF%E6%9F%A5-131523939.html",
    "publisher": "yahoo_intl",
    "stocks": []
   },
   {
-   "time": "11-08 21:00",
-   "title": "馬斯克揭特斯拉、SpaceX未來布局！太空AI資料中心、Terafab晶圓廠與Optimus機器人全曝光",
-   "link": "https://news.cnyes.com/news/id/6652258",
-   "publisher": "鉅亨網",
+   "time": "11-09 21:15",
+   "title": "黃仁勳偷吃還變小王？網驚爆黃樂是人妻「遭尪獻祭換輝達訂單」",
+   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E5%81%B7%E5%90%83%E9%82%84%E8%AE%8A%E5%B0%8F%E7%8E%8B-%E7%B6%B2%E9%A9%9A%E7%88%86%E9%BB%83%E6%A8%82%E6%98%AF%E4%BA%BA%E5%A6%BB-%E9%81%AD%E5%B0%AA%E7%8D%BB%E7%A5%AD%E6%8F%9B%E8%BC%9D%E9%81%94%E8%A8%82%E5%96%AE-131500473.html",
+   "publisher": "yahoo_intl",
    "stocks": []
   },
   {
-   "time": "11-08 20:45",
-   "title": "台股大跌如恐怖攻擊！唐綺陽揭轉折點示警：發財夢已成過去",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%A4%A7%E8%B7%8C%E5%A6%82%E6%81%90%E6%80%96%E6%94%BB%E6%93%8A-%E5%94%90%E7%B6%BA%E9%99%BD%E6%8F%AD%E8%BD%89%E6%8A%98%E9%BB%9E%E7%A4%BA%E8%AD%A6-%E7%99%BC%E8%B2%A1%E5%A4%A2%E5%B7%B2%E6%88%90%E9%81%8E%E5%8E%BB-124548889.html",
+   "time": "11-09 21:13",
+   "title": "台股強彈1960點 外資倒貨9百億/台幣重貶1.14角",
+   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%BC%B7%E5%BD%881960%E9%BB%9E-%E5%A4%96%E8%B3%87%E5%80%92%E8%B2%A89%E7%99%BE%E5%84%84-%E5%8F%B0%E5%B9%A3%E9%87%8D%E8%B2%B61-14%E8%A7%92-131338164.html",
    "publisher": "yahoo_tw_market",
    "stocks": []
   },
   {
-   "time": "11-08 20:45",
-   "title": "沒在怕AI股災！女股神「逆勢加碼」心法曝",
-   "link": "https://news.google.com/rss/articles/CBMiXkFVX3lxTE4tQmQtVzk4YlB6cVBqSEJWenFEXzJpblh5Ty1rS1JrbzlFaVJrbi1aNExqZ2pnUGtZeGNqY190NkFJTHFqMWZWNmJUcXQ1ajVwR2d6MktfbUttUjJDVVHSAWJBVV95cUxPVjVINjRLY1dMUU5mb2hsN0kyQmk3OG95bmhmNTZJLTlLSF9UMExfZ0V4VFpWU2NKaHdCQXlYUXNhbjU4ZE5sMTNPeDZ2ejNSNjYxRTY1OWljUFM3dzNGZ0dMdw?oc=5",
-   "publisher": "鏡週刊Mirror Media",
-   "stocks": []
-  },
-  {
-   "time": "11-08 20:40",
-   "title": "台股大跌如恐怖攻擊！唐綺陽揭轉折點示警：發財夢已成過去- 綜合星聞",
-   "link": "https://news.google.com/rss/articles/CBMibkFVX3lxTE44WnNPY0Fjb3VfbEJZRFZHemltcmdnUDc0SFA2UHBzclJYOEgwNXNhcHJMTjB1Z3M4U3RLME0tS04yWl9jTlhoSjdKTnpYdkZ5SmoyUEsxOUJDVVhVd01qMUhIaUxyYXZEOUYzT0hn?oc=5",
-   "publisher": "中時新聞網",
-   "stocks": []
-  },
-  {
-   "time": "11-08 20:40",
-   "title": "2330 台積電 - 歐美日韓澳..等外國都再升息，難怪外資一直提款- 股市爆料同學會",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE84emthb0NZX3Q2aVB5TF9QNGJKY2NaM2d4bVowUENmMm1vYzMwbGxfa1V2MXRPdDd4WE5qS0t4M1lBYWdmR1c5UktBWGFBOUd2b1RXbUtlQnE?oc=5",
-   "publisher": "CMoney",
-   "stocks": [
-    "2330 台積電"
-   ]
-  },
-  {
-   "time": "11-08 20:35",
-   "title": "AIDC審查恐拉高成本、美股急洩別慌？摩根解析：標普500回檔仍在歷史常態範圍- 股市爆料同學會",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1YMDM0a0VJYmFuSXN4M3prSk95YmNmMFQ5YkhNYzNRa3A3VWNSRFpSNDhhT3c1dHFTLW5iRkUwajVmcG9OOW1tX1pObHBBQ2Z5WnUtUElYaFg?oc=5",
-   "publisher": "CMoney",
+   "time": "11-09 21:12",
+   "title": "宇峻10月營收連3個月站穩2億元 Q4創高可期",
+   "link": "https://news.cnyes.com/news/id/6654634",
+   "publisher": "鉅亨網",
    "stocks": []
   }
  ],
@@ -173,7 +190,7 @@
   "yahoo_tw_market": "ok (50)",
   "yahoo_intl": "ok (50)",
   "gnews_tw": "ok (100)",
-  "gnews_us": "ok (82)",
+  "gnews_us": "ok (100)",
   "cnyes_tw_stock": "ok (30)",
   "cnyes_us_stock": "ok (30)"
  },
