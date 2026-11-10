@@ -9,8 +9,10 @@ import time
 import json
 import sys
 import urllib.request
+import threading
 from pathlib import Path
 from typing import Any
+from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutTimeout, as_completed
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
@@ -39,8 +41,6 @@ async def _no_cache(request, call_next):  # 避免瀏覽器拿到舊版 app.js
 
 
 # ---- 行情條：背景執行緒每 30 秒更新（永豐模擬報價，無金鑰時 quotes 自動改 Yahoo），/api/ticker 只讀快取 ----
-import threading  # noqa: E402
-
 TICKER: dict = {"taiex": {"ok": False, "reason": "載入中"}, "txf": {"ok": False, "reason": "載入中"}, "updated": None}
 
 
@@ -164,6 +164,186 @@ def _names() -> dict:
     return n
 
 
+# ---- 持股熱力圖顯示用報價（全域有界 slot + 同碼 dedupe） ----
+_QUOTE_CACHE: dict[str, tuple[float, Any]] = {}
+_QUOTE_TTL = 60.0
+_QUOTE_TIMEOUT = 3.0
+_BATCH_QUOTE_TIMEOUT = 9.0
+_MAX_SLOTS = 4
+_slot_sem = threading.Semaphore(_MAX_SLOTS)          # 全域 running+queued 上限
+_inflight: dict[str, Any] = {}                       # code → future（同碼 dedupe）
+_inflight_lock = threading.Lock()
+_executor = ThreadPoolExecutor(max_workers=_MAX_SLOTS)  # 單一池，batch 與單檔共用
+
+
+def _fetch_quote_raw(code: str):
+    """最底層報價呼叫。"""
+    from quotes import get_feed
+    return get_feed().last(code)
+
+
+def _release_slot(fut):
+    """僅在 future 真正 done 時由 callback 釋放，並清理 _inflight（僅 pop 自己）。"""
+    try:
+        with _inflight_lock:
+            to_pop = [c for c, f in _inflight.items() if f is fut]
+            for c in to_pop:
+                _inflight.pop(c, None)
+        _slot_sem.release()
+    except Exception:
+        pass
+
+
+def _submit_quote(code: str):
+    """提交一個有界的報價任務。同碼 dedupe；只有提交者 acquire slot。
+    鎖內：acquire → submit → _inflight[code]=fut；鎖外再 add_done_callback。
+    """
+    with _inflight_lock:
+        existing = _inflight.get(code)
+        if existing is not None:
+            return existing, False  # waiter，不 acquire
+        if not _slot_sem.acquire(blocking=False):
+            return None, False  # 已達上限
+        try:
+            fut = _executor.submit(_fetch_quote_raw, code)
+        except Exception:
+            _slot_sem.release()
+            raise
+        _inflight[code] = fut
+    # 鎖外註冊 callback，避免已 done 時同步 callback 自我死鎖
+    fut.add_done_callback(_release_slot)
+    return fut, True
+
+
+def _safe_quote(code: str):
+    """單檔報價。有界 slot + 同碼 dedupe；逾時不提前釋放 slot。"""
+    now = time.time()
+    cached = _QUOTE_CACHE.get(code)
+    if cached and now - cached[0] < _QUOTE_TTL:
+        return cached[1]
+    fut, acquired = _submit_quote(code)
+    if fut is None:
+        _QUOTE_CACHE[code] = (now, None)
+        return None
+    try:
+        q = fut.result(timeout=_QUOTE_TIMEOUT)
+        _QUOTE_CACHE[code] = (now, q)
+        return q
+    except (FutTimeout, Exception):
+        # 不 cancel 後立即釋放；slot 由 add_done_callback 在真正 done 時釋放
+        _QUOTE_CACHE[code] = (now, None)
+        return None
+
+
+def _enrich_pos_display(pos: dict, is_paper: bool = True, prefetched_quote: Any = None, quote_provided: bool = False) -> dict:
+    from holdings_heatmap import day_change, buy_pnl_pct, valid_mv
+    code = str(pos.get("code") or pos.get("ticker") or "")
+    if quote_provided:
+        q = prefetched_quote
+    else:
+        q = _safe_quote(code) if code else None
+    last = pos.get("last")
+    avg = pos.get("avg") or pos.get("avg_price")
+    dc = day_change(q.last if q else None, q.prev_close if q else None) if q else None
+    quote_ts = q.ts.isoformat() if q and q.ts else None
+    is_today = False
+    if q and q.ts:
+        try:
+            from quotes import now_taipei
+            is_today = q.ts.astimezone(now_taipei().tzinfo).date() == now_taipei().date()
+        except Exception:
+            is_today = False
+    industry = str(pos.get("industry") or "").strip() or "未知"
+    if not is_paper and industry == "未知":
+        try:
+            t = nn_strategy.latest_target()
+            if t:
+                for r in t[1]:
+                    if str(r.get("code")) == code:
+                        industry = str(r.get("industry") or "").strip() or "未知"
+                        break
+        except Exception:
+            pass
+    pos["industry"] = industry
+    pos["day_chg"] = dc if (dc is not None and is_today) else None
+    pos["day_chg_valid"] = dc is not None and is_today
+    pos["pnl_pct_display"] = buy_pnl_pct(last, avg)
+    pos["pnl_pct_valid"] = pos["pnl_pct_display"] is not None
+    pos["mv_valid"] = valid_mv(pos.get("mv"))
+    pos["quote_ts"] = quote_ts
+    pos["quote_is_today"] = is_today
+    pos["quote_source"] = getattr(q, "source", None) if q else None
+    return pos
+
+
+def _enrich_positions_batch(positions: list[dict], is_paper: bool = True) -> list[dict]:
+    """整批 enrichment，共用全域有界 slot／dedupe／cache。
+    在總時限內持續提交尚未取得結果的代碼（slot 滿則短暫等待後再試）。
+    """
+    if not positions:
+        return positions
+    deadline = time.time() + _BATCH_QUOTE_TIMEOUT
+    pending = [str(p.get("code") or p.get("ticker") or "") for p in positions]
+    pending = [c for c in pending if c]
+    results: dict[str, Any] = {}
+    futs: dict[Any, str] = {}
+    while pending or futs:
+        if time.time() > deadline:
+            break
+        # 盡量填滿 slot
+        while pending and len(futs) < _MAX_SLOTS:
+            code = pending.pop(0)
+            fut, _acquired = _submit_quote(code)
+            if fut is not None:
+                futs[fut] = code
+            else:
+                # 暫時無法提交，放回待處理
+                pending.insert(0, code)
+                break
+        if not futs:
+            # 無進行中任務，稍候再試
+            time.sleep(0.05)
+            continue
+        # 等待至少一個完成或短暫逾時
+        try:
+            done_set = set()
+            for fut in as_completed(futs, timeout=0.2):
+                done_set.add(fut)
+                code = futs[fut]
+                try:
+                    results[code] = fut.result(timeout=0.05)
+                except Exception:
+                    results[code] = None
+                if time.time() > deadline:
+                    break
+            for fut in done_set:
+                futs.pop(fut, None)
+        except TimeoutError:
+            pass
+    now = time.time()
+    # 已完成的寫入 cache
+    for code, q in results.items():
+        _QUOTE_CACHE[code] = (now, q)
+    # 未完成的（仍在 futs 或 pending）寫入 None
+    for fut, code in list(futs.items()):
+        results[code] = None
+        _QUOTE_CACHE[code] = (now, None)
+    for code in pending:
+        results[code] = None
+        _QUOTE_CACHE[code] = (now, None)
+    for p in positions:
+        code = str(p.get("code") or p.get("ticker") or "")
+        q = results.get(code) if code else None
+        _enrich_pos_display(p, is_paper=is_paper, prefetched_quote=q, quote_provided=True)
+    return positions
+
+
+def _sim_snapshot_stale(age_s: float, market_hours: bool) -> bool:
+    """模擬快照過期判斷（與 api_sim 共用）。盤中 300s、非盤中 3600s。"""
+    limit = 300 if market_hours else 3600
+    return age_s > limit
+
+
 def account() -> dict:
     a = _json(PAPER / "account.json")
     eq = _f(a.get("equity"), 0) or 0
@@ -172,10 +352,12 @@ def account() -> dict:
         last = _f(p.get("last"), p["avg_price"])
         mv = last * p["shares"]
         cost = p["avg_price"] * p["shares"]
-        pos.append({"code": p["ticker"], "name": stock_names.label(p["ticker"]), "shares": p["shares"],
-                    "avg": p["avg_price"], "last": last, "mv": mv, "weight": mv / eq if eq else 0,
-                    "pnl": mv - cost, "pnl_pct": (mv / cost - 1) if cost else 0,
-                    "nn_rank": p.get("nn_rank"), "industry": p.get("industry", "")})
+        item = {"code": p["ticker"], "name": stock_names.label(p["ticker"]), "shares": p["shares"],
+                "avg": p["avg_price"], "last": last, "mv": mv, "weight": mv / eq if eq else 0,
+                "pnl": mv - cost, "pnl_pct": (mv / cost - 1) if cost else 0,
+                "nn_rank": p.get("nn_rank"), "industry": p.get("industry", "")}
+        pos.append(item)
+    _enrich_positions_batch(pos, is_paper=True)
     curve = {}
     for r in _csv(PAPER / "equity.csv"):
         curve[r["date"][:10]] = _f(r.get("equity"))
@@ -297,8 +479,25 @@ def api_sim() -> JSONResponse:
     state = _json(PAPER / "sim_state.json")
     status = _json(PAPER / "sim_status.json")
     legacy = set(snap.get("legacy_codes") or [])
-    for p in snap.get("positions") or []:
+    # 過期判斷（台北時間）
+    stale = False
+    try:
+        from quotes import now_taipei
+        mtime = SIM_SNAP.stat().st_mtime if SIM_SNAP.exists() else 0
+        age = time.time() - mtime
+        stale = _sim_snapshot_stale(age, _sim_market_hours(now_taipei()))
+    except Exception:
+        stale = True
+    snap["stale"] = stale
+    snap["stale_threshold_s"] = 300 if _sim_market_hours() else 3600
+    positions = snap.get("positions") or []
+    for p in positions:
         p["label"] = _sim_lab(p["code"]); p["legacy"] = p["code"] in legacy
+        if "mv" not in p:
+            last = float(p.get("last") or 0)
+            shares = float(p.get("shares") or 0)
+            p["mv"] = last * shares
+    _enrich_positions_batch(positions, is_paper=False)
     for t in snap.get("trades") or []:
         t["label"] = _sim_lab(t["code"])
     mon = _dt.now().strftime("%Y-%m")

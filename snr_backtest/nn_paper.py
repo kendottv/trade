@@ -5,6 +5,7 @@ r"""NN 紙上帳戶（全新，從頭算）。不是券商，沒有任何下單�
   python nn_paper.py --daily      每日：市值重估；trade_NN/out 出現新月份目標檔就調倉
   python nn_paper.py --status     印出帳戶
 帳戶寫在 snr_backtest/paper_nn/（舊的 paper\ 完全不動）。
+規格 v3 AC-13：費用計算全部改走 broker.py（最低手續費 NT$20）。
 """
 from __future__ import annotations
 
@@ -19,10 +20,11 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 sys.path.insert(0, str(ROOT))
-from config import INITIAL_CAPITAL  # noqa: E402  trade 原本預設 1,000,000
+from config import INITIAL_CAPITAL  # noqa: E402
 from nn_strategy import STRATEGY, latest_target  # noqa: E402
 import stock_names  # noqa: E402
 import proc_lock  # noqa: E402
+from broker import commission_on, sell_fill, buy_cost  # AC-13
 
 try:
     import quotes  # noqa: E402
@@ -33,7 +35,7 @@ PAPER = ROOT / "paper_nn"
 TZ = timezone(timedelta(hours=8))
 LEDGER_COLS = ["date", "ticker", "action", "reason", "price", "shares", "cash", "equity", "snr"]
 EQUITY_COLS = ["date", "cash", "market_value", "equity"]
-LIVE_ORDERS_ENABLED = False  # 硬性關閉，不提供真單
+LIVE_ORDERS_ENABLED = False
 _DATE_RE = re.compile(r"(\d{4}-\d{2}-\d{2})")
 DAILY_LOCK = PAPER / "daily.lock"
 
@@ -55,12 +57,14 @@ def save(acct: dict) -> None:
 
 def _append(name: str, cols: list[str], rows: list[dict]) -> None:
     p = PAPER / name
-    if name == "equity.csv" and p.exists():  # 同一天只留最後一筆
+    if name == "equity.csv" and p.exists():
         days = {x["date"] for x in rows}
         with p.open(encoding="utf-8") as f:
             old = [r for r in csv.DictReader(f) if r["date"] not in days]
         with p.open("w", encoding="utf-8", newline="") as f:
-            w = csv.DictWriter(f, fieldnames=cols); w.writeheader(); w.writerows(old + rows)
+            w = csv.DictWriter(f, fieldnames=cols)
+            w.writeheader()
+            w.writerows(old + rows)
         return
     new = not p.exists()
     with p.open("a", encoding="utf-8", newline="") as f:
@@ -100,7 +104,6 @@ def _session_day(live: dict[str, tuple[float, str]]) -> str:
 
 
 def get_shioaji_last(tickers: list[str]) -> dict[str, tuple[float, str]]:
-    """優先用 Shioaji 模擬報價取最新價。失敗或無資料回空 dict。不下單、不碰金鑰。"""
     out: dict[str, tuple[float, str]] = {}
     if not quotes or not tickers:
         return out
@@ -119,14 +122,11 @@ def get_shioaji_last(tickers: list[str]) -> dict[str, tuple[float, str]]:
 
 
 def fetch_closes(codes: list[str]) -> dict[str, tuple[float, str]]:
-    """最新價：優先 Shioaji，抓不到或連線失敗再退 yfinance（先 .TW 再 .TWO）。"""
     out: dict[str, tuple[float, str]] = {}
     if not codes:
         return out
-    # 1) Shioaji
     sj = get_shioaji_last(codes)
     out.update(sj)
-    # 2) yfinance 補剩下的
     missing = [c for c in codes if c not in out]
     if not missing:
         return out
@@ -181,34 +181,36 @@ def rebalance(acct: dict, mon: str, rows: list[dict]) -> list[dict]:
     _, eq = _equity(acct, px)
     want = {r["code"]: r for r in rows}
     try:
-        stock_names.refresh_if_old(0 if mon != acct.get("last_target") else 7)  # 新月份調倉前更新名稱表
-    except Exception:  # noqa: BLE001
+        stock_names.refresh_if_old(0 if mon != acct.get("last_target") else 7)
+    except Exception:
         pass
     for p in acct["positions"]:
         p["name"] = stock_names.label(p["ticker"])
     led = []
-    # 先賣：不在目標內、或股數超過目標
+    # 先賣（改用 broker.sell_fill，含最低 NT$20）
     for p in list(acct["positions"]):
         tgt = int(eq * want[p["ticker"]]["weight"] / px[p["ticker"]]) if p["ticker"] in want else 0
         if p["shares"] > tgt:
             q = p["shares"] - tgt
-            fill = px[p["ticker"]] * (1 - s["slippage"])
-            gross = fill * q
-            acct["cash"] += gross - gross * (s["sell_fee"] + s["sell_tax"])
+            fill_price = px[p["ticker"]] * (1 - s["slippage"])
+            sf = sell_fill(q, fill_price, 0.001425, 20.0, 0.003)
+            acct["cash"] += sf.cash_delta
             p["shares"] -= q
             led.append({"date": day, "ticker": p["ticker"], "action": "SELL", "reason": f"NN 調倉 {mon}",
-                        "price": round(fill, 4), "shares": q})
+                        "price": round(fill_price, 4), "shares": q})
     acct["positions"] = [p for p in acct["positions"] if p["shares"] > 0]
-    # 再買
+    # 再買（改用 broker.buy_cost，含最低 NT$20）
     for code, r in want.items():
         cur = next((p for p in acct["positions"] if p["ticker"] == code), None)
         have = cur["shares"] if cur else 0
-        fill = px[code] * (1 + s["slippage"])
-        tgt = int(eq * r["weight"] / (fill * (1 + s["buy_fee"])))
-        q = min(tgt - have, int(acct["cash"] / (fill * (1 + s["buy_fee"]))))
+        fill_price = px[code] * (1 + s["slippage"])
+        tgt = int(eq * r["weight"] / (fill_price * (1 + s["buy_fee"])))
+        q = min(tgt - have, int(acct["cash"] / (fill_price * (1 + s["buy_fee"]))))
         if q <= 0:
             continue
-        cost = fill * q * (1 + s["buy_fee"])
+        cost = buy_cost(q, fill_price, 0.001425, 20.0)
+        if cost > acct["cash"] + 1e-8:
+            continue
         acct["cash"] -= cost
         if cur:
             cur["avg_price"] = (cur["avg_price"] * have + cost) / (have + q)
@@ -220,7 +222,7 @@ def rebalance(acct: dict, mon: str, rows: list[dict]) -> list[dict]:
                                       "nn_rank": r["rank"], "nn_score": r["score"],
                                       "industry": r.get("industry", "")})
         led.append({"date": day, "ticker": code, "action": "BUY", "reason": f"NN 調倉 {mon}",
-                    "price": round(fill, 4), "shares": q})
+                    "price": round(fill_price, 4), "shares": q})
     for p in acct["positions"]:
         p["last"] = px[p["ticker"]]
         p["price_src"] = src.get(p["ticker"], "")
@@ -261,7 +263,7 @@ def init(reset: bool = False) -> dict:
 
 
 def daily() -> dict:
-    deadline = time.time() + 600  # 最多等約 10 分鐘
+    deadline = time.time() + 600
     while not proc_lock.acquire(DAILY_LOCK):
         if time.time() >= deadline:
             raise SystemExit("無法取得 daily.lock（超過 10 分鐘），放棄本次執行")
