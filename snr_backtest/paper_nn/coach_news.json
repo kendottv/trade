@@ -1,39 +1,35 @@
 {
  "source": "rss_live",
- "as_of": "2026-11-09 21:30:08+08:00",
+ "as_of": "2026-11-10 21:30:07+08:00",
  "window_hours": 24,
- "news_count": 321,
+ "news_count": 307,
  "hot_keywords": [
   {
    "keyword": "輝達",
-   "count": 60
+   "count": 71
   },
   {
    "keyword": "AI",
-   "count": 38
+   "count": 53
   },
   {
    "keyword": "半導體",
-   "count": 15
+   "count": 28
   },
   {
-   "keyword": "匯率",
+   "keyword": "Fed/利率",
    "count": 10
   },
   {
-   "keyword": "AI伺服器",
-   "count": 4
+   "keyword": "匯率",
+   "count": 5
   },
   {
-   "keyword": "伺服器",
-   "count": 4
+   "keyword": "電動車",
+   "count": 5
   },
   {
    "keyword": "PCB/載板",
-   "count": 4
-  },
-  {
-   "keyword": "記憶體",
    "count": 4
   },
   {
@@ -41,148 +37,162 @@
    "count": 3
   },
   {
-   "keyword": "Fed/利率",
+   "keyword": "CPO/矽光子",
    "count": 3
+  },
+  {
+   "keyword": "先進製程/封裝",
+   "count": 2
   }
  ],
  "hot_stocks": [
   {
    "code": "2330",
    "name": "台積電",
-   "count": 23
+   "count": 42
   },
   {
    "code": "2454",
    "name": "聯發科",
-   "count": 11
+   "count": 8
   },
   {
    "code": "2308",
    "name": "台達電",
-   "count": 7
+   "count": 8
   },
   {
-   "code": "2303",
-   "name": "聯電",
+   "code": "2314",
+   "name": "台揚",
+   "count": 4
+  },
+  {
+   "code": "1303",
+   "name": "南亞",
    "count": 3
   },
   {
-   "code": "3189",
-   "name": "景碩",
-   "count": 3
-  },
-  {
-   "code": "2352",
-   "name": "佳世達",
+   "code": "1315",
+   "name": "達新",
    "count": 2
   },
   {
-   "code": "2850",
-   "name": "新產",
+   "code": "6488",
+   "name": "環球晶",
    "count": 2
   },
   {
-   "code": "2317",
-   "name": "鴻海",
+   "code": "2344",
+   "name": "華邦電",
    "count": 2
   },
   {
-   "code": "9921",
-   "name": "巨大",
-   "count": 2
+   "code": "6264",
+   "name": "富裔",
+   "count": 1
   },
   {
-   "code": "3038",
-   "name": "全台",
-   "count": 2
+   "code": "4154",
+   "name": "樂威科-KY",
+   "count": 1
   }
  ],
  "held_mentions": [
   {
    "held": [
-    "3189 景碩"
+    "3443 創意"
    ],
-   "title": "台股急殺引發槓桿斷鏈！景碩、富喬、聯亞爆違約交割 總額逾1.17億元",
-   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E8%82%A1%E6%80%A5%E6%AE%BA%E5%BC%95%E7%99%BC%E6%A7%93%E6%A1%BF%E6%96%B7%E9%8F%88-%E6%99%AF%E7%A2%A9-%E5%AF%8C%E5%96%AC-%E8%81%AF%E4%BA%9E%E7%88%86%E9%81%95%E7%B4%84%E4%BA%A4%E5%89%B2-%E7%B8%BD%E9%A1%8D%E9%80%BE1-121950951.html"
+   "title": "AI股暴跌別急著逃？大摩點名台積電、聯發科等9檔「逢低布局」",
+   "link": "https://tw.news.yahoo.com/ai%E8%82%A1%E6%9A%B4%E8%B7%8C%E5%88%A5%E6%80%A5%E8%91%97%E9%80%83-%E5%A4%A7%E6%91%A9%E9%BB%9E%E5%90%8D%E5%8F%B0%E7%A9%8D%E9%9B%BB-%E8%81%AF%E7%99%BC%E7%A7%91%E7%AD%899%E6%AA%94-%E9%80%A2%E4%BD%8E%E5%B8%83%E5%B1%80-130315734.html"
   },
   {
    "held": [
-    "3189 景碩"
+    "1303 南亞"
    ],
-   "title": "TWA00 加權指數- 台股反彈外資大賣九百億，景碩爆違約交割- 股市爆料同學會",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFB2X0JLUXNoTmwzVmgtdTU1SXQ2Zjh2QzdKbjA2aldNN2g1NHhsRWlYX0VyYzF5UXJmeUl2QmlmWTdrMHc1OG5VQzItS091Z1hnbFBTVXo3bUk?oc=5"
+   "title": "【即時新聞】最新台股大漲千點，南亞爆量走高貢獻漲點！",
+   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxNaTNoc1QwT2dwZWM3eDRoSmM4ZnpWV0xMRlpkZlp5U29oVmI0c1VCVGtfNEtmMXJTTTFjQXQ0bWp4THp4c1pHOWFIQlZtUlRUY2ZfdGpkUXZzeFNGdlFDalZjVXU2dXh0ekE5bzJiWWJkTXNMeFJtMm16RU1SNGdOMlBqSGt1aExIY0VBdXU3OE0?oc=5"
   },
   {
    "held": [
-    "3189 景碩"
+    "1303 南亞"
    ],
-   "title": "台股2檔「抓去關」新名單 載板飆股景碩明起處置到11／16",
-   "link": "https://news.google.com/rss/articles/CBMiUkFVX3lxTE1tOWJubzRxZnZqUzJ0MGJFaGVXT1Rwcng0a3k3ZkdXVW5fdDJvbzdkQk14WUE0STk2cjlPZXlQdGMyQk1mT3loVTlrNEZzV2piR3fSAVBBVV95cUxQWF9FbjdmemtVN0lDNU5SU3RFODRFQzJEaV8tbERqTDhIMWQ0YmFlMjNjaXJyWDQ4RGthQk5xbHE3OHhCTHY3MmJBYjJYVDNjUQ?oc=5"
+   "title": "中國使用輝達AI晶片 走私與租用東南亞資料中心算力成兩大途徑",
+   "link": "https://tw.stock.yahoo.com/news/%E4%B8%AD%E5%9C%8B%E4%BD%BF%E7%94%A8%E8%BC%9D%E9%81%94ai%E6%99%B6%E7%89%87-%E8%B5%B0%E7%A7%81%E8%88%87%E7%A7%9F%E7%94%A8%E6%9D%B1%E5%8D%97%E4%BA%9E%E8%B3%87%E6%96%99%E4%B8%AD%E5%BF%83%E7%AE%97%E5%8A%9B%E6%88%90%E5%85%A9%E5%A4%A7%E9%80%94%E5%BE%91-082028240.html"
   },
   {
    "held": [
-    "2059 川湖"
+    "1303 南亞"
    ],
-   "title": "防出軌靠川湖！滑軌大廠如何護輝達？",
-   "link": "https://tw.news.yahoo.com/%E9%98%B2%E5%87%BA%E8%BB%8C%E9%9D%A0%E5%B7%9D%E6%B9%96-%E6%BB%91%E8%BB%8C%E5%A4%A7%E5%BB%A0%E5%A6%82%E4%BD%95%E8%AD%B7%E8%BC%9D%E9%81%94-090314011.html"
+   "title": "台股大漲1050點！台達電、南亞連2日亮燈 PCB「5檔」收漲停",
+   "link": "https://news.google.com/rss/articles/CBMioAJBVV95cUxNVTd3QmRMRXBlNGp0VVNNdnFCYWt2QkdfaS1icjNSS3pPaE1sRk8tc3o4NFZEOU1jQkpaOWstSF9UMjBSZk0wV2FySzYyQThGeHJ0YlE2U0NMaFl0ZXNPZmRQeEpBelNOeEtMYnBsMG02QmxwRHZRUXM4N2ZROThxcko4dld1enRoMmV1M3A4Y1pBQU5CbHprVWphY3ZuakFsOGFzbUg0dFo0QjdodGhVbkhzN0pUY2pydjU5TVlPZ2VnS0FZUUQySEt5bXBSMjRoRUhsTDM3cGxwdnF1bHZPTi1jTEVGUnhjaHdFaVl2TlJjVnlRQzFnN1hEdGFvOGVUSk1xZ0oxUFAxU2l6WC1xdWVXUnZBSVVDX0dYdms0bzk?oc=5"
   }
  ],
  "held_mention_count": 4,
  "headlines": [
   {
-   "time": "11-09 21:17",
-   "title": "卡瑪達第三季每股盈餘0.14美元勝預期 但營收5,200萬美元不及分析師預估",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1pblZMZGQ4RUFfLVdOZU9OcElIX3hYSFlrclVldXRia2k4bzlWaWNDV19LSERhcC0zU2NTZW1acDdkWkNxdGpyU19SUU1tWWo3cjk2cjRIb0JWa2JtQ3ZPaTVITzBBTDg?oc=5",
-   "publisher": "CMoney",
-   "stocks": []
-  },
-  {
-   "time": "11-09 21:17",
-   "title": "Monday.com公佈Q3財報雙超預期！調整後EPS 2.14美元、營收377.5M，但股價仍下挫",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5fV29JQ2xiZjhUTHEyUUxuRnlwNk5YSG9xTEtFVkRSVV8wX3hmb0R1R2VtT01wVURnNm1la1BIRmswQzZQOURKemlfeGx2dmxwWjhOVUg3eExxN1RBOU13YmYwVDVnUlk?oc=5",
-   "publisher": "CMoney",
-   "stocks": []
-  },
-  {
-   "time": "11-09 21:17",
-   "title": "制服大廠Superior第三季表現分歧：營收超預期但每股盈餘仍落後",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFB4V0JyS0h2cVZsXzRmSkNqTzA3V2l3b25wVWRaRlFELUhYRGdJdGNVd0FXQnNsaS1IN1B2MEg0dTRPdVBNNTV3cEFnQjA2TTJRdlNfRlhqZXEycUhZZmttaXRrNTg0d1E?oc=5",
-   "publisher": "CMoney",
-   "stocks": []
-  },
-  {
-   "time": "11-09 21:17",
-   "title": "Ocular Therapeutix第三季慘賠9,480萬美元！每股虧0.42、營收不及預期引投資人戒慎恐懼",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE5EbDB4d2UyXzBWb3NZZ0E5TzV2eVlSTkZQcDlEdDNxODlzQWt5T3JfWXN4eHp0am1FRUh4ejJ3RWRRaG53dFhpQ3ppTmRDUTUyTmM5S2Y3cVY5Qmo2VzJiQjM2MXJZczg?oc=5",
-   "publisher": "CMoney",
-   "stocks": []
-  },
-  {
-   "time": "11-09 21:15",
-   "title": "黃仁勳認出軌 輝達董事會啟動調查",
-   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E8%AA%8D%E5%87%BA%E8%BB%8C-%E8%BC%9D%E9%81%94%E8%91%A3%E4%BA%8B%E6%9C%83%E5%95%9F%E5%8B%95%E8%AA%BF%E6%9F%A5-131523939.html",
-   "publisher": "yahoo_intl",
-   "stocks": []
-  },
-  {
-   "time": "11-09 21:15",
-   "title": "黃仁勳偷吃還變小王？網驚爆黃樂是人妻「遭尪獻祭換輝達訂單」",
-   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E5%81%B7%E5%90%83%E9%82%84%E8%AE%8A%E5%B0%8F%E7%8E%8B-%E7%B6%B2%E9%A9%9A%E7%88%86%E9%BB%83%E6%A8%82%E6%98%AF%E4%BA%BA%E5%A6%BB-%E9%81%AD%E5%B0%AA%E7%8D%BB%E7%A5%AD%E6%8F%9B%E8%BC%9D%E9%81%94%E8%A8%82%E5%96%AE-131500473.html",
-   "publisher": "yahoo_intl",
-   "stocks": []
-  },
-  {
-   "time": "11-09 21:13",
-   "title": "台股強彈1960點 外資倒貨9百億/台幣重貶1.14角",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E8%82%A1%E5%BC%B7%E5%BD%881960%E9%BB%9E-%E5%A4%96%E8%B3%87%E5%80%92%E8%B2%A89%E7%99%BE%E5%84%84-%E5%8F%B0%E5%B9%A3%E9%87%8D%E8%B2%B61-14%E8%A7%92-131338164.html",
-   "publisher": "yahoo_tw_market",
-   "stocks": []
-  },
-  {
-   "time": "11-09 21:12",
-   "title": "宇峻10月營收連3個月站穩2億元 Q4創高可期",
-   "link": "https://news.cnyes.com/news/id/6654634",
+   "time": "11-10 21:28",
+   "title": "台積電Q3配息9元 核准資本預算409億美元 擬各砸5億美元入股Anthropic與OpenAI",
+   "link": "https://news.cnyes.com/news/id/6656911",
    "publisher": "鉅亨網",
+   "stocks": [
+    "2330 台積電"
+   ]
+  },
+  {
+   "time": "11-10 21:27",
+   "title": "不看眼前EPS、大廠親自帶路！證交所翻轉創新板估值 打造新創「資本加速器」",
+   "link": "https://news.cnyes.com/news/id/6656910",
+   "publisher": "鉅亨網",
+   "stocks": []
+  },
+  {
+   "time": "11-10 21:22",
+   "title": "台積電Q3賺7,630.6 億元年增近7成 EPS 29.43 元續創史高",
+   "link": "https://news.cnyes.com/news/id/6656875",
+   "publisher": "鉅亨網",
+   "stocks": [
+    "2330 台積電"
+   ]
+  },
+  {
+   "time": "11-10 21:20",
+   "title": "營收速報 - 富裔(6264)10月營收5,572萬元年增率高達1632.59％",
+   "link": "https://news.cnyes.com/news/id/6656909",
+   "publisher": "鉅亨網",
+   "stocks": [
+    "6264 富裔"
+   ]
+  },
+  {
+   "time": "11-10 21:20",
+   "title": "營收速報 - 樂威科-KY(4154)10月營收441萬元年增率高達167.46％",
+   "link": "https://news.cnyes.com/news/id/6656907",
+   "publisher": "鉅亨網",
+   "stocks": [
+    "4154 樂威科-KY"
+   ]
+  },
+  {
+   "time": "11-10 21:20",
+   "title": "黃仁勳風波重挫輝達！木頭姐反手掃進逾9萬股",
+   "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE55R2F0VlUySzFjSmtvZzQ5VTlGZnkydWxNOW01X096SnJ1NlVNNWNWd0ZYbUZGZTRXNVV5QTBxTWRFczA5QndONjMydE1zTUE?oc=5",
+   "publisher": "鉅亨網",
+   "stocks": []
+  },
+  {
+   "time": "11-10 21:15",
+   "title": "【美股盤前】Anthropic招股文件出包！最快今路演 私募陣容驚見台積電",
+   "link": "https://tw.news.yahoo.com/%E7%BE%8E%E8%82%A1%E7%9B%A4%E5%89%8D-anthropic%E6%8B%9B%E8%82%A1%E6%96%87%E4%BB%B6%E5%87%BA%E5%8C%85-%E6%9C%80%E5%BF%AB%E4%BB%8A%E8%B7%AF%E6%BC%94-%E7%A7%81%E5%8B%9F%E9%99%A3%E5%AE%B9%E9%A9%9A%E8%A6%8B%E5%8F%B0%E7%A9%8D%E9%9B%BB-131500918.html",
+   "publisher": "yahoo_tw_market",
+   "stocks": [
+    "2330 台積電"
+   ]
+  },
+  {
+   "time": "11-10 21:12",
+   "title": "外資鐵了心要走！連9賣今日再賣341.16億元",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTFA4aS03QmI3NjZLVmJnRXN2NjVlams3QUhqVXloODJvNnZNeThjX1IwSDloYWpNWDdEMlF0bk5HSFJ1RGpWazFlaG81aWJUY3RXT3NRWVdBV09FaDdrczhj0gFkQVVfeXFMTkVpSFU2ZlFBOWx3ekpYT3VKZW9uYjUwbHpMOTNGOFhRNmM3d1JOVS1fclg3bm5KdDVfUGJVbV92MkphYUpfSjlqcV9NcDJpanRxN0JWcjVhTE1YcUFLNnhFRklOMg?oc=5",
+   "publisher": "自由財經",
    "stocks": []
   }
  ],
@@ -194,5 +204,5 @@
   "cnyes_tw_stock": "ok (30)",
   "cnyes_us_stock": "ok (30)"
  },
- "stock_list_size": 1099
+ "stock_list_size": 1996
 }
