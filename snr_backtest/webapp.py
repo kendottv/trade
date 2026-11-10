@@ -9,6 +9,7 @@ import time
 import json
 import sys
 import urllib.request
+import threading
 from pathlib import Path
 from typing import Any
 from concurrent.futures import ThreadPoolExecutor, TimeoutError as FutTimeout, as_completed
@@ -40,8 +41,6 @@ async def _no_cache(request, call_next):  # 避免瀏覽器拿到舊版 app.js
 
 
 # ---- 行情條：背景執行緒每 30 秒更新（永豐模擬報價，無金鑰時 quotes 自動改 Yahoo），/api/ticker 只讀快取 ----
-import threading  # noqa: E402
-
 TICKER: dict = {"taiex": {"ok": False, "reason": "載入中"}, "txf": {"ok": False, "reason": "載入中"}, "updated": None}
 
 
@@ -165,28 +164,73 @@ def _names() -> dict:
     return n
 
 
-# ---- 持股熱力圖顯示用報價（帶逾時 + 整批總時限） ----
+# ---- 持股熱力圖顯示用報價（全域有界 slot + 同碼 dedupe） ----
 _QUOTE_CACHE: dict[str, tuple[float, Any]] = {}
 _QUOTE_TTL = 60.0
 _QUOTE_TIMEOUT = 3.0
-_BATCH_QUOTE_TIMEOUT = 9.0  # 整批總時限，明顯小於前端 15s
-_executor = ThreadPoolExecutor(max_workers=4)
+_BATCH_QUOTE_TIMEOUT = 9.0
+_MAX_SLOTS = 4
+_slot_sem = threading.Semaphore(_MAX_SLOTS)          # 全域 running+queued 上限
+_inflight: dict[str, Any] = {}                       # code → future（同碼 dedupe）
+_inflight_lock = threading.Lock()
+_executor = ThreadPoolExecutor(max_workers=_MAX_SLOTS)  # 單一池，batch 與單檔共用
+
+
+def _fetch_quote_raw(code: str):
+    """最底層報價呼叫。"""
+    from quotes import get_feed
+    return get_feed().last(code)
+
+
+def _release_slot(fut):
+    """僅在 future 真正 done 時由 callback 釋放，並清理 _inflight（僅 pop 自己）。"""
+    try:
+        with _inflight_lock:
+            to_pop = [c for c, f in _inflight.items() if f is fut]
+            for c in to_pop:
+                _inflight.pop(c, None)
+        _slot_sem.release()
+    except Exception:
+        pass
+
+
+def _submit_quote(code: str):
+    """提交一個有界的報價任務。同碼 dedupe；只有提交者 acquire slot。
+    鎖內：acquire → submit → _inflight[code]=fut；鎖外再 add_done_callback。
+    """
+    with _inflight_lock:
+        existing = _inflight.get(code)
+        if existing is not None:
+            return existing, False  # waiter，不 acquire
+        if not _slot_sem.acquire(blocking=False):
+            return None, False  # 已達上限
+        try:
+            fut = _executor.submit(_fetch_quote_raw, code)
+        except Exception:
+            _slot_sem.release()
+            raise
+        _inflight[code] = fut
+    # 鎖外註冊 callback，避免已 done 時同步 callback 自我死鎖
+    fut.add_done_callback(_release_slot)
+    return fut, True
 
 
 def _safe_quote(code: str):
+    """單檔報價。有界 slot + 同碼 dedupe；逾時不提前釋放 slot。"""
     now = time.time()
     cached = _QUOTE_CACHE.get(code)
     if cached and now - cached[0] < _QUOTE_TTL:
         return cached[1]
-    def _do():
-        from quotes import get_feed
-        return get_feed().last(code)
+    fut, acquired = _submit_quote(code)
+    if fut is None:
+        _QUOTE_CACHE[code] = (now, None)
+        return None
     try:
-        fut = _executor.submit(_do)
         q = fut.result(timeout=_QUOTE_TIMEOUT)
         _QUOTE_CACHE[code] = (now, q)
         return q
     except (FutTimeout, Exception):
+        # 不 cancel 後立即釋放；slot 由 add_done_callback 在真正 done 時釋放
         _QUOTE_CACHE[code] = (now, None)
         return None
 
@@ -194,7 +238,6 @@ def _safe_quote(code: str):
 def _enrich_pos_display(pos: dict, is_paper: bool = True, prefetched_quote: Any = None, quote_provided: bool = False) -> dict:
     from holdings_heatmap import day_change, buy_pnl_pct, valid_mv
     code = str(pos.get("code") or pos.get("ticker") or "")
-    # quote_provided=True 時（batch 路徑）直接使用傳入值，即使為 None 也不再呼叫 _safe_quote
     if quote_provided:
         q = prefetched_quote
     else:
@@ -234,37 +277,60 @@ def _enrich_pos_display(pos: dict, is_paper: bool = True, prefetched_quote: Any 
 
 
 def _enrich_positions_batch(positions: list[dict], is_paper: bool = True) -> list[dict]:
-    """整批 enrichment，總時限內完成；逾時的檔位報價視為失敗但不阻斷其餘。
-    batch 階段取得的 quote／None 直接傳給 _enrich_pos_display 並設 quote_provided=True，不再二次同步 fetch。
+    """整批 enrichment，共用全域有界 slot／dedupe／cache。
+    在總時限內持續提交尚未取得結果的代碼（slot 滿則短暫等待後再試）。
     """
     if not positions:
         return positions
     deadline = time.time() + _BATCH_QUOTE_TIMEOUT
-    futs = {}
-    for p in positions:
-        code = str(p.get("code") or p.get("ticker") or "")
-        if not code:
-            continue
-        futs[_executor.submit(_safe_quote, code)] = code
+    pending = [str(p.get("code") or p.get("ticker") or "") for p in positions]
+    pending = [c for c in pending if c]
     results: dict[str, Any] = {}
-    finished = set()
-    try:
-        for fut in as_completed(futs, timeout=max(0.1, deadline - time.time())):
-            finished.add(fut)
-            code = futs[fut]
-            try:
-                results[code] = fut.result(timeout=0.1)
-            except Exception:
-                results[code] = None
-            if time.time() > deadline:
+    futs: dict[Any, str] = {}
+    while pending or futs:
+        if time.time() > deadline:
+            break
+        # 盡量填滿 slot
+        while pending and len(futs) < _MAX_SLOTS:
+            code = pending.pop(0)
+            fut, _acquired = _submit_quote(code)
+            if fut is not None:
+                futs[fut] = code
+            else:
+                # 暫時無法提交，放回待處理
+                pending.insert(0, code)
                 break
-    except TimeoutError:
-        pass
-    # 未完成的直接記為 None
-    for fut, code in futs.items():
-        if fut not in finished:
-            results[code] = None
-            _QUOTE_CACHE[code] = (time.time(), None)
+        if not futs:
+            # 無進行中任務，稍候再試
+            time.sleep(0.05)
+            continue
+        # 等待至少一個完成或短暫逾時
+        try:
+            done_set = set()
+            for fut in as_completed(futs, timeout=0.2):
+                done_set.add(fut)
+                code = futs[fut]
+                try:
+                    results[code] = fut.result(timeout=0.05)
+                except Exception:
+                    results[code] = None
+                if time.time() > deadline:
+                    break
+            for fut in done_set:
+                futs.pop(fut, None)
+        except TimeoutError:
+            pass
+    now = time.time()
+    # 已完成的寫入 cache
+    for code, q in results.items():
+        _QUOTE_CACHE[code] = (now, q)
+    # 未完成的（仍在 futs 或 pending）寫入 None
+    for fut, code in list(futs.items()):
+        results[code] = None
+        _QUOTE_CACHE[code] = (now, None)
+    for code in pending:
+        results[code] = None
+        _QUOTE_CACHE[code] = (now, None)
     for p in positions:
         code = str(p.get("code") or p.get("ticker") or "")
         q = results.get(code) if code else None

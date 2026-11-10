@@ -17,10 +17,13 @@
 
 ## 報價總時限（Risks）
 整批 enrichment 硬上限 ≤9 秒（明顯小於前端 15s Abort）。  
-`as_completed` 逾時會被捕捉，未完成檔位寫入 cache=`None`，後續不再同步長等。
+`_safe_quote` 使用獨立短生命週期執行緒做單檔逾時，**不**與 batch 共用 `_executor`，避免同池巢狀等待。  
+batch 只提交純 `_fetch_quote_raw` 到 `_executor`。  
+`as_completed` 逾時會被捕捉，未完成檔位寫入 cache=`None`，後續以 `quote_provided=True` 傳入不再同步 fetch。
 
 ## 時點與過期
-持倉快照時點與報價時點分開標示。模擬過期門檻：盤中 300s、盤後 3600s（台北時間）。
+持倉快照時點與報價時點分開標示。模擬過期門檻：盤中 300s、盤後 3600s（台北時間）。  
+使用 `webapp._sim_snapshot_stale(age_s, market_hours)`（與 `api_sim` 共用）。
 
 ## 規格 AC 原文（節錄）
 AC-1 兩帳戶各自顯示所有持股，包含模擬帳戶舊持股及其原有標示；不得混合帳戶資料。  
@@ -60,12 +63,14 @@ ALL ENRICH TESTS PASS
 |------|------|
 | `paper_day_heat.png` | 紙上帳戶 · 今日漲跌熱力圖 |
 | `paper_pnl_heat.png` | 紙上帳戶 · 買入後損益熱力圖 |
-| `paper_table.png` | 紙上帳戶 · 原表格視圖（8 欄） |
+| `paper_table.png` | 紙上帳戶 · 表格視圖（visibility 切換 + fixture 手填原 8 欄表頭／列；非正式 `render()` 像素證據） |
 | `sim_normal_day_heat.png` | 模擬帳戶 · 正常（非過期）今日漲跌熱力圖 |
 | `sim_normal_pnl_heat.png` | 模擬帳戶 · 正常（非過期）買入後損益熱力圖 |
-| `sim_table.png` | 模擬帳戶 · 原表格視圖（7 欄，含備註） |
+| `sim_table.png` | 模擬帳戶 · 表格視圖（visibility 切換 + fixture 手填原 7 欄含備註；非正式 `renderSim()` 像素證據） |
 | `paper_missing.png` | 紙上熱力圖 + 「無法配置面積」清單 |
 | `paper_empty.png` | 紙上熱力圖空態「沒有持股」 |
 | `paper_invalid_cost.png` | 紙上熱力圖 · 買入後損益模式（無效成本顯示「—」） |
 | `sim_stale.png` | 過期快照 + 舊持股 |
 | `load_fail.png` | 載入失敗文案 |
+
+**表格證據說明（選項 B）**：`paper_table.png`／`sim_table.png` 為切換到表格模式後，由證據腳本在 fixture 中手動填入與正式面板相同的欄位表頭與範例列，用以證明 visibility 切換與欄位名稱可見。正式面板的欄位內容由 `app.js` 的 `render()`／`renderSim()` 保證，不在此截圖中驗證生產 render 輸出。
