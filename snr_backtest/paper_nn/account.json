@@ -1,6 +1,6 @@
 {
   "cash": 7910.73,
-  "equity": 905185.23,
+  "equity": 944717.03,
   "initial_cash": 1000000.0,
   "positions": [
     {
@@ -15,8 +15,8 @@
       "nn_rank": 6,
       "nn_score": 0.013379405,
       "industry": "半導體業",
-      "last": 2505.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 2755.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "6654",
@@ -30,8 +30,8 @@
       "nn_rank": 23,
       "nn_score": 0.008020617,
       "industry": "其他電子業",
-      "last": 174.0,
-      "price_src": "shioaji 2026-11-10 13:30"
+      "last": 178.0,
+      "price_src": "shioaji 2026-11-11 13:19"
     },
     {
       "ticker": "3189",
@@ -45,8 +45,8 @@
       "nn_rank": 31,
       "nn_score": 0.0071814284,
       "industry": "半導體業",
-      "last": 745.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 741.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "6957",
@@ -60,8 +60,8 @@
       "nn_rank": 32,
       "nn_score": 0.0071650026,
       "industry": "其他業",
-      "last": 453.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 443.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "1780",
@@ -76,7 +76,7 @@
       "nn_score": 0.0071637826,
       "industry": "食品工業",
       "last": 23.7,
-      "price_src": "shioaji 2026-11-10 13:30"
+      "price_src": "shioaji 2026-11-11 13:19"
     },
     {
       "ticker": "6870",
@@ -90,8 +90,8 @@
       "nn_rank": 38,
       "nn_score": 0.0067313476,
       "industry": "數位雲端",
-      "last": 449.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 493.5,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "1303",
@@ -105,8 +105,8 @@
       "nn_rank": 8,
       "nn_score": 0.013826664,
       "industry": "塑膠工業",
-      "last": 289.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 313.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "7610",
@@ -120,8 +120,8 @@
       "nn_rank": 11,
       "nn_score": 0.013176622,
       "industry": "未知",
-      "last": 1245.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 1330.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "3532",
@@ -135,8 +135,8 @@
       "nn_rank": 13,
       "nn_score": 0.012765797,
       "industry": "半導體業",
-      "last": 302.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 303.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "3055",
@@ -150,8 +150,8 @@
       "nn_rank": 18,
       "nn_score": 0.01148646,
       "industry": "電子通路業",
-      "last": 131.5,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 137.5,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "6696",
@@ -165,8 +165,8 @@
       "nn_rank": 19,
       "nn_score": 0.010911537,
       "industry": "未知",
-      "last": 163.0,
-      "price_src": "shioaji 2026-11-10 14:59"
+      "last": 166.5,
+      "price_src": "shioaji 2026-11-11 15:00"
     },
     {
       "ticker": "2408",
@@ -180,8 +180,8 @@
       "nn_rank": 22,
       "nn_score": 0.0105862,
       "industry": "半導體業",
-      "last": 383.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 394.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "1709",
@@ -195,8 +195,8 @@
       "nn_rank": 24,
       "nn_score": 0.010072379,
       "industry": "化學工業",
-      "last": 45.6,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 50.1,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "6586",
@@ -210,8 +210,8 @@
       "nn_rank": 25,
       "nn_score": 0.0100388285,
       "industry": "未知",
-      "last": 74.4,
-      "price_src": "shioaji 2026-11-10 14:59"
+      "last": 76.2,
+      "price_src": "shioaji 2026-11-11 14:59"
     },
     {
       "ticker": "2059",
@@ -225,8 +225,8 @@
       "nn_rank": 26,
       "nn_score": 0.009929638,
       "industry": "電子零組件業",
-      "last": 8565.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 8730.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "6538",
@@ -240,8 +240,8 @@
       "nn_rank": 29,
       "nn_score": 0.009632232,
       "industry": "電子零組件業",
-      "last": 309.5,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 307.5,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "6213",
@@ -255,8 +255,8 @@
       "nn_rank": 31,
       "nn_score": 0.009486407,
       "industry": "電子零組件業",
-      "last": 528.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 580.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "3443",
@@ -270,8 +270,8 @@
       "nn_rank": 38,
       "nn_score": 0.008935375,
       "industry": "半導體業",
-      "last": 7170.0,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 7885.0,
+      "price_src": "shioaji 2026-11-11 14:30"
     },
     {
       "ticker": "3285",
@@ -285,8 +285,8 @@
       "nn_rank": 41,
       "nn_score": 0.008821572,
       "industry": "其他電子業",
-      "last": 44.2,
-      "price_src": "shioaji 2026-11-10 14:30"
+      "last": 48.6,
+      "price_src": "shioaji 2026-11-11 13:30"
     },
     {
       "ticker": "4139",
@@ -300,15 +300,15 @@
       "nn_rank": 44,
       "nn_score": 0.008704928,
       "industry": "生技醫療業",
-      "last": 35.3,
-      "price_src": "shioaji 2026-11-10 13:30"
+      "last": 35.6,
+      "price_src": "shioaji 2026-11-11 13:30"
     }
   ],
   "pending": [],
   "strategy": "nn_top20_buf40_ind30",
   "created_at": "2026-10-29 23:52:41+0800",
-  "last_session": "2026-11-10",
+  "last_session": "2026-11-11",
   "last_target": "2026-10",
   "paper_only": true,
-  "updated_at": "2026-11-10 16:00:03+0800"
+  "updated_at": "2026-11-11 16:00:02+0800"
 }
