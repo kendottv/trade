@@ -1,190 +1,209 @@
 {
  "source": "rss_live",
- "as_of": "2026-11-11 21:30:09+08:00",
+ "as_of": "2026-11-12 21:30:21+08:00",
  "window_hours": 24,
- "news_count": 315,
+ "news_count": 290,
  "hot_keywords": [
   {
-   "keyword": "AI",
-   "count": 48
-  },
-  {
    "keyword": "輝達",
-   "count": 48
+   "count": 91
   },
   {
-   "keyword": "Fed/利率",
-   "count": 32
+   "keyword": "AI",
+   "count": 56
   },
   {
    "keyword": "半導體",
-   "count": 31
+   "count": 20
   },
   {
-   "keyword": "匯率",
-   "count": 8
-  },
-  {
-   "keyword": "PCB/載板",
+   "keyword": "Fed/利率",
    "count": 7
   },
   {
-   "keyword": "重電/電力",
+   "keyword": "伺服器",
+   "count": 6
+  },
+  {
+   "keyword": "機器人",
    "count": 3
   },
   {
-   "keyword": "電動車",
+   "keyword": "記憶體",
+   "count": 3
+  },
+  {
+   "keyword": "AI伺服器",
+   "count": 3
+  },
+  {
+   "keyword": "CPO/矽光子",
    "count": 2
   },
   {
-   "keyword": "先進製程/封裝",
-   "count": 2
-  },
-  {
-   "keyword": "關稅/貿易",
-   "count": 2
+   "keyword": "重電/電力",
+   "count": 1
   }
  ],
  "hot_stocks": [
   {
    "code": "2330",
    "name": "台積電",
-   "count": 61
-  },
-  {
-   "code": "6894",
-   "name": "衛司特",
-   "count": 6
-  },
-  {
-   "code": "6903",
-   "name": "巨漢",
-   "count": 5
-  },
-  {
-   "code": "6112",
-   "name": "邁達特",
-   "count": 4
+   "count": 26
   },
   {
    "code": "1802",
    "name": "台玻",
-   "count": 4
+   "count": 7
   },
   {
-   "code": "6770",
-   "name": "力積電",
-   "count": 3
+   "code": "2308",
+   "name": "台達電",
+   "count": 6
+  },
+  {
+   "code": "2457",
+   "name": "飛宏",
+   "count": 5
   },
   {
    "code": "2454",
    "name": "聯發科",
-   "count": 3
-  },
-  {
-   "code": "3025",
-   "name": "星通",
-   "count": 2
-  },
-  {
-   "code": "6446",
-   "name": "藥華藥",
-   "count": 2
+   "count": 5
   },
   {
    "code": "1303",
    "name": "南亞",
-   "count": 2
+   "count": 3
+  },
+  {
+   "code": "2419",
+   "name": "仲琦",
+   "count": 3
+  },
+  {
+   "code": "2066",
+   "name": "世德",
+   "count": 3
+  },
+  {
+   "code": "3122",
+   "name": "笙泉",
+   "count": 3
+  },
+  {
+   "code": "4561",
+   "name": "健椿",
+   "count": 3
   }
  ],
  "held_mentions": [
   {
    "held": [
-    "7856 漢測"
+    "1303 南亞"
    ],
-   "title": "漢測Q3認列員工認股一次性費用11.18億元 每股虧10.23元",
-   "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9oSTNDeGJaMEJfLW1pcU1GTXFNamNSWk04ZUR1MUllWHJsNHotX1B5VTRLdEVLS1ctYVBJblk1elVIdHFjb0FMQ25QWQ?oc=5"
+   "title": "【即時新聞】最新台股大跌南亞爆量下挫，成交值衝破464億排第三！",
+   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQM0pYZmZNeE9veGdQM3VlcFVBSHk0QjNHaDl5X2VKSjMwc2doWDhHemdiR3hYRFV0R2VUR3lsY0U1cUZIelYta2FVVE1HTmh1Tk5Ld3kyMnZvMUNUWTRjbEhCc1ljcEkxNmFzc3FSYkkyY19fZFU1S0hGckFudjRyc3BIaGc5TXEwbHdWZW9IMEw?oc=5"
   },
   {
    "held": [
     "1303 南亞"
    ],
-   "title": "【即時新聞】今日台股大漲逾千點，南亞最新表現跟隨大盤強勢反彈貢獻漲點！",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxOVm1vWGhvOEFuWW5zalY0YWEyTTJMMXIyOWcya1BDRW9TSVQ1MFdjWDFfa2tjWHZ0WDExOG9xcEYtZi1YOFF1aDBQRzJSUHNzNmZBV2ZXSlNNc29fNmstUEhMYVIyclA4X1MxQmowdVMzMUpTdnVUUWtKVmd1d0RTVDBBdGloNUlrWjFYMHZYMUY?oc=5"
+   "title": "【即時新聞】最新台股重挫千點拖累，南亞今日成交量大增股價表現疲軟！",
+   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPZG12a0kwSG5JLURqWG9PYUNwSjJORk00RG5FSU44UVU0OXY4czVsTGZqSW5ORlBZeVdPLWk3dVR4bGJkRnZzT2lfZ1Y4Ym9TUlpiQ2gzQnJWbFdJbmg2VVU3N0F6UEd6dmREUnRjMWVuZmg1SWJZbFlzVUx0YjJKeEs4bmhUNGZNVjIzYmpZQ3I?oc=5"
+  },
+  {
+   "held": [
+    "3189 景碩"
+   ],
+   "title": "台股重挫1165點、驚險守住4萬3！台積電跌55元 南電、景碩跌停",
+   "link": "https://news.google.com/rss/articles/CBMi3wJBVV95cUxOZEs1MzRSUzlOQ3FWNnI5TEc2SnF3ay1ieHk3OWlkb1Vaa0REWEV6UFFOTXVPbm44TFBSZ0M3clFYSzlfdlZfd19UUXY2MkxiUUVPRTZHNi02cnBSUXBiRW5NZm5GOHFMNGZqY2NVb2dLZmdQdGMzNml1V0JXUGUwZkczMERuRURGWF9DWnh2dVN1bGNZLVQ1VC0wTFdIRnFELXI3d1ZvRE5uSXJRYU8zZVJ6dGVnSDNVX0hnRE96WXdDNVNSeE1pcUJvODlPYlB1UzZIRkJDUkprR0g1QzdfUHF1NXVpZmlieFpPZ25CeW5MV1VNZi13RDdxY1RYS0IzekdDMEJSRFBKeTJfVUdlRnR0WFMwNnZzWGpDZXdwMTJ1SllreXROVC1Rb2RMSFZjWEpia3ZkR1JNNlR3THVIV1d3bE02cEFuMm42bWc0dzItZzl0Ulk5bGJQZnVGeGM?oc=5"
+  },
+  {
+   "held": [
+    "3189 景碩"
+   ],
+   "title": "MSCI 是什麼？2026 年 11 月公告台股增 3 刪 4，景碩恐延後納入",
+   "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE4tUW5YTlFCZHB4N3JRQURMWEZNUzdIOWlTcGk4T0RfOFIzSXdDWjNhZS1aZzE2d1dCUTJVdFhBZW5NQzhsV29uSTcyaWNhTUV2WFo5OVAyOGR4R0ZoTm1IaE9uNWpkZw?oc=5"
   },
   {
    "held": [
     "1303 南亞"
    ],
-   "title": "終止連23賣！外資回補台積電 賣超力積電、仁寶、南亞",
-   "link": "https://tw.stock.yahoo.com/news/%E7%B5%82%E6%AD%A2%E9%80%A323%E8%B3%A3-%E5%A4%96%E8%B3%87%E5%9B%9E%E8%A3%9C%E5%8F%B0%E7%A9%8D%E9%9B%BB-%E8%B3%A3%E8%B6%85%E5%8A%9B%E7%A9%8D%E9%9B%BB-%E4%BB%81%E5%AF%B6-%E5%8D%97%E4%BA%9E-091200674.html"
+   "title": "【台股3萬8抄底大調查2】台股3天絕地反攻7檔權值股漲贏大盤！散戶「押對寶」南亞狂噴30%奪冠台達電也成大贏家",
+   "link": "https://news.google.com/rss/articles/CBMimgVBVV95cUxPZFotXzE4YVdiaXJKTXpNZ2s5VnYtVk5aMFVXVUx2RDdoZGlOaUZoM1RGSEQtNzlIQ1lHOUxITlJtSnI1T1pGT3llX2dNZlMxX19IUXpqRWNCREs4ZlF1Y0hhV24xdF9vdmFfUi1iRlFvcFRqZUJZSGM4OGV4M1YwbTRXeVJ3cVNPZEtiNFI3V0RlTHFjaGpTUlRNb1JLSjJEOHFtMmsyc1VtakV5dExyckluRnpfVndtYjdaY3pRU1NSbHhLZFZwWUl3LXo5X183cVhGQ0RaTGg1bVRMYXU1OGhjUGtxTXBCOExZNkRLeUJDVXVxY1BJZ2N3MlZuU1VfQU1fblFRblBSQjQ4WEpxd0RURUpBZGVQRTlCV2N3WkNnWVVUdlUwckNPNkxtSzlSRTV5NkdvVWI4SDU3UE4wbEpBWXZtQXJsZzhiYTBhejZ2Rl9GQkg2YmZ1VURDR2FTRUpXbEtlNzB2Qkc5c2VNVXZIVGZSUFNKakdzb2huOUNQd3JmcERXeVA5cWtNWFVHQ0FQY0FRSnFjYlJOaW9CcDcyMUJQYlZhTzZvNkl3UlJRd01fLU9xejFmOTM4MWZWOGo5eVgxcHlrdTJibzBMSEgtRFptNk1LY1dJeFhYeXdoM3hpcS1BTDVnV2dZUlFIV3hMSk56ZUM4X2VGRG16QmVZS25rSVRYOHdMQWcxSDdXNXhtdlVob0R5NVhFRGM3T0NrR211blZvUGR2OEt1LVRSckFZSmxfeGkxc1VINURqNGNRMG9oU290eGNvS1hhN0NOVndaM29zNEFBd3dpdVJ3SWVjTkVmWVM4LXU5bVFubG5rT3VGQjR4WThHdTZ4YnBxaXpUbDlITHBEekpLTHA3ckdYNnFWd0E?oc=5"
+  },
+  {
+   "held": [
+    "3189 景碩"
+   ],
+   "title": "MSCI季調出爐！台股新增景碩、南電、台燿等3檔 刪除萬海等4檔",
+   "link": "https://news.google.com/rss/articles/CBMikANBVV95cUxPenJYaGxDck9sc3lyVDYwT3pJZC15TXVSdjhKWFRmWGNVXzAzZ21YWmVRLUR3ei04TFMzam1idEVuandKZXVTSmZXX0JJNTZxSmtRSVYteVc0QzRrTVV5MUF0ZnZHU0NNZkFFQm9NeVlyMVNKbk9BbGwzYXN0SUZnYmxSa0tJN2hsOVJWR3FjNUJVTnpkWTJLTDFyYTd0TUx3ZlpYUzd0MThVR2p0VVNlWl90Z0xldkItazhodU1uNnBQQ3htN3ZuZzJHYlphQmJQakdSYm0zN29hQ1l4QmktSlgxemV6U3llemppOEowYkpzaEFTbUtvem44eEhtWVlkUnFjanpyTFp1NXk0TzBXSmNPUmZYQzZwVEF5VFBsV1Y3YkxVVWM1T01fVGtNS3RDTVBtajhCMG9CemVsOXNtaVVFSnh3TlFrbUxLbFdwRllxYUkybllTWUcxMlYxR1FZNFd5NzQ1ZHZLRDQ0OGoyQU1UNVJxU183UGc5NE16NEdFQXZfWHZ6VzRjdEhva0NR?oc=5"
   }
  ],
- "held_mention_count": 3,
+ "held_mention_count": 6,
  "headlines": [
   {
-   "time": "11-11 21:27",
-   "title": "漢測Q3認列員工認股一次性費用11.18億元 每股虧10.23元",
-   "link": "https://news.google.com/rss/articles/CBMiS0FVX3lxTE9oSTNDeGJaMEJfLW1pcU1GTXFNamNSWk04ZUR1MUllWHJsNHotX1B5VTRLdEVLS1ctYVBJblk1elVIdHFjb0FMQ25QWQ?oc=5",
+   "time": "11-12 21:26",
+   "title": "川普喊「不需要與伊朗達成協議」！國際油價應聲上漲、美股期貨承壓",
+   "link": "https://news.cnyes.com/news/id/6660852",
    "publisher": "鉅亨網",
-   "stocks": [
-    "7856 漢測"
-   ]
+   "stocks": []
   },
   {
-   "time": "11-11 21:15",
-   "title": "【美股盤前】聯準會理事「1句話 」 年底反彈行情告吹？",
-   "link": "https://tw.news.yahoo.com/%E7%BE%8E%E8%82%A1%E7%9B%A4%E5%89%8D-%E8%81%AF%E6%BA%96%E6%9C%83%E7%90%86%E4%BA%8B-1%E5%8F%A5%E8%A9%B1-%E5%B9%B4%E5%BA%95%E5%8F%8D%E5%BD%88%E8%A1%8C%E6%83%85%E5%91%8A%E5%90%B9-131500149.html",
+   "time": "11-12 21:23",
+   "title": "那斯達克改了，白天也能買美股！24小時股市正在改變投資人的風險 | 個人理財 | 理財",
+   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5rbkh5VUV4MEZzTFo1MVd3TGxTb25PQ2l5MkNrbEx3ZXZzcjJwcXZITUdOQlRObXkzelZlcDlLcXRlSy1FZWczLTZ0aDNQeXo1SXVnYS0wX3VzMEU?oc=5",
+   "publisher": "經濟日報",
+   "stocks": []
+  },
+  {
+   "time": "11-12 21:16",
+   "title": "黃仁勳醜聞會害中國買不到輝達算力？AI業者搶租海外資料中心，路透：擔心美國堵漏洞",
+   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E9%86%9C%E8%81%9E%E6%9C%83%E5%AE%B3%E4%B8%AD%E5%9C%8B%E8%B2%B7%E4%B8%8D%E5%88%B0%E8%BC%9D%E9%81%94%E7%AE%97%E5%8A%9B-ai%E6%A5%AD%E8%80%85%E6%90%B6%E7%A7%9F%E6%B5%B7%E5%A4%96%E8%B3%87%E6%96%99%E4%B8%AD%E5%BF%83-%E8%B7%AF%E9%80%8F-%E6%93%94%E5%BF%83%E7%BE%8E%E5%9C%8B%E5%A0%B5%E6%BC%8F%E6%B4%9E-131614454.html",
    "publisher": "yahoo_intl",
    "stocks": []
   },
   {
-   "time": "11-11 21:12",
-   "title": "俄方公布本輪俄美烏三方會談成果 沒和歐方接觸",
-   "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1BMlpxWEFYX2x5TGhoZm84SmQ3b1l6S0lyckk4TDI2cjhPd3Z6ZVdBWExYYm9oSHFweWRsdWJsRWUwREQ4OGJjbEdwZTlkUEE?oc=5",
-   "publisher": "鉅亨網",
+   "time": "11-12 21:14",
+   "title": "台股暴跌1165.28點！今日上市融資僅減76.83億元",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBnRjQzMEMxNXZSaFZuUzFuaVpad0Fxbk1GTXhyMFRENnBLUjUwSmlNcGJjTnU2cU5ldHFXdFZFMUQzVGRRdjdyRVF2X0pwLVV0OVhIOVV6ZXI?oc=5",
+   "publisher": "自由時報",
    "stocks": []
   },
   {
-   "time": "11-11 21:08",
-   "title": "HOOD Robinhood Markets - 標題 : 加密衝刺美股交易營運加速卻遭發行公司大規模反擊- 股市爆料同學會",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1jNUVTMHJ6M1lreWRGX2NyTFpvS1hkMG1aLUt0WFZqbm9YM3lrQ0g4ZTFYRDZDZG1OTGx3cGc0NDVTMjQ1ODJjQ2VacjBsU25YN0Y3SE1QU0M?oc=5",
+   "time": "11-12 21:10",
+   "title": "【即時新聞】Wolverine(WWW)第三季獲利擊敗華爾街預期！調整後EPS達0.79美元，股價爆量轉強",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBKb3V0RC1fQ0ZmOXNyNHZoTU03Qm5FbzJuVjNncWZRYUxnMVJ3X0NzYUwyVzZzNGYwYlQzMmN2cVduZUtjMFBjQ0J6anQxZ01mdDFqSHlwU2txT3I0TTdMdWttVE00LW8?oc=5",
    "publisher": "CMoney",
    "stocks": []
   },
   {
-   "time": "11-11 21:08",
-   "title": "標題 : 加密衝刺美股交易 營運加速卻遭發行公司大規模反擊",
-   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxPWnJaUlJqR2FIcmJMbF9fbUM0em5RS0gtdmJYM202TFp2dEdWaDZBdFRlekV5UUo0cDVPZ1dvUlVRMGFsVTBGYWh1T0ZxMV94T2RFMk1aU044bGlNc3FsdmN3OTVYVHlRWEx0OWpGMVpyS195WXZwWnZsbXp6VTBJejYtQXVhVmo1c3lFZXBR?oc=5",
-   "publisher": "CMoney投資網誌",
-   "stocks": []
-  },
-  {
-   "time": "11-11 21:08",
-   "title": "CRWV CoreWeave - 美股期指走高、Nvidia回彈領軍AI股復甦；十年期公債殖利率再逼近5% 引發資金重調- 股市爆料同學會",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBVQVhTcEVGWkxsbHlQa2V4bkstMmFVOUY3eEJtOFlseDJubF9yd0tseXF1S2V3ZElIeFFFd3hlMVFvWDlUMERod1hwcXFQTzJDLUxBcUVNRXA?oc=5",
+   "time": "11-12 21:06",
+   "title": "【即時新聞】Mobility Global(MBGL)第三季獲利超越華爾街預期！調整後EPS達40美分，全年營收上看18.9億美元",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1iVHRXOEtYa3kwUVB2aGloTHo2TmpsaHkwakJER0w3MGg1ZGdfU3NrcjNxT3JEVzE1a1FvZl9jTFJkM1FRRTJzb25HenQ3QUVWSUd3SjNncjMwLVBKZ2pyZ3ZVV2FnQ00?oc=5",
    "publisher": "CMoney",
    "stocks": []
   },
   {
-   "time": "11-11 21:08",
-   "title": "美股期指走高、Nvidia回彈領軍AI股復甦；十年期公債殖利率再逼近5% 引發資金重調",
-   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOUDNWM2VPLWtkcFNVa0FtYkNleW5vd1JTVDlNbnhuQ1h5UmFxY0hhLTlCczNUSmZkSmUxamR1VFBYektvbEE3bGM1WWc5eUw0dWlza0xFSjB5R3BSYmRQRmZmdU5fMTFsbFlZRV9TcFJJa21LcThiTXhlam9hYTVGeERncFVCZkllejJLZ2t3?oc=5",
+   "time": "11-12 21:05",
+   "title": "【即時新聞】最新台股大跌南亞爆量下挫，成交值衝破464億排第三！",
+   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQM0pYZmZNeE9veGdQM3VlcFVBSHk0QjNHaDl5X2VKSjMwc2doWDhHemdiR3hYRFV0R2VUR3lsY0U1cUZIelYta2FVVE1HTmh1Tk5Ld3kyMnZvMUNUWTRjbEhCc1ljcEkxNmFzc3FSYkkyY19fZFU1S0hGckFudjRyc3BIaGc5TXEwbHdWZW9IMEw?oc=5",
    "publisher": "CMoney投資網誌",
-   "stocks": []
-  },
-  {
-   "time": "11-11 21:05",
-   "title": "台積電入手OpenAI特別股 利空還是利多？",
-   "link": "https://tw.news.yahoo.com/%E5%8F%B0%E7%A9%8D%E9%9B%BB%E5%85%A5%E6%89%8Bopenai%E7%89%B9%E5%88%A5%E8%82%A1-%E5%88%A9%E7%A9%BA%E9%82%84%E6%98%AF%E5%88%A9%E5%A4%9A-130500580.html",
-   "publisher": "yahoo_tw_market",
    "stocks": [
-    "2330 台積電"
+    "1303 南亞"
    ]
+  },
+  {
+   "time": "11-12 21:04",
+   "title": "【即時新聞】受惠資料中心需求！Forgent Power(FPS)首季獲利擊敗華爾街預期，股價狂飆逾14%",
+   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9QZWJWZlZPZGlKRjU0STgyTEdNSjVVbFJoUkxnb3drWmZvdWVWLUhCdmxOU0Z5OGRUOXd1RExlQ1VpYmhfN1A0OGwtNDBnY1RWdERnSE5lbi1ZcG95OWlTX1preVpvZE0?oc=5",
+   "publisher": "CMoney",
+   "stocks": []
   }
  ],
  "sources": {
-  "yahoo_tw_market": "ok (50)",
+  "yahoo_tw_market": "error: ReadTimeout: HTTPSConnectionPool(host='tw.stock.yahoo.com', port=443): Read timed out. (read timeout=15)",
   "yahoo_intl": "ok (50)",
   "gnews_tw": "ok (100)",
   "gnews_us": "ok (100)",
