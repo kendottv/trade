@@ -1,99 +1,99 @@
 {
  "source": "rss_live",
- "as_of": "2026-11-12 21:30:21+08:00",
+ "as_of": "2026-11-13 21:30:07+08:00",
  "window_hours": 24,
- "news_count": 290,
+ "news_count": 316,
  "hot_keywords": [
   {
    "keyword": "輝達",
-   "count": 91
+   "count": 131
   },
   {
    "keyword": "AI",
-   "count": 56
+   "count": 55
   },
   {
    "keyword": "半導體",
-   "count": 20
+   "count": 23
   },
   {
    "keyword": "Fed/利率",
-   "count": 7
+   "count": 11
+  },
+  {
+   "keyword": "匯率",
+   "count": 8
   },
   {
    "keyword": "伺服器",
+   "count": 7
+  },
+  {
+   "keyword": "AI伺服器",
    "count": 6
   },
   {
-   "keyword": "機器人",
+   "keyword": "PCB/載板",
+   "count": 3
+  },
+  {
+   "keyword": "電動車",
    "count": 3
   },
   {
    "keyword": "記憶體",
-   "count": 3
-  },
-  {
-   "keyword": "AI伺服器",
-   "count": 3
-  },
-  {
-   "keyword": "CPO/矽光子",
    "count": 2
-  },
-  {
-   "keyword": "重電/電力",
-   "count": 1
   }
  ],
  "hot_stocks": [
   {
    "code": "2330",
    "name": "台積電",
-   "count": 26
-  },
-  {
-   "code": "1802",
-   "name": "台玻",
-   "count": 7
-  },
-  {
-   "code": "2308",
-   "name": "台達電",
-   "count": 6
-  },
-  {
-   "code": "2457",
-   "name": "飛宏",
-   "count": 5
+   "count": 29
   },
   {
    "code": "2454",
    "name": "聯發科",
+   "count": 26
+  },
+  {
+   "code": "3443",
+   "name": "創意",
+   "count": 16
+  },
+  {
+   "code": "2376",
+   "name": "技嘉",
+   "count": 7
+  },
+  {
+   "code": "2303",
+   "name": "聯電",
    "count": 5
   },
   {
-   "code": "1303",
-   "name": "南亞",
+   "code": "9933",
+   "name": "中鼎",
    "count": 3
   },
   {
-   "code": "2419",
-   "name": "仲琦",
+   "code": "1315",
+   "name": "達新",
    "count": 3
   },
   {
-   "code": "2066",
-   "name": "世德",
+   "code": "2317",
+   "name": "鴻海",
    "count": 3
   },
   {
-   "code": "3122",
-   "name": "笙泉",
+   "code": "3661",
+   "name": "世芯-KY",
    "count": 3
   },
   {
-   "code": "4561",
-   "name": "健椿",
+   "code": "2059",
+   "name": "川湖",
    "count": 3
   }
  ],
@@ -102,108 +102,143 @@
    "held": [
     "1303 南亞"
    ],
-   "title": "【即時新聞】最新台股大跌南亞爆量下挫，成交值衝破464億排第三！",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQM0pYZmZNeE9veGdQM3VlcFVBSHk0QjNHaDl5X2VKSjMwc2doWDhHemdiR3hYRFV0R2VUR3lsY0U1cUZIelYta2FVVE1HTmh1Tk5Ld3kyMnZvMUNUWTRjbEhCc1ljcEkxNmFzc3FSYkkyY19fZFU1S0hGckFudjRyc3BIaGc5TXEwbHdWZW9IMEw?oc=5"
+   "title": "南亞受惠投信連14買站上300元 擬斥資115億元建廠支應玻纖布強勁需求",
+   "link": "https://news.cnyes.com/news/id/6661932"
+  },
+  {
+   "held": [
+    "3443 創意"
+   ],
+   "title": "IC設計狂轟猛炸！「這檔」連5漲42%領智原、達發等10檔漲停 聯發科大漲7%、創意飆9%",
+   "link": "https://tw.stock.yahoo.com/news/ic%E8%A8%AD%E8%A8%88%E7%8B%82%E8%BD%9F%E7%8C%9B%E7%82%B8-%E9%80%99%E6%AA%94-%E9%80%A35%E6%BC%B242-%E9%A0%98%E6%99%BA%E5%8E%9F-%E9%81%94%E7%99%BC%E7%AD%8910%E6%AA%94%E6%BC%B2%E5%81%9C-120000388.html"
+  },
+  {
+   "held": [
+    "3443 創意"
+   ],
+   "title": "聯發科、創意、大立光盤中點燈！00401A開盤秒填息「盤中猛漲4.07%」 2萬股民這天領錢",
+   "link": "https://tw.stock.yahoo.com/news/%E8%81%AF%E7%99%BC%E7%A7%91-%E5%89%B5%E6%84%8F-%E5%A4%A7%E7%AB%8B%E5%85%89%E7%9B%A4%E4%B8%AD%E9%BB%9E%E7%87%88-00401a%E9%96%8B%E7%9B%A4%E7%A7%92%E5%A1%AB%E6%81%AF-%E7%9B%A4%E4%B8%AD%E7%8C%9B%E6%BC%B24-111500669.html"
   },
   {
    "held": [
     "1303 南亞"
    ],
-   "title": "【即時新聞】最新台股重挫千點拖累，南亞今日成交量大增股價表現疲軟！",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxPZG12a0kwSG5JLURqWG9PYUNwSjJORk00RG5FSU44UVU0OXY4czVsTGZqSW5ORlBZeVdPLWk3dVR4bGJkRnZzT2lfZ1Y4Ym9TUlpiQ2gzQnJWbFdJbmg2VVU3N0F6UEd6dmREUnRjMWVuZmg1SWJZbFlzVUx0YjJKeEs4bmhUNGZNVjIzYmpZQ3I?oc=5"
+   "title": "〈技嘉法說〉AI伺服器訂單能見度直達2027年底 明年資本支出增至40億元擴產",
+   "link": "https://news.cnyes.com/news/id/6661794"
   },
   {
    "held": [
-    "3189 景碩"
+    "3443 創意"
    ],
-   "title": "台股重挫1165點、驚險守住4萬3！台積電跌55元 南電、景碩跌停",
-   "link": "https://news.google.com/rss/articles/CBMi3wJBVV95cUxOZEs1MzRSUzlOQ3FWNnI5TEc2SnF3ay1ieHk3OWlkb1Vaa0REWEV6UFFOTXVPbm44TFBSZ0M3clFYSzlfdlZfd19UUXY2MkxiUUVPRTZHNi02cnBSUXBiRW5NZm5GOHFMNGZqY2NVb2dLZmdQdGMzNml1V0JXUGUwZkczMERuRURGWF9DWnh2dVN1bGNZLVQ1VC0wTFdIRnFELXI3d1ZvRE5uSXJRYU8zZVJ6dGVnSDNVX0hnRE96WXdDNVNSeE1pcUJvODlPYlB1UzZIRkJDUkprR0g1QzdfUHF1NXVpZmlieFpPZ25CeW5MV1VNZi13RDdxY1RYS0IzekdDMEJSRFBKeTJfVUdlRnR0WFMwNnZzWGpDZXdwMTJ1SllreXROVC1Rb2RMSFZjWEpia3ZkR1JNNlR3THVIV1d3bE02cEFuMm42bWc0dzItZzl0Ulk5bGJQZnVGeGM?oc=5"
+   "title": "你昨天被洗下車了嗎？台積電、富邦金、金像電⊕、德宏⊕、光聖⊕、華新科⊕",
+   "link": "https://news.cnyes.com/news/id/6661772"
   },
   {
    "held": [
-    "3189 景碩"
+    "3443 創意"
    ],
-   "title": "MSCI 是什麼？2026 年 11 月公告台股增 3 刪 4，景碩恐延後納入",
-   "link": "https://news.google.com/rss/articles/CBMiZkFVX3lxTE4tUW5YTlFCZHB4N3JRQURMWEZNUzdIOWlTcGk4T0RfOFIzSXdDWjNhZS1aZzE2d1dCUTJVdFhBZW5NQzhsV29uSTcyaWNhTUV2WFo5OVAyOGR4R0ZoTm1IaE9uNWpkZw?oc=5"
+   "title": "黃仁勳請辭衝擊有限？聯發科、創意強勢領漲 外資終結連11賣",
+   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E8%AB%8B%E8%BE%AD%E8%A1%9D%E6%93%8A%E6%9C%89%E9%99%90-%E8%81%AF%E7%99%BC%E7%A7%91-%E5%89%B5%E6%84%8F%E5%BC%B7%E5%8B%A2%E9%A0%98%E6%BC%B2-%E5%A4%96%E8%B3%87%E7%B5%82%E7%B5%90%E9%80%A311%E8%B3%A3-095505551.html"
   },
   {
    "held": [
-    "1303 南亞"
+    "6538 倉和",
+    "7856 漢測"
    ],
-   "title": "【台股3萬8抄底大調查2】台股3天絕地反攻7檔權值股漲贏大盤！散戶「押對寶」南亞狂噴30%奪冠台達電也成大贏家",
-   "link": "https://news.google.com/rss/articles/CBMimgVBVV95cUxPZFotXzE4YVdiaXJKTXpNZ2s5VnYtVk5aMFVXVUx2RDdoZGlOaUZoM1RGSEQtNzlIQ1lHOUxITlJtSnI1T1pGT3llX2dNZlMxX19IUXpqRWNCREs4ZlF1Y0hhV24xdF9vdmFfUi1iRlFvcFRqZUJZSGM4OGV4M1YwbTRXeVJ3cVNPZEtiNFI3V0RlTHFjaGpTUlRNb1JLSjJEOHFtMmsyc1VtakV5dExyckluRnpfVndtYjdaY3pRU1NSbHhLZFZwWUl3LXo5X183cVhGQ0RaTGg1bVRMYXU1OGhjUGtxTXBCOExZNkRLeUJDVXVxY1BJZ2N3MlZuU1VfQU1fblFRblBSQjQ4WEpxd0RURUpBZGVQRTlCV2N3WkNnWVVUdlUwckNPNkxtSzlSRTV5NkdvVWI4SDU3UE4wbEpBWXZtQXJsZzhiYTBhejZ2Rl9GQkg2YmZ1VURDR2FTRUpXbEtlNzB2Qkc5c2VNVXZIVGZSUFNKakdzb2huOUNQd3JmcERXeVA5cWtNWFVHQ0FQY0FRSnFjYlJOaW9CcDcyMUJQYlZhTzZvNkl3UlJRd01fLU9xejFmOTM4MWZWOGo5eVgxcHlrdTJibzBMSEgtRFptNk1LY1dJeFhYeXdoM3hpcS1BTDVnV2dZUlFIV3hMSk56ZUM4X2VGRG16QmVZS25rSVRYOHdMQWcxSDdXNXhtdlVob0R5NVhFRGM3T0NrR211blZvUGR2OEt1LVRSckFZSmxfeGkxc1VINURqNGNRMG9oU290eGNvS1hhN0NOVndaM29zNEFBd3dpdVJ3SWVjTkVmWVM4LXU5bVFubG5rT3VGQjR4WThHdTZ4YnBxaXpUbDlITHBEekpLTHA3ckdYNnFWd0E?oc=5"
+   "title": "輝達財報17日揭曉 市場將檢驗AI晶片需求延續性",
+   "link": "https://tw.news.yahoo.com/%E8%BC%9D%E9%81%94%E8%B2%A1%E5%A0%B117%E6%97%A5%E6%8F%AD%E6%9B%89-%E5%B8%82%E5%A0%B4%E5%B0%87%E6%AA%A2%E9%A9%97ai%E6%99%B6%E7%89%87%E9%9C%80%E6%B1%82%E5%BB%B6%E7%BA%8C%E6%80%A7-094918297.html"
   },
   {
    "held": [
-    "3189 景碩"
+    "3443 創意"
    ],
-   "title": "MSCI季調出爐！台股新增景碩、南電、台燿等3檔 刪除萬海等4檔",
-   "link": "https://news.google.com/rss/articles/CBMikANBVV95cUxPenJYaGxDck9sc3lyVDYwT3pJZC15TXVSdjhKWFRmWGNVXzAzZ21YWmVRLUR3ei04TFMzam1idEVuandKZXVTSmZXX0JJNTZxSmtRSVYteVc0QzRrTVV5MUF0ZnZHU0NNZkFFQm9NeVlyMVNKbk9BbGwzYXN0SUZnYmxSa0tJN2hsOVJWR3FjNUJVTnpkWTJLTDFyYTd0TUx3ZlpYUzd0MThVR2p0VVNlWl90Z0xldkItazhodU1uNnBQQ3htN3ZuZzJHYlphQmJQakdSYm0zN29hQ1l4QmktSlgxemV6U3llemppOEowYkpzaEFTbUtvem44eEhtWVlkUnFjanpyTFp1NXk0TzBXSmNPUmZYQzZwVEF5VFBsV1Y3YkxVVWM1T01fVGtNS3RDTVBtajhCMG9CemVsOXNtaVVFSnh3TlFrbUxLbFdwRllxYUkybllTWUcxMlYxR1FZNFd5NzQ1ZHZLRDQ0OGoyQU1UNVJxU183UGc5NE16NEdFQXZfWHZ6VzRjdEhva0NR?oc=5"
+   "title": "黃仁勳出事台股不跌反漲！達人揭「晶片板塊挪移」內幕：IC三本柱飆漲",
+   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E5%87%BA%E4%BA%8B%E5%8F%B0%E8%82%A1%E4%B8%8D%E8%B7%8C%E5%8F%8D%E6%BC%B2-%E9%81%94%E4%BA%BA%E6%8F%AD-%E6%99%B6%E7%89%87%E6%9D%BF%E5%A1%8A%E6%8C%AA%E7%A7%BB-%E5%85%A7%E5%B9%95-ic%E4%B8%89%E6%9C%AC%E6%9F%B1%E9%A3%86%E6%BC%B2-093800876.html"
+  },
+  {
+   "held": [
+    "2059 川湖",
+    "3443 創意"
+   ],
+   "title": "台股閃過「黃天鵝」強彈！周線終止連四黑大漲3973點 聯發科強攻領ASIC衝鋒 創意超車川湖首登股后｜Yahoo財經掃描",
+   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E8%82%A1%E9%96%83%E9%81%8E%E3%80%8C%E9%BB%83%E5%A4%A9%E9%B5%9D%E3%80%8D%E5%BC%B7%E5%BD%88%EF%BC%81%E5%91%A8%E7%B7%9A%E7%B5%82%E6%AD%A2%E9%80%A3%E5%9B%9B%E9%BB%91%E5%A4%A7%E6%BC%B23973%E9%BB%9E-%E8%81%AF%E7%99%BC%E7%A7%91%E5%BC%B7%E6%94%BB%E9%A0%98asic%E8%A1%9D%E9%8B%92-%E5%89%B5%E6%84%8F%E8%B6%85%E8%BB%8A%E5%B7%9D%E6%B9%96%E9%A6%96%E7%99%BB%E8%82%A1%E5%90%8E%EF%BD%9Cyahoo%E8%B2%A1%E7%B6%93%E6%8E%83%E6%8F%8F-085902124.html"
+  },
+  {
+   "held": [
+    "2059 川湖",
+    "3443 創意"
+   ],
+   "title": "台股閃過「黃天鵝」強彈！周線終止連四黑大漲3973點聯發科強攻領ASIC衝鋒創意超車川湖首登股后｜Yahoo財經掃描",
+   "link": "https://news.google.com/rss/articles/CBMiiwVBVV95cUxQTHRsZ0lYN2xSTmJtNDlsaEs1XzE0TTF1bjZoVUZ5dm54YXFjUy1SdFhYUGwwaDFZYzY5S1BudGl4TkpMdDlKUkJzdzRDN0c1YWJ2UVc1MjNTdThVUDdmUjVxQnRSZDVRd2xxWkdqOEFoRGxvZjhrSmliZHg3UllPLWN6OUJrM0lJMEZkaXJiRkJpbzZHeGtVVnVhdi1FQ3JmZ0szWHdKbkhoR0dKTmhiREtRVGduaTBkdmYwakl6WEtRT3pWSWh2YkhPOE4tLU5sOTQyQjZTcUkzYWlHUmdTLXE4OTJ2N2NSVkozSDAwVVhMbWw0RWFjMDRJSEFZbGh0blh0T1NwMXZjM3I5UXJUekxqX2FPbTFUYmlmX1czd0hpNnVvWGtadEJKd1Y2TzNoa0Y3NTVNQXlmMXFuUlZaQ1VKSU5hejVCZngxQ2JVeGhxc25ic3hxT2U0aTV1YnotX1FrcG1TWnpmQmtHWjJuQ29HelBTVDNQaHNnX0FXLVh6VGNHSUdRaktTbDhxdjlWalRaQzFPaXFhV3F2Y2hwMmMxVTZVS3ByYXJla0NDcl9kSXRQdU4wUzRMS0FsdUcydzZ0Vkd6NHNqMjZxaVNJVjVkTEw4Nmg2T2tPTTc3aXZYclRURGZzYTVRRDlPSkcwd0YxN1NDMlMzUDgtd1prOVdtc0Y0VXV4VFU4clpmUks1Ul9vLVhUbm1QX3pmWnVIWE5hUC1kdHhuTjNFakFuWVBlcHNQWkQ5eGJKNkdENlQxSDJuUEJwd3BFYlVTRmNmMGtyTFZDTUxoRnFmVEVzWTROZVUzWHdydTFhcjVrVzdZMURyNkVZN1dNaExONnNMMFh2QXNraVpmOE0?oc=5"
   }
  ],
- "held_mention_count": 6,
+ "held_mention_count": 20,
  "headlines": [
   {
-   "time": "11-12 21:26",
-   "title": "川普喊「不需要與伊朗達成協議」！國際油價應聲上漲、美股期貨承壓",
-   "link": "https://news.cnyes.com/news/id/6660852",
-   "publisher": "鉅亨網",
+   "time": "11-13 21:24",
+   "title": "標題 : Nvidia震撼出走牽動美股震盪 歐股憑「少科技」反成最大受惠者",
+   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxObDh2eUxMdURQd3NGMTBTS0NucDJIR1lVN3JFOVg3bGt1NlpCVGppcDl4dWRoV1ZQUzhvQUlRc3R2c3lHY2lpUmV3NW1CYWFnUFZaVUpXR3hjdG85a3J4ZVJxVkRJMWdMWEkxWHRBaGxlVGR5bDVMOTJQeEgtazBpVHpDZjIyZXdzMzh6bXJn?oc=5",
+   "publisher": "CMoney投資網誌",
    "stocks": []
   },
   {
-   "time": "11-12 21:23",
-   "title": "那斯達克改了，白天也能買美股！24小時股市正在改變投資人的風險 | 個人理財 | 理財",
-   "link": "https://news.google.com/rss/articles/CBMiW0FVX3lxTE5rbkh5VUV4MEZzTFo1MVd3TGxTb25PQ2l5MkNrbEx3ZXZzcjJwcXZITUdOQlRObXkzelZlcDlLcXRlSy1FZWczLTZ0aDNQeXo1SXVnYS0wX3VzMEU?oc=5",
-   "publisher": "經濟日報",
-   "stocks": []
-  },
-  {
-   "time": "11-12 21:16",
-   "title": "黃仁勳醜聞會害中國買不到輝達算力？AI業者搶租海外資料中心，路透：擔心美國堵漏洞",
-   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E9%86%9C%E8%81%9E%E6%9C%83%E5%AE%B3%E4%B8%AD%E5%9C%8B%E8%B2%B7%E4%B8%8D%E5%88%B0%E8%BC%9D%E9%81%94%E7%AE%97%E5%8A%9B-ai%E6%A5%AD%E8%80%85%E6%90%B6%E7%A7%9F%E6%B5%B7%E5%A4%96%E8%B3%87%E6%96%99%E4%B8%AD%E5%BF%83-%E8%B7%AF%E9%80%8F-%E6%93%94%E5%BF%83%E7%BE%8E%E5%9C%8B%E5%A0%B5%E6%BC%8F%E6%B4%9E-131614454.html",
+   "time": "11-13 21:15",
+   "title": "【美股盤前】黃仁勳「下台」震撼！創辦人價值多少？",
+   "link": "https://tw.news.yahoo.com/%E7%BE%8E%E8%82%A1%E7%9B%A4%E5%89%8D-%E9%BB%83%E4%BB%81%E5%8B%B3-%E4%B8%8B%E5%8F%B0-%E9%9C%87%E6%92%BC-%E5%89%B5%E8%BE%A6%E4%BA%BA%E5%83%B9%E5%80%BC%E5%A4%9A%E5%B0%91-131500402.html",
    "publisher": "yahoo_intl",
    "stocks": []
   },
   {
-   "time": "11-12 21:14",
-   "title": "台股暴跌1165.28點！今日上市融資僅減76.83億元",
-   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTFBnRjQzMEMxNXZSaFZuUzFuaVpad0Fxbk1GTXhyMFRENnBLUjUwSmlNcGJjTnU2cU5ldHFXdFZFMUQzVGRRdjdyRVF2X0pwLVV0OVhIOVV6ZXI?oc=5",
-   "publisher": "自由時報",
-   "stocks": []
-  },
-  {
-   "time": "11-12 21:10",
-   "title": "【即時新聞】Wolverine(WWW)第三季獲利擊敗華爾街預期！調整後EPS達0.79美元，股價爆量轉強",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTFBKb3V0RC1fQ0ZmOXNyNHZoTU03Qm5FbzJuVjNncWZRYUxnMVJ3X0NzYUwyVzZzNGYwYlQzMmN2cVduZUtjMFBjQ0J6anQxZ01mdDFqSHlwU2txT3I0TTdMdWttVE00LW8?oc=5",
-   "publisher": "CMoney",
-   "stocks": []
-  },
-  {
-   "time": "11-12 21:06",
-   "title": "【即時新聞】Mobility Global(MBGL)第三季獲利超越華爾街預期！調整後EPS達40美分，全年營收上看18.9億美元",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE1iVHRXOEtYa3kwUVB2aGloTHo2TmpsaHkwakJER0w3MGg1ZGdfU3NrcjNxT3JEVzE1a1FvZl9jTFJkM1FRRTJzb25HenQ3QUVWSUd3SjNncjMwLVBKZ2pyZ3ZVV2FnQ00?oc=5",
-   "publisher": "CMoney",
-   "stocks": []
-  },
-  {
-   "time": "11-12 21:05",
-   "title": "【即時新聞】最新台股大跌南亞爆量下挫，成交值衝破464億排第三！",
-   "link": "https://news.google.com/rss/articles/CBMikAFBVV95cUxQM0pYZmZNeE9veGdQM3VlcFVBSHk0QjNHaDl5X2VKSjMwc2doWDhHemdiR3hYRFV0R2VUR3lsY0U1cUZIelYta2FVVE1HTmh1Tk5Ld3kyMnZvMUNUWTRjbEhCc1ljcEkxNmFzc3FSYkkyY19fZFU1S0hGckFudjRyc3BIaGc5TXEwbHdWZW9IMEw?oc=5",
-   "publisher": "CMoney投資網誌",
+   "time": "11-13 21:15",
+   "title": "PCB一片紅！「這檔」連5漲近40%帶德宏等3檔漲停 華通、金像電一度亮燈",
+   "link": "https://news.google.com/rss/articles/CBMikgJBVV95cUxNRzBOZ1ZqWVAtaWdtZ0RZbFFHejM0RW80TU9ZdjBnWW9BcTdmTnl4RVJMZzlzNnpyeTlXTGxlcE50LUIwU3IyVUFuZTVJMHFTVEpvMDlDUVBFUW9HVlRoYl9QN2lwSUI5dGNyX3lyTUx4Wl8tUGZRa2tVellVSENBLWZjQmJqSzV6WEQybE9pakhhOHl1S21ad1l1QXdTc19NTEhKclA3Y0FoTnl0YzBTSVBrZTZfUmc2dFFjbkVMbTBrNHI2YnlHdUNnZVlIVmcwYXBfY2wyTGllbE9CUjJTanpZZ0RmT19FU1VXU0p2X1FLSVQ5a0FIN253bDVEbHpPQ2thNElNZU95NWdBNDU3NW5B?oc=5",
+   "publisher": "Yahoo股市",
    "stocks": [
-    "1303 南亞"
+    "2313 華通",
+    "2368 金像電",
+    "5475 德宏"
    ]
   },
   {
-   "time": "11-12 21:04",
-   "title": "【即時新聞】受惠資料中心需求！Forgent Power(FPS)首季獲利擊敗華爾街預期，股價狂飆逾14%",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9QZWJWZlZPZGlKRjU0STgyTEdNSjVVbFJoUkxnb3drWmZvdWVWLUhCdmxOU0Z5OGRUOXd1RExlQ1VpYmhfN1A0OGwtNDBnY1RWdERnSE5lbi1ZcG95OWlTX1preVpvZE0?oc=5",
+   "time": "11-13 21:07",
+   "title": "標題 : 納斯達克回檔！英偉達CEO驟辭衝擊AI題材，市場避險與利率憂慮雙重夾擊",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE9KMEF1aUZ4NkFXQ0pxNmdEOExKb2FhMVFMUndUTkcyQUExRlVaNXVwQS1XVllGRlJINkU1SjlaRktJXzdPQjBlWXdKNUFOc1pDSTJSb0s4S1I?oc=5",
    "publisher": "CMoney",
    "stocks": []
+  },
+  {
+   "time": "11-13 21:03",
+   "title": "黃仁勳卸任輝達執行長 矽谷不安看待AI產業可能衝擊",
+   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E5%8D%B8%E4%BB%BB%E8%BC%9D%E9%81%94%E5%9F%B7%E8%A1%8C%E9%95%B7-%E7%9F%BD%E8%B0%B7%E4%B8%8D%E5%AE%89%E7%9C%8B%E5%BE%85ai%E7%94%A2%E6%A5%AD%E5%8F%AF%E8%83%BD%E8%A1%9D%E6%93%8A-130359774.html",
+   "publisher": "yahoo_intl",
+   "stocks": []
+  },
+  {
+   "time": "11-13 21:01",
+   "title": "大賣空本尊看衰輝達！喊話投資人：趕緊下車",
+   "link": "https://tw.news.yahoo.com/%E5%A4%A7%E8%B3%A3%E7%A9%BA%E6%9C%AC%E5%B0%8A%E7%9C%8B%E8%A1%B0%E8%BC%9D%E9%81%94-%E5%96%8A%E8%A9%B1%E6%8A%95%E8%B3%87%E4%BA%BA-%E8%B6%95%E7%B7%8A%E4%B8%8B%E8%BB%8A-130116836.html",
+   "publisher": "yahoo_intl",
+   "stocks": []
+  },
+  {
+   "time": "11-13 21:00",
+   "title": "AI股跌出買點？高盛看標普上探8700點 點名大型雲端股",
+   "link": "https://news.google.com/rss/articles/CBMiT0FVX3lxTE1mbG1WZVZSVU9qb2FHVm5aSHRrVVhqd1FrTGpxZHJIYzFBWUJuek0yNmw3Ym5NaFkxbDBrQjN6aEg1ZUpCelJMX2dReVRDRTQ?oc=5",
+   "publisher": "鉅亨網",
+   "stocks": []
+  },
+  {
+   "time": "11-13 20:56",
+   "title": "川普昔想「對輝達出手」！1關鍵「他改變想法」認：不容易",
+   "link": "https://tw.news.yahoo.com/%E5%B7%9D%E6%99%AE%E6%98%94%E6%83%B3-%E5%B0%8D%E8%BC%9D%E9%81%94%E5%87%BA%E6%89%8B-1%E9%97%9C%E9%8D%B5-%E4%BB%96%E6%94%B9%E8%AE%8A%E6%83%B3%E6%B3%95-%E8%AA%8D-125613959.html",
+   "publisher": "yahoo_intl",
+   "stocks": [
+    "3167 大量"
+   ]
   }
  ],
  "sources": {
-  "yahoo_tw_market": "error: ReadTimeout: HTTPSConnectionPool(host='tw.stock.yahoo.com', port=443): Read timed out. (read timeout=15)",
+  "yahoo_tw_market": "ok (50)",
   "yahoo_intl": "ok (50)",
   "gnews_tw": "ok (100)",
   "gnews_us": "ok (100)",
