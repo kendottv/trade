@@ -1,80 +1,70 @@
 {
  "source": "rss_live",
- "as_of": "2026-11-14 21:30:07+08:00",
+ "as_of": "2026-11-15 21:30:08+08:00",
  "window_hours": 24,
- "news_count": 315,
+ "news_count": 226,
  "hot_keywords": [
   {
    "keyword": "輝達",
-   "count": 152
+   "count": 96
   },
   {
    "keyword": "AI",
-   "count": 61
+   "count": 55
   },
   {
    "keyword": "半導體",
-   "count": 37
+   "count": 17
   },
   {
    "keyword": "Fed/利率",
-   "count": 15
-  },
-  {
-   "keyword": "伺服器",
-   "count": 6
-  },
-  {
-   "keyword": "匯率",
-   "count": 6
-  },
-  {
-   "keyword": "AI伺服器",
-   "count": 4
-  },
-  {
-   "keyword": "散熱",
-   "count": 4
-  },
-  {
-   "keyword": "電動車",
-   "count": 4
+   "count": 10
   },
   {
    "keyword": "PCB/載板",
-   "count": 4
+   "count": 5
+  },
+  {
+   "keyword": "重電/電力",
+   "count": 3
+  },
+  {
+   "keyword": "匯率",
+   "count": 3
+  },
+  {
+   "keyword": "航運",
+   "count": 2
+  },
+  {
+   "keyword": "散熱",
+   "count": 2
+  },
+  {
+   "keyword": "AI伺服器",
+   "count": 2
   }
  ],
  "hot_stocks": [
   {
    "code": "2330",
    "name": "台積電",
-   "count": 34
+   "count": 16
   },
   {
-   "code": "2308",
-   "name": "台達電",
-   "count": 4
-  },
-  {
-   "code": "3017",
-   "name": "奇鋐",
-   "count": 4
+   "code": "3443",
+   "name": "創意",
+   "count": 6
   },
   {
    "code": "2454",
    "name": "聯發科",
+   "count": 5
+  },
+  {
+   "code": "1303",
+   "name": "南亞",
    "count": 4
-  },
-  {
-   "code": "6669",
-   "name": "緯穎",
-   "count": 3
-  },
-  {
-   "code": "3324",
-   "name": "雙鴻",
-   "count": 3
   },
   {
    "code": "2317",
@@ -82,18 +72,28 @@
    "count": 3
   },
   {
-   "code": "1303",
-   "name": "南亞",
+   "code": "2308",
+   "name": "台達電",
    "count": 3
   },
   {
-   "code": "1315",
-   "name": "達新",
+   "code": "3374",
+   "name": "精材",
+   "count": 3
+  },
+  {
+   "code": "6770",
+   "name": "力積電",
    "count": 2
   },
   {
-   "code": "6568",
-   "name": "宏觀",
+   "code": "3017",
+   "name": "奇鋐",
+   "count": 2
+  },
+  {
+   "code": "2382",
+   "name": "廣達",
    "count": 2
   }
  ],
@@ -102,127 +102,137 @@
    "held": [
     "1303 南亞"
    ],
-   "title": "台股2周上演大怒神！「這檔金融」持獲利利多獲大哥豪砸87.4億奪冠 南亞砸115億擴產玻纖布被上調390元目標價入榜",
-   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E8%82%A12%E5%91%A8%E4%B8%8A%E6%BC%94%E5%A4%A7%E6%80%92%E7%A5%9E-%E9%80%99%E6%AA%94%E9%87%91%E8%9E%8D-%E6%8C%81%E7%8D%B2%E5%88%A9%E5%88%A9%E5%A4%9A%E7%8D%B2%E5%A4%A7%E5%93%A5%E8%B1%AA%E7%A0%B887-4%E5%84%84%E5%A5%AA%E5%86%A0-%E5%8D%97%E4%BA%9E%E7%A0%B8115%E5%84%84%E6%93%B4%E7%94%A2%E7%8E%BB%E7%BA%96%E5%B8%83%E8%A2%AB%E4%B8%8A%E8%AA%BF390%E5%85%83%E7%9B%AE%E6%A8%99%E5%83%B9%E5%85%A5%E6%A6%9C-111000348.html"
+   "title": "近120億美元輝達晶片爆流向中企！外媒揭東南亞算力繞道內幕",
+   "link": "https://tw.stock.yahoo.com/news/%E8%BF%91120%E5%84%84%E7%BE%8E%E5%85%83%E8%BC%9D%E9%81%94%E6%99%B6%E7%89%87%E7%88%86%E6%B5%81%E5%90%91%E4%B8%AD%E4%BC%81-%E5%A4%96%E5%AA%92%E6%8F%AD%E6%9D%B1%E5%8D%97%E4%BA%9E%E7%AE%97%E5%8A%9B%E7%B9%9E%E9%81%93%E5%85%A7%E5%B9%95-075500838.html"
   },
   {
    "held": [
     "1303 南亞"
    ],
-   "title": "台股2周上演大怒神！「這檔金融」持獲利利多獲大哥豪砸87.4億奪冠南亞砸115億擴產玻纖布被上調390元目標價入榜",
-   "link": "https://news.google.com/rss/articles/CBMi8gRBVV95cUxOZ2U0ZER0ZkFjLUlRQXBMNkZhLUV1VXlCUk5uVVNDMmRwZjFKWktPSGtRaXNMU21BcjJPNklOUlNtd0lwUTJCVDJJNmNYVHRmSTJndFJDTDAtSlBmanRzVHhDREIxbEJzNW9rTnZnNHp0TWNfQy1WMDlVMWNVUzgtNkxubzB5VFNBOGIzblFwc3ZoTDZoa0VBWnRlNTNwaDZBRWpadWoyM3Q1eDBVN2VBbEdnQl9idXZDaFVKUndWcUk4RkhPUWFhT0lUcHhYZndJcjN6bnNlRXRyZEpSZDRsY0pVc2RCOGtpWkxZUU4wbXE4cHN4MzdQdmFCY21LZmlkcEZGRVdlbkVtdHRMMkZMR1J5a2xaR0k2eU9ROVVVX0FTN3RxaVhCeHFkUlBDRjhWMnQxTTZKWlpTMTJqdEItdUVLalJGRWVQWlJfYnJPeThCUGtBeFA4N28wSXliSy15ZVJ6T3c4NmFGYnZXNFNCR0dTMl9uOVNtcHhWRUJwZlhWZC1RT3h5SEYyTW1nS2hjM3NidFd0dnpZV25YelJmdlhVZ3owZ1pCSWVHdGFBdThtdXliZzFRV09VR1dTNVgtY3BQdk5jSnpWc2Y2RlFyWi03RTNzSGN5dC1FcmZOdGJ6eHA4ZXREWGVGVkwtS1VmbTJnRjhfZkxvREF0eF9HNllGX0ZhNlBWYXpfTjFXU3FnNVRKbGpGZ0pxSVlNa3BFQTJvRWZoV2hhcVVuVHBrdHZ5QWN0NFM1YUFqellLbHlsM3V1TFI3VkR4M01yS1VZb3dDc1prbTFLRlFiWGpJbEk5M0dDWEhZUGMyQ3JyclBVZw?oc=5"
+   "title": "日相高市擬提成立亞洲版國際能源總署 日本收費替東南亞儲石油",
+   "link": "https://tw.news.yahoo.com/%E6%97%A5%E7%9B%B8%E9%AB%98%E5%B8%82%E6%93%AC%E6%8F%90%E6%88%90%E7%AB%8B%E4%BA%9E%E6%B4%B2%E7%89%88%E5%9C%8B%E9%9A%9B%E8%83%BD%E6%BA%90%E7%B8%BD%E7%BD%B2-%E6%97%A5%E6%9C%AC%E6%94%B6%E8%B2%BB%E6%9B%BF%E6%9D%B1%E5%8D%97%E4%BA%9E%E5%84%B2%E7%9F%B3%E6%B2%B9-065039261.html"
   },
   {
    "held": [
     "3443 創意"
    ],
-   "title": "台積電明年就能見3,000元？華爾街操盤手「重估時間表」 揭股價跌22％後布局策略",
-   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E7%A9%8D%E9%9B%BB%E6%98%8E%E5%B9%B4%E5%B0%B1%E8%83%BD%E8%A6%8B3-000%E5%85%83-%E8%8F%AF%E7%88%BE%E8%A1%97%E6%93%8D%E7%9B%A4%E6%89%8B-%E9%87%8D%E4%BC%B0%E6%99%82%E9%96%93%E8%A1%A8-%E6%8F%AD%E8%82%A1%E5%83%B9%E8%B7%8C22-070552315.html"
+   "title": "創意、精材為何跌不下去？杜金龍揭強勢股2條件 曝台股明年「這時」恐變盤",
+   "link": "https://tw.stock.yahoo.com/news/%E5%89%B5%E6%84%8F-%E7%B2%BE%E6%9D%90%E7%82%BA%E4%BD%95%E8%B7%8C%E4%B8%8D%E4%B8%8B%E5%8E%BB-%E6%9D%9C%E9%87%91%E9%BE%8D%E6%8F%AD%E5%BC%B7%E5%8B%A2%E8%82%A12%E6%A2%9D%E4%BB%B6-%E6%9B%9D%E5%8F%B0%E8%82%A1%E6%98%8E%E5%B9%B4-%E9%80%99%E6%99%82-061000787.html"
   },
   {
    "held": [
-    "3189 景碩"
+    "3443 創意"
    ],
-   "title": "國家隊本週10大買賣超出爐！欣興、景碩、南電全入榜台玻、世芯飆逾4成遭砍- 上市櫃",
-   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE9qRU1FMFNVTGFzM3N4cGdFQkplZkZqTnRkeTMxTDVSZUE1aU0zYWFnN0dVQ1piVnlnOXFGbGZ3Qy0xeWNCUEE2RDRVUGZ0c0FKZXlQbkRSYkpWRWxtSnlQSkVOQTczT1FOdkE?oc=5"
+   "title": "黃仁勳爆出軌利空出盡？資金湧入ASIC、PCB「台股逆勢噴10%」 法人點3大類股繼續賺…創意、昇達科都上榜",
+   "link": "https://tw.stock.yahoo.com/news/%E9%BB%83%E4%BB%81%E5%8B%B3%E7%88%86%E5%87%BA%E8%BB%8C%E5%88%A9%E7%A9%BA%E5%87%BA%E7%9B%A1-%E8%B3%87%E9%87%91%E6%B9%A7%E5%85%A5asic-pcb-%E5%8F%B0%E8%82%A1%E9%80%86%E5%8B%A2%E5%99%B410-%E6%B3%95%E4%BA%BA%E9%BB%9E3%E5%A4%A7%E9%A1%9E%E8%82%A1%E7%B9%BC%E7%BA%8C%E8%B3%BA-055500534.html"
+  },
+  {
+   "held": [
+    "1303 南亞",
+    "3443 創意"
+   ],
+   "title": "台股反彈如何選股？杜金龍揭2訊號辨股票強弱，點名聯發科、創意、南亞…5檔強勢股，估「這時間」恐變盤",
+   "link": "https://news.google.com/rss/articles/CBMigAFBVV95cUxPWk45bW1oQ2hZb1RDTUFCek9NWENVZFJ6N2RxSlhKY3JHQnVnSzRHLXR1SHVvbzZtTm11MFozTW5wNkQwZk5zTjlEQmQ2RWlrTk03NnpnSU9XUlpiSzl3VEs4eE5DWXI2MGJkemRkcWNERllvdWp5N25qNWFMNTE0NA?oc=5"
   },
   {
    "held": [
     "1303 南亞"
    ],
-   "title": "突發！東南亞開始嚴查輝達算力卡！",
-   "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE9sMWRXbDkyOXJwbll4QnllM19wakVJN0V2dUtsVDk0U1AzeW0xZ2hfdGdEdWZVZWY2RjhYTjBzN200OUZFUWRxOQ?oc=5"
+   "title": "黃仁勳剛下台，輝達東南亞就被一鍋端了",
+   "link": "https://news.google.com/rss/articles/CBMiSEFVX3lxTE9iczVSdy01UXBxU3oxOWtDSjFXSXRTczQxMVljNmRjYzZ3eWJnalBjaUhrTV92b2t4TjZSaU1DU1pnaWpjaTJjSA?oc=5"
   },
   {
    "held": [
     "3443 創意"
    ],
-   "title": "鉅亨速報 - Factset 最新調查：創意(3443-TW)EPS預估上修至62.41元，預估目標價為9000元",
-   "link": "https://news.cnyes.com/news/id/6662388"
+   "title": "台股暴跌誰才是真強勢股？創意、精材逆勢突圍杜金龍教看2訊號：明年2~5月恐變盤- 上市櫃",
+   "link": "https://news.google.com/rss/articles/CBMiakFVX3lxTE5UdFdNY2tCY2dVRGpPQ21WeE9IS0xKYThBVkFQRkNzbnhtLU5lWVZYYXNyLVJ1cW15Y1I1ckxJWVhaaHRGeVVXY1FVMkx3M1NPOTZQc1hIVjY5eE9Sanhra0RMZjdyWDlXeFE?oc=5"
+  },
+  {
+   "held": [
+    "3443 創意"
+   ],
+   "title": "台股暴跌誰才是真強勢股？創意、精材逆勢突圍 杜金龍教看2訊號：明年2~5月恐變盤",
+   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E8%82%A1%E6%9A%B4%E8%B7%8C%E8%AA%B0%E6%89%8D%E6%98%AF%E7%9C%9F%E5%BC%B7%E5%8B%A2%E8%82%A1-%E5%89%B5%E6%84%8F-%E7%B2%BE%E6%9D%90%E9%80%86%E5%8B%A2%E7%AA%81%E5%9C%8D-%E6%9D%9C%E9%87%91%E9%BE%8D%E6%95%99%E7%9C%8B2%E8%A8%8A%E8%99%9F-%E6%98%8E%E5%B9%B42-230530144.html"
+  },
+  {
+   "held": [
+    "3443 創意"
+   ],
+   "title": "台股Q3獲利大暴衝！世芯-KY、創意等16檔績優股法人挺後市布局策略揭曉- 日報",
+   "link": "https://news.google.com/rss/articles/CBMiX0FVX3lxTE1PbE9WdWNCaEZyRjJPQzBCRkZGSUN1VW54eVVZOVp1N1NTand0NmQyRlNFRmU5MmtRbWRkdTRhUmlJazlhVjJ5M3ZPcHJQcHE4V1NwRUVwakp0aldZSzdN?oc=5"
   }
  ],
- "held_mention_count": 6,
+ "held_mention_count": 9,
  "headlines": [
   {
-   "time": "11-14 21:22",
-   "title": "標題 : 債市翻臉瓦解AI行情！兩日內晶片股蒸發逾6,500億美元，NVIDIA連六週下挫",
-   "link": "https://news.google.com/rss/articles/CBMiZ0FVX3lxTE9CYUpWTUtCUDBvcFpQNmQzb2RSMDlJaElsSktXSlVCUnBiWS1GU0RZQ2p1NGgtVG9pMW9FdjE5ek5lZU5HZURnYVRkN1hxczhiR0RhOWw3bmFZVjA3OVRnWkR0bjFkYzg?oc=5",
+   "time": "11-15 21:10",
+   "title": "黃仁勳仍可能重返輝達？兩大股東喊話",
+   "link": "https://tw.news.yahoo.com/%E9%BB%83%E4%BB%81%E5%8B%B3%E4%BB%8D%E5%8F%AF%E8%83%BD%E9%87%8D%E8%BF%94%E8%BC%9D%E9%81%94-%E5%85%A9%E5%A4%A7%E8%82%A1%E6%9D%B1%E5%96%8A%E8%A9%B1-131006862.html",
+   "publisher": "yahoo_intl",
+   "stocks": []
+  },
+  {
+   "time": "11-15 21:05",
+   "title": "台股紅包明天開搶！「這檔重電新兵」抽中潛在獲利8.5萬 2檔新股申購時間一次看",
+   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E8%82%A1%E7%B4%85%E5%8C%85%E6%98%8E%E5%A4%A9%E9%96%8B%E6%90%B6-%E9%80%99%E6%AA%94%E9%87%8D%E9%9B%BB%E6%96%B0%E5%85%B5-%E6%8A%BD%E4%B8%AD%E6%BD%9B%E5%9C%A8%E7%8D%B2%E5%88%A98-5%E8%90%AC-2%E6%AA%94%E6%96%B0%E8%82%A1%E7%94%B3%E8%B3%BC%E6%99%82%E9%96%93-130500961.html",
+   "publisher": "yahoo_tw_market",
+   "stocks": []
+  },
+  {
+   "time": "11-15 20:45",
+   "title": "TWA00 加權指數- 以沈伯洋的洋流態勢，民進黨必然強力做多，逢低買進- 股市爆料同學會",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE93TG51cGxhb3RqUllnQTBNaDF2enNtTkNscDJIazlOSGhna2d3LVVxX2kzUTlvUzVRTHJtNDI3bWZjTHNoQjlVbEFJWFFLSXZzb2h4TlZFSHU?oc=5",
    "publisher": "CMoney",
    "stocks": []
   },
   {
-   "time": "11-14 21:18",
-   "title": "台積電法說遇輝達財報 MSCI半年度調整出爐",
-   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E7%A9%8D%E9%9B%BB%E6%B3%95%E8%AA%AA%E9%81%87%E8%BC%9D%E9%81%94%E8%B2%A1%E5%A0%B1-ai%E8%A1%8C%E6%83%85%E7%9A%84%E9%97%9C%E9%8D%B548%E5%B0%8F%E6%99%82-msci%E5%8D%8A%E5%B9%B4%E5%BA%A6%E8%AA%BF%E6%95%B4%E5%87%BA%E7%88%90-ai%E4%BC%BA%E6%9C%8D%E5%99%A8%E4%BE%9B%E9%9B%BB%E6%95%A3%E7%86%B1%E8%AA%B0%E6%9C%80%E5%BC%B7%EF%BC%9F%E7%B7%AF%E7%A9%8E%E5%8F%B0%E9%81%94%E9%9B%BB%E5%A5%87%E9%8B%90%E9%9B%99%E9%B4%BB11%E6%9C%8817%E8%87%B318%E6%97%A5%E6%B3%95%E8%AA%AA%E8%A6%8B%E7%9C%9F%E7%AB%A0-%E4%B8%AD%E6%B2%B9%E6%B2%B9%E5%83%B9%E9%80%A38%E5%87%8D%E6%BC%B2%EF%BD%9C%E6%8A%95%E8%B3%87%E6%97%A9%E7%9F%A5%E9%81%93-131833690.html",
-   "publisher": "yahoo_tw_market",
-   "stocks": [
-    "2308 台達電",
-    "2330 台積電",
-    "3017 奇鋐",
-    "3324 雙鴻",
-    "6669 緯穎"
-   ]
-  },
-  {
-   "time": "11-14 21:18",
-   "title": "台積電法說遇輝達財報 AI行情的關鍵48小時 MSCI半年度調整出爐 AI伺服器供電散熱誰最強？緯穎台達電奇鋐雙鴻11月17至18日法說見真章 中油油價連8凍漲｜投資早知道",
-   "link": "https://tw.stock.yahoo.com/news/%E5%8F%B0%E7%A9%8D%E9%9B%BB%E6%B3%95%E8%AA%AA%E9%81%87%E8%BC%9D%E9%81%94%E8%B2%A1%E5%A0%B1-ai%E8%A1%8C%E6%83%85%E7%9A%84%E9%97%9C%E9%8D%B548%E5%B0%8F%E6%99%82-msci%E5%8D%8A%E5%B9%B4%E5%BA%A6%E8%AA%BF%E6%95%B4%E5%87%BA%E7%88%90-ai%E4%BC%BA%E6%9C%8D%E5%99%A8%E4%BE%9B%E9%9B%BB%E6%95%A3%E7%86%B1%E8%AA%B0%E6%9C%80%E5%BC%B7%EF%BC%9F%E7%B7%AF%E7%A9%8E%E5%8F%B0%E9%81%94%E9%9B%BB%E5%A5%87%E9%8B%90%E9%9B%99%E9%B4%BB11%E6%9C%8817%E8%87%B318%E6%97%A5%E6%B3%95%E8%AA%AA%E8%A6%8B%E7%9C%9F%E7%AB%A0-%E4%B8%AD%E6%B2%B9%E6%B2%B9%E5%83%B9%E9%80%A38%E5%87%8D%E6%BC%B2%EF%BD%9C%E6%8A%95%E8%B3%87%E6%97%A9%E7%9F%A5%E9%81%93-131833690.html",
-   "publisher": "yahoo_intl",
-   "stocks": [
-    "2308 台達電",
-    "2330 台積電",
-    "3017 奇鋐",
-    "3324 雙鴻",
-    "6669 緯穎"
-   ]
-  },
-  {
-   "time": "11-14 21:18",
-   "title": "台積電法說遇輝達財報AI行情的關鍵48小時 MSCI半年度調整出爐AI伺服器供電散熱誰最強？緯穎台達電奇鋐雙鴻11月17至18日法說見真章中油油價連8凍漲｜投資早知道",
-   "link": "https://news.google.com/rss/articles/CBMigwdBVV95cUxQOXN2QXlmOEJLa2VBcEQ1SGtxRU0yOUNkUDRpQzZCMVRCWTdEVzZpVGNqTDJROFo5eC11Zy0tdGhnUFBvV1llZEwtbi1PQUdXZEdBOGJuTjhreGQxcVhwbjRHb2hOXzlFNVBtNkZVaC1YZmJGUmsxZ0xuUVhNS0JKT0tQaGlVRDlsNm5LdHdpR2lSeGpOWDI2S01hU1VMblBIR2JvX05vcWVucFotd1hBVHNRWlROZUhsTjZPdzdNMTI5M1BpYWFoSlV1dzRKNjZPQUNCY2FnS0VRSGtDYXhINFlmU1BMQ0dINklkckFRc28tVF9xT0xIOHZvUW1hV0NHWHFRX051UmpUQVhaVEp1OUN0Wk1teEpjVndCU19ZS2lDU2F2Qkcwdl80V0lSd1lpS3FHVzVZM1VqdFJzYWd4bjM4T2p0YkNDMW9ZZEJyVkhDQk5CY1dEdGRtRHpSWU1QVFcyTGV0eUhKS0F0dXVRNjUwY3RDOW9sUHJ4ZzNZOVBuVWUxUFotYXNBdmhjUVZicHFZZWJwVXRjOG1fYmpWS0ltN0lSb1VvM0NnNXNaODJFYndiZXFJTHpiRW0yT1NzdnpENTZpSnNON0R1SnhkUEhMcUV1UjNHclhvODVHNHFnSTdwU2pXaTFRQjB0WWxzaWJBblN6TjZZRVA2cGR5QUEwSmFJX3hlY1JyMFFhM2xTc0lpb0ppeHh1ZzE2Ty01SDczeC1YdWdLRmlYR3BuczFfVm5Ob1djMy1aN1gxWXk5UGFBZVVGM1g4bHA5Rzd5WHFQMS1FWFpnTFk1VWc4NkJQS3Bmb3V0X0sxSkVuTHhtTE1xU1U4NUFQX1QwckFFek5jU3B0bzh4ZmwxS3ZwTXE2WFBnOHZIdFYwUmFIRTdGTGdkMTlVM21qaHBzWGNvd3JIVmlFWmJEYm5sV2x6T3RCbDVBalozblQzckpLQ01NVEVNcDNiejYtaHd5NFpQTEx3RU1vQnlZSHRmTUxNMWVNSkFrdHptYTJsZ1ZfVGtNdmNoU0llNUdzbU9qbDVaNzVtcDBPY2k4YUh3OFlqYlliYV96SGJKdnlENVRMTnU4RU12Wms2UkFUTWlZaXUxQ21GVE5XS0NiZFF6eF9CZDI1XzFnQ0hlVjBQZUpQekRwNWtKeVduUXVHczh2R3I2TmlHRzhla2FYZWlYSmwxOWRZZw?oc=5",
-   "publisher": "Yahoo股市",
-   "stocks": [
-    "2308 台達電",
-    "2330 台積電",
-    "3017 奇鋐",
-    "3324 雙鴻",
-    "6669 緯穎"
-   ]
-  },
-  {
-   "time": "11-14 21:17",
-   "title": "Jowell Global 上半年每股虧損1.44美元、營收暴跌17.2%──美股投資人警戒",
-   "link": "https://news.google.com/rss/articles/CBMijgFBVV95cUxOZkZ5WFJQWGVqR3pFMzRxamRINk43c0dVWnNHTXNTT05ZTFlDNFBNVkIyenlqUXRmUjlsaGw3SWdfM3Zoa0h2M3JESTlTUHczMDZGdk82dGJObUVMMTZ6elNKenNJbHYxaXE0dVZFSkdkVTBvYW4yTmRtUE0yRUxpcEQ3QmVlTU5nZXE2RE9n?oc=5",
-   "publisher": "CMoney投資網誌",
-   "stocks": []
-  },
-  {
-   "time": "11-14 21:10",
-   "title": "輝達醜聞使美商務部長盧特尼克面臨下台危機！《巴隆》恐牽動鋼鐵、加密貨幣與政府投資",
-   "link": "https://news.cnyes.com/news/id/6662475",
+   "time": "11-15 20:44",
+   "title": "矽谷科技巨頭押注川普恐踢鐵板！OpenAI、Meta政治豪賭埋下AI產業隱憂",
+   "link": "https://news.cnyes.com/news/id/6662917",
    "publisher": "鉅亨網",
    "stocks": []
   },
   {
-   "time": "11-14 21:10",
-   "title": "明年報價再漲10%！「這晶圓代工」獲法人喊買157元 投信連斬6週結帳397億元",
-   "link": "https://news.google.com/rss/articles/CBMiowNBVV95cUxQZ1FJWThxdDJuYl9SVGdnOGpQTDlVcDRFT1lBb0REVG9KN2phQTdUNXB5V0NzcVVCTENsbXNlZHdXNjJ3clY2MUQ2ZFp5a2JlSUpfdmZDVGVBSGViMEpxMDRrZ3RIS0FHSEQySzlUM3lvTmxBakRMTVhwUGc3VHh2Z1V5LUdIckVTZzUyUFlrTWIzSTFOdnoyQ0lxVmxydWp6WlZBZ2I5QV8zcDNJdW1DS3FjTmNuXzRiRjlTQnJqbFE5RUI0d1ZNRkx1cnd1VlpLbVN4VlJzZVp2M1dZMlRBRVVka1NheG4tX0RQbEV0d2YtbXBFaUowSzROU0Q3Y1BrT2psczBSSlN5cGpVMjJ0cVZMZG5FU2NTbFlmc3lCWnp0VVJ2bDN3bWduOUxQYkEwNWFlMFhNQ3RBVWtjOFhudHVmc28zNVVsb3BNS0xETmo3Q1lNZklSMTZfaXZNRDBmMDcxTGd4R2NQZVpTS01tdWdjbnRWbVhzZlhZc09lQUprSkxKNmctamZ3cjJLdS1qdnhhWE1PSnQzZ0lVMlJkTUYzTQ?oc=5",
-   "publisher": "Yahoo股市",
+   "time": "11-15 20:42",
+   "title": "🔥🔥🔥 大盤反彈 10%，快篩選股+47%",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE5EdTUwZ1MyMkxPaEVHcWx2R0dmSGhRbU85eFdEU3k1S3k5S2V5c1JMcUVqcmthSXd0VDZhdDVEUWJwRldRODhuaVpoYks3ZENxNXFnU21UYVA?oc=5",
+   "publisher": "CMoney",
    "stocks": []
   },
   {
-   "time": "11-14 21:02",
-   "title": "盼黃仁勳回歸 馬斯克也連署",
-   "link": "https://tw.news.yahoo.com/%E7%9B%BC%E9%BB%83%E4%BB%81%E5%8B%B3%E5%9B%9E%E6%AD%B8-%E9%A6%AC%E6%96%AF%E5%85%8B%E4%B9%9F%E9%80%A3%E7%BD%B2-130238239.html",
-   "publisher": "yahoo_intl",
+   "time": "11-15 20:40",
+   "title": "美股新股解讀|聚能科技（NENG.US）：短視頻廣告浪潮裏的“中間商“，長尾流量紅利還能喫多久？ 作者智通財經 - Investing.com 香港",
+   "link": "https://news.google.com/rss/articles/CBMicEFVX3lxTE9ETjBLMDU4d20tLVc2SE9KalcyZDJ3bGVnSUc2M0ZuUGNfTmxMZlZDaW1BdFhPUlhMZEtBNlNDWTIwYlhraEZfdllBZ1FwQXBCYU9qVzROem1ubDg3SHN6MlQ2dzlGSW1fa2VHMTA3YkY?oc=5",
+   "publisher": "Investing.com 香港 - 股市報價& 財經新聞",
    "stocks": []
+  },
+  {
+   "time": "11-15 20:38",
+   "title": "台北大洋流士北壓軸人數破紀錄現場超過5萬人、直播觀看14萬人- 股市爆料同學會",
+   "link": "https://news.google.com/rss/articles/CBMiWEFVX3lxTE1RSmdGVEhMSW9GQUFMQTBnRE5qRmxwVzB6dlNhUGZXcWVRbkpZb2tkZGhrUlY2Sk1Banh5aW81cjhISnNxeUdVZ3p5WTJIbHdod2tzRF91Nm4?oc=5",
+   "publisher": "CMoney",
+   "stocks": [
+    "1321 大洋"
+   ]
+  },
+  {
+   "time": "11-15 20:35",
+   "title": "反彈就是逃命波？三大法人週賣超出爐 力積電、聯電、華邦電都上榜",
+   "link": "https://news.google.com/rss/articles/CBMipANBVV95cUxQaGIzdGk1OEdXNlFXT2d5dXdFb1lKQzBhQWV0US1fRDNkN05hQkMtc1JvSEc0LW5CUDZYNGt3Vk9LUXRIMloyN2g0TTNkcEM3WWh0dFZtaEkwdGY1bl9BeU1GY0llYUV3ZzVpY0taaVpNWjFySU1xMGRtRHZqektNRVdKUi1nRm00ZWpaZEJJTzMyR3hNeDBodEctUVlvTzk2ZkM2SEljNlUtTGIwOGtPOU9GcjhWdE1aaEJYQkwxd1Q4WlR4YmZTMTVFYmQ2WVFMUGtab1MxZy1KNmRvbXYwTXdVR3RlY0ZlNE81U1VubzloUFNuVXdEdnNUcm50ZmhXLVEwd1Jnd0p4N0pUM1AyeExvQS1GT0dlMWhEandZREVQcGk4QjhZTVFfTnMxUVMtZEk2M1ZtZFBqYmdpbk1OLVVaQ1VXMDJ5UkVJQ0kwajlIdTc3b1FEdFgySEstNnduOUxDQXA3X3prWktFZTd4WFNLVXlJZElLdUtKdm0zNHdPcjZuNkpxVlRjbk5sUkt6aGFvZlR6bnRNM2psSDdJOFRiWWo?oc=5",
+   "publisher": "Yahoo股市",
+   "stocks": [
+    "2303 聯電",
+    "2344 華邦電",
+    "6770 力積電"
+   ]
   }
  ],
  "sources": {
   "yahoo_tw_market": "ok (50)",
   "yahoo_intl": "ok (50)",
-  "gnews_tw": "ok (100)",
-  "gnews_us": "ok (100)",
+  "gnews_tw": "ok (92)",
+  "gnews_us": "ok (69)",
   "cnyes_tw_stock": "ok (30)",
   "cnyes_us_stock": "ok (30)"
  },
