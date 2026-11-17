@@ -1,0 +1,11 @@
+source_file,code,n_obs,start_date,end_date
+tej_prices_a.txt,2311,982,2014-01-02,2017-12-29
+tej_prices_a.txt,2325,982,2014-01-02,2017-12-29
+tej_prices_a.txt,2823,982,2014-01-02,2017-12-29
+tej_prices_a.txt,2888,982,2014-01-02,2017-12-29
+tej_prices_a.txt,3474,713,2014-01-02,2016-11-29
+tej_prices_a.txt,3697,10,2014-01-02,2014-01-15
+tej_prices_b.txt,2311,67,2018-01-02,2018-04-17
+tej_prices_b.txt,2325,67,2018-01-02,2018-04-17
+tej_prices_b.txt,2823,734,2018-01-02,2020-12-31
+tej_prices_b.txt,2888,734,2018-01-02,2020-12-31
