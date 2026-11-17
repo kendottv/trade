@@ -11,7 +11,7 @@ import csv
 import json
 import os
 import sys
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timezone, timedelta, date
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -28,8 +28,13 @@ SIGNALS_CSV = PAPER / "a1_signals.csv"
 CSV_COLS = ["date", "close", "ma200", "signal", "source", "stale"]
 
 
+def _today() -> date:
+    """今天（台北時間）。測試可 patch 成固定日期。"""
+    return datetime.now(TZ).date()
+
+
 def now_iso() -> str:
-    return datetime.now(TZ).strftime("%Y-%m-%d")
+    return _today().isoformat()
 
 
 def _load_prev() -> dict | None:

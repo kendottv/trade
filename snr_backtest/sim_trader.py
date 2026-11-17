@@ -28,7 +28,7 @@ from nn_strategy import latest_target  # noqa: E402
 from broker import tw_tick  # noqa: E402
 import tw_calendar  # noqa: E402
 
-# Overridable for tests. Use getenv so rg does not match the three-letter string.
+# 測試可用環境變數 PAPER_NN_DIR 覆寫
 PAPER = Path(os.getenv("PAPER_NN_DIR", ROOT / "paper_nn"))
 STOP_FILE = PAPER / "SIM_STOP"
 STATUS_FILE = PAPER / "sim_status.json"
@@ -38,16 +38,21 @@ SIM_LOG = PAPER / "sim_trader.log"
 
 # ---- 硬性規則（不要改；沒有任何旗標可以打開真單）----
 SIMULATION_ONLY = True
-TOTAL_MAX_NTD = 1_000_000
-PER_ORDER_MAX_NTD = 100_000
-BUY_PAD = 0.005
-SELL_PAD = 0.005
-BUDGET_NTD = 980_000
+TOTAL_MAX_NTD = 1_000_000      # 單次買進總額上限
+PER_ORDER_MAX_NTD = 100_000    # 單筆上限
+BUY_PAD = 0.005                # 買：ask/last +0.5%
+SELL_PAD = 0.005               # 賣：bid/last −0.5%
+BUDGET_NTD = 980_000  # 目標用權重 × 98 萬換算股數（留 2% 給手續費/滑價）
 A1_TICKER = "0050"
 
 
 class LiveTradingRefused(RuntimeError):
     pass
+
+
+def _today() -> date:
+    """今天（台北時間）。測試可 patch 成固定日期。"""
+    return datetime.now().date()  # 與 main 行為一致；測試 patch 此函式
 
 
 def now() -> datetime:
@@ -95,7 +100,8 @@ def check_stop() -> None:
         raise SystemExit("SIM_STOP 存在，中止。")
 
 
-_SIM_API_IDS: set[int] = set()
+# ---------------- login (simulation only) ----------------
+_SIM_API_IDS: set[int] = set()  # 只有 login() 用 simulation=True 建的物件會登記在這裡
 
 
 def assert_sim(api) -> None:
@@ -107,14 +113,15 @@ def assert_sim(api) -> None:
 
 def login():
     import shioaji as sj
-    import quotes
+    import quotes  # 沿用既有讀金鑰路徑；本檔不讀、不印金鑰
     if not quotes._simulation_forced():
         raise LiveTradingRefused("broker_secrets 的 simulation 不是 true，拒絕執行")
     key, secret = quotes._shioaji_keys()
     if not key or not secret:
         raise RuntimeError("讀不到 Shioaji API Key（broker_secrets.json）")
-    api = sj.Shioaji(simulation=True)
+    api = sj.Shioaji(simulation=True)  # 寫死，不接受參數
     _SIM_API_IDS.add(id(api))
+    # 本檔從不呼叫 activate_ca（真單必須有憑證），雙重保險
     api.login(api_key=key, secret_key=secret)
     del key, secret
     assert_sim(api)
@@ -122,10 +129,12 @@ def login():
 
 
 def safe_place(api, contract, order):
+    """唯一的送單入口。每次都再檢查一次 simulation。"""
     assert_sim(api)
     return api.place_order(contract, order)
 
 
+# ---------------- prices ----------------
 def tick_round(px: float, up: bool) -> float:
     t = tw_tick(px)
     n = px / t
@@ -155,6 +164,7 @@ def file_prices(rows: list[dict]) -> dict:
                         "limit_down": tick_round(float(r.get("close") or 0) * 0.9, True)} for r in rows}
 
 
+# ---------------- plan ----------------
 def positions(api) -> dict[str, int]:
     import shioaji as sj
     pos = api.list_positions(api.stock_account, unit=sj.constant.Unit.Share)
@@ -329,7 +339,7 @@ def run(submit: bool, kind: str = "open", only_a1: bool = False) -> int:
         print("找不到目標檔"); return 1
     mon, rows = t
     api = None
-    today = date.today()
+    today = _today()
     sig, is_stale, why = _signal_for_day(today)
     a1_sig = sig.get("signal") if sig and not is_stale else None
     if is_stale:
@@ -357,7 +367,7 @@ def run(submit: bool, kind: str = "open", only_a1: bool = False) -> int:
     legacy = {c: q for c, q in held.items() if c not in tgt_codes and c != A1_TICKER}
     st0 = load_state()
     if "baseline" not in st0:
-        base = {"start_date": date.today().isoformat(), "start_time": stamp(), "sleeve_ntd": TOTAL_MAX_NTD,
+        base = {"start_date": today.isoformat(), "start_time": stamp(), "sleeve_ntd": TOTAL_MAX_NTD,
                 "first_target_mon": mon, "legacy_positions": legacy,
                 "note": "績效只算策略 100 萬子帳戶；舊持股（legacy）及其賣出所得不計入"}
         print("基準（送出時寫入 sim_state.json）：", json.dumps(base, ensure_ascii=False))
@@ -396,9 +406,9 @@ def run(submit: bool, kind: str = "open", only_a1: bool = False) -> int:
     st = load_state()
     st.setdefault(mon, {})[kind] = stamp()
     if orders:  # only set if we actually placed something
-        st[mon]["last_trade_day"] = date.today().isoformat()
+        st[mon]["last_trade_day"] = today.isoformat()
     if placed_a1:
-        st[mon]["a1_last_day"] = date.today().isoformat()
+        st[mon]["a1_last_day"] = today.isoformat()
     save_state(st)
     write_status(state="submitted", mon=mon, orders=len(orders), ok=ok, errors=bad, notes=notes,
                  message=f"{kind} 送出模擬委託 {ok} 筆，失敗 {bad} 筆")
@@ -431,7 +441,7 @@ def reconcile() -> int:
     held = positions(api)
     rep = PAPER / f"sim_reconcile_{mon}.csv"
     px = snap_prices(api, sorted({r["code"] for r in rows} | {A1_TICKER}))
-    today = date.today()
+    today = _today()
     sig, is_stale, _ = _signal_for_day(today)
     a1_sig = sig.get("signal") if sig and not is_stale else None
     ts_ = target_shares(rows, px, a1_sig, held=held, stale=is_stale)
@@ -462,13 +472,13 @@ def nth_trading_day_of_month(d: date) -> int:
 
 def auto(phase: str, retry: bool) -> int:
     check_stop()
-    n = nth_trading_day_of_month(date.today())
+    n = nth_trading_day_of_month(_today())
     t = latest_target()
     if not t:
         print("沒有目標檔，結束"); return 0
     mon = t[0]
     st = load_state().get(mon, {})
-    today = date.today()
+    today = _today()
     if phase == "open":
         nn_should = (n == 1 and "open" not in st) or (n == 2 and retry and "open" in st and "retry" not in st)
         a1_placed_today = st.get("a1_last_day") == today.isoformat()
@@ -564,7 +574,7 @@ def snapshot() -> int:
     if base.get("start_date"):
         try:
             for r in api.list_profit_loss(api.stock_account, begin_date=base["start_date"],
-                                          end_date=date.today().isoformat()):
+                                          end_date=_today().isoformat()):
                 if r.code not in legacy:
                     realized += float(r.pnl or 0)
         except Exception as e:

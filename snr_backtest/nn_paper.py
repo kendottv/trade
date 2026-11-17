@@ -37,7 +37,7 @@ try:
 except ImportError:
     quotes = None
 
-# Overridable for tests (AC-16). Use getenv so rg does not match the three-letter string.
+# 測試可用環境變數 PAPER_NN_DIR 覆寫
 PAPER = Path(os.getenv("PAPER_NN_DIR", ROOT / "paper_nn"))
 BACKUP_ROOT = Path(os.getenv("PAPER_COMBO_BACKUP", r"C:\Users\AUSER\trade_backups\paper_combo"))
 TZ = timezone(timedelta(hours=8))
@@ -52,6 +52,11 @@ SLIPPAGE = STRATEGY["slippage"]  # 0.001
 COMM_RATE = 0.001425
 COMM_MIN = 20.0
 SELL_TAX = 0.003
+
+
+def _today() -> date:
+    """今天（台北時間）。測試可 patch 成固定日期。"""
+    return datetime.now(TZ).date()
 
 
 def now() -> str:
@@ -114,7 +119,7 @@ def _session_day(live: dict[str, tuple[float, str]]) -> str:
     dates = [d for v in live.values() if (d := _pure_date(v[1]))]
     if dates:
         return max(dates)
-    return datetime.now(TZ).strftime("%Y-%m-%d")
+    return _today().isoformat()
 
 
 def get_shioaji_last(tickers: list[str]) -> dict[str, tuple[float, str]]:
@@ -171,16 +176,17 @@ def fetch_closes(codes: list[str]) -> dict[str, tuple[float, str]]:
 
 
 def fetch_open(ticker: str, day: str) -> float | None:
-    """0050 當日開盤價。測試可 mock。拿不到回 None（AC-5 不成交）。"""
+    """0050 當日開盤價。只有報價時間戳日期 = day 才採用；沒有時間戳走 data 後備。測試可 mock。拿不到回 None（AC-5 不成交）。"""
     try:
         if quotes:
             feed = quotes.get_feed()
             q = feed.last(ticker)
             if q and q.open and q.open > 0:
                 src_day = _pure_date(str(q.ts) if q.ts else "")
-                if src_day == day or not src_day:
+                if src_day == day:
                     return float(q.open)
-        # fallback data (no pd dependency beyond already imported)
+                # 沒有時間戳或日期不符 → 不採用此報價，改走後備
+        # fallback data
         import data
         df = data.get_price(f"{ticker}.TW", end_date=None)
         if df is not None and not df.empty:
@@ -304,10 +310,10 @@ def rebalance(acct: dict, mon: str, rows: list[dict], cutover: bool = False) -> 
     for p in acct["positions"]:
         p["name"] = stock_names.label(p["ticker"])
     led = []
-    a1_cash_before = _a1_cash(acct)
+    # ---- NN3 sells first (free cash) ----
     for p in list(acct["positions"]):
         if p["ticker"] == A1_TICKER and not cutover:
-            continue
+            continue  # A1 adjusted later
         tgt = int(nn_budget * want[p["ticker"]]["weight"] / px[p["ticker"]]) if p["ticker"] in want else 0
         if p["shares"] > tgt:
             q = p["shares"] - tgt
@@ -318,6 +324,54 @@ def rebalance(acct: dict, mon: str, rows: list[dict], cutover: bool = False) -> 
             led.append({"date": day, "ticker": p["ticker"], "action": "SELL", "reason": f"NN 調倉 {mon}",
                         "price": round(fill_price, 4), "shares": q})
     acct["positions"] = [p for p in acct["positions"] if p["shares"] > 0]
+    # ---- reallocate cash for switched (non-cutover) so A1 side gets exactly E*40% after its own adjust ----
+    if switched and not cutover:
+        a1 = acct.setdefault("a1", {"target_ntd": 0.0, "cash": 0.0, "shares": 0, "last_signal_date": None, "state": "cash"})
+        a1["target_ntd"] = round(a1_budget, 2)
+        a1_pos = next((p for p in acct["positions"] if p["ticker"] == A1_TICKER), None)
+        a1_mv_before = (a1_pos["shares"] * px.get(A1_TICKER, a1_pos.get("last", a1_pos["avg_price"]))) if a1_pos else 0.0
+        # temporarily set a1.cash so total A1 = E*40% before share adjust; then adjust shares and finalize cash
+        target_a1_total = a1_budget
+        a1["cash"] = max(0.0, target_a1_total - a1_mv_before)
+        # now adjust 0050 shares to target (using a1.cash)
+        if a1_pos and px.get(A1_TICKER):
+            fill_px = px[A1_TICKER] * (1 + s["slippage"])
+            # 和 NN3 一樣：目標股數用含手續費的價格換算，最多買到 a1.cash 買得起的股數
+            tgt_shares = int(a1["target_ntd"] / (fill_px * (1 + s["buy_fee"])))
+            cur_shares = a1_pos["shares"]
+            if cur_shares > tgt_shares:
+                q = cur_shares - tgt_shares
+                fill_price = px[A1_TICKER] * (1 - s["slippage"])
+                sf = sell_fill(q, fill_price, COMM_RATE, COMM_MIN, SELL_TAX)
+                acct["cash"] += sf.cash_delta
+                a1["cash"] += sf.cash_delta
+                a1_pos["shares"] -= q
+                led.append({"date": day, "ticker": A1_TICKER, "action": "SELL", "reason": f"A1 再平衡 {mon}",
+                            "price": round(fill_price, 4), "shares": q})
+            elif cur_shares < tgt_shares:
+                fill_price = px[A1_TICKER] * (1 + s["slippage"])
+                max_by_cash = int(a1["cash"] / (fill_price * (1 + s["buy_fee"])))
+                q = min(tgt_shares - cur_shares, max_by_cash)
+                if q > 0:
+                    cost = buy_cost(q, fill_price, COMM_RATE, COMM_MIN)
+                    if cost <= a1["cash"] + 1e-8:
+                        acct["cash"] -= cost
+                        a1["cash"] -= cost
+                        a1_pos["shares"] += q
+                        a1_pos["avg_price"] = (a1_pos["avg_price"] * cur_shares + cost) / a1_pos["shares"]
+                        led.append({"date": day, "ticker": A1_TICKER, "action": "BUY", "reason": f"A1 再平衡 {mon}",
+                                    "price": round(fill_price, 4), "shares": q})
+        # finalize a1.cash = target_a1_total - final A1 market value (after fees/slippage small error ok)
+        final_a1_mv = sum(p["shares"] * px.get(A1_TICKER, p.get("last", p["avg_price"]))
+                          for p in acct["positions"] if p["ticker"] == A1_TICKER)
+        a1["cash"] = round(max(0.0, target_a1_total - final_a1_mv), 2)
+        # ensure a1.cash <= acct.cash
+        if a1["cash"] > acct["cash"]:
+            a1["cash"] = round(acct["cash"], 2)
+        a1["shares"] = next((p["shares"] for p in acct["positions"] if p["ticker"] == A1_TICKER), 0)
+        a1["state"] = "holding" if a1["shares"] else "cash"
+        log(f"再平衡後 A1 目標 {a1['target_ntd']:,.0f}、現金 {a1['cash']:,.0f}、股數 {a1['shares']}")
+    # ---- NN3 buys using remaining cash (acct.cash - a1.cash) ----
     nn_cash = _nn_cash(acct)
     for code, r in want.items():
         cur = next((p for p in acct["positions"] if p["ticker"] == code), None)
@@ -346,36 +400,14 @@ def rebalance(acct: dict, mon: str, rows: list[dict], cutover: bool = False) -> 
             })
         led.append({"date": day, "ticker": code, "action": "BUY", "reason": f"NN 調倉 {mon}",
                     "price": round(fill_price, 4), "shares": q})
-    if switched:
-        a1 = acct.setdefault("a1", {"target_ntd": 0.0, "cash": 0.0, "shares": 0, "last_signal_date": None, "state": "cash"})
+    # cutover path: A1 starts as pure cash (AC-3)
+    if cutover:
+        a1 = acct.setdefault("a1", {})
         a1["target_ntd"] = round(a1_budget, 2)
-        a1_pos = next((p for p in acct["positions"] if p["ticker"] == A1_TICKER), None)
-        if a1_pos and px.get(A1_TICKER):
-            fill_px = px[A1_TICKER] * (1 + s["slippage"])
-            tgt_shares = int(a1["target_ntd"] / fill_px)
-            cur_shares = a1_pos["shares"]
-            if cur_shares > tgt_shares:
-                q = cur_shares - tgt_shares
-                fill_price = px[A1_TICKER] * (1 - s["slippage"])
-                sf = sell_fill(q, fill_price, COMM_RATE, COMM_MIN, SELL_TAX)
-                acct["cash"] += sf.cash_delta
-                a1["cash"] += sf.cash_delta
-                a1_pos["shares"] -= q
-                led.append({"date": day, "ticker": A1_TICKER, "action": "SELL", "reason": f"A1 再平衡 {mon}",
-                            "price": round(fill_price, 4), "shares": q})
-            elif cur_shares < tgt_shares:
-                q = tgt_shares - cur_shares
-                fill_price = px[A1_TICKER] * (1 + s["slippage"])
-                cost = buy_cost(q, fill_price, COMM_RATE, COMM_MIN)
-                if cost <= a1["cash"] + 1e-8:
-                    acct["cash"] -= cost
-                    a1["cash"] -= cost
-                    a1_pos["shares"] += q
-                    a1_pos["avg_price"] = (a1_pos["avg_price"] * cur_shares + cost) / a1_pos["shares"]
-                    led.append({"date": day, "ticker": A1_TICKER, "action": "BUY", "reason": f"A1 再平衡 {mon}",
-                                "price": round(fill_price, 4), "shares": q})
-        a1["shares"] = next((p["shares"] for p in acct["positions"] if p["ticker"] == A1_TICKER), 0)
-        a1["state"] = "holding" if a1["shares"] else "cash"
+        a1["cash"] = round(a1_budget, 2)
+        a1["shares"] = 0
+        a1["state"] = "cash"
+        a1["last_signal_date"] = None
     for p in acct["positions"]:
         p["last"] = px[p["ticker"]]
         p["price_src"] = src.get(p["ticker"], "")
@@ -458,7 +490,7 @@ def daily() -> dict:
         time.sleep(5)
     acct = load() or init()
     t = latest_target()
-    day = datetime.now(TZ).strftime("%Y-%m-%d")
+    day = _today().isoformat()
     switched = "combo_since" in acct
     if not switched and t and t[0] != acct.get("last_target"):
         stamp = datetime.now(TZ).strftime("%Y%m%d-%H%M%S")
