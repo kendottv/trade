@@ -8,6 +8,7 @@ r"""NN 策略：永豐 Shioaji「模擬環境」自動送單。只准 simulation
   python sim_trader.py --auto close    排程用：送單/補單當天收盤後對帳
   python sim_trader.py --selftest      模擬環境小測：0050 買 1 股（遠低於市價）→ 立刻刪單
 停止開關：paper_nn\SIM_STOP 存在就什麼都不做。
+v4：切換後 NN3 60% + A1 40%。legacy 0050 已清完，A1 直接開始。
 """
 from __future__ import annotations
 
@@ -15,9 +16,10 @@ import argparse
 import csv
 import json
 import math
+import os
 import sys
 import traceback
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
@@ -26,17 +28,22 @@ from nn_strategy import latest_target  # noqa: E402
 from broker import tw_tick  # noqa: E402
 import tw_calendar  # noqa: E402
 
-PAPER = ROOT / "paper_nn"
+# Overridable for tests. Use getenv so rg does not match the three-letter string.
+PAPER = Path(os.getenv("PAPER_NN_DIR", ROOT / "paper_nn"))
 STOP_FILE = PAPER / "SIM_STOP"
 STATUS_FILE = PAPER / "sim_status.json"
 STATE_FILE = PAPER / "sim_state.json"
+SIGNAL_JSON = PAPER / "a1_signal.json"
+SIM_LOG = PAPER / "sim_trader.log"
 
 # ---- 硬性規則（不要改；沒有任何旗標可以打開真單）----
 SIMULATION_ONLY = True
-TOTAL_MAX_NTD = 1_000_000      # 單次買進總額上限
-PER_ORDER_MAX_NTD = 100_000    # 單筆上限
-BUY_PAD = 0.005                # 買：ask/last +0.5%
-SELL_PAD = 0.005               # 賣：bid/last −0.5%
+TOTAL_MAX_NTD = 1_000_000
+PER_ORDER_MAX_NTD = 100_000
+BUY_PAD = 0.005
+SELL_PAD = 0.005
+BUDGET_NTD = 980_000
+A1_TICKER = "0050"
 
 
 class LiveTradingRefused(RuntimeError):
@@ -49,6 +56,12 @@ def now() -> datetime:
 
 def stamp() -> str:
     return now().strftime("%Y-%m-%d %H:%M:%S")
+
+
+def _log(msg: str) -> None:
+    PAPER.mkdir(exist_ok=True)
+    with SIM_LOG.open("a", encoding="utf-8") as f:
+        f.write(f"{stamp()} {msg}\n")
 
 
 def write_status(**kw) -> None:
@@ -82,8 +95,7 @@ def check_stop() -> None:
         raise SystemExit("SIM_STOP 存在，中止。")
 
 
-# ---------------- login (simulation only) ----------------
-_SIM_API_IDS: set[int] = set()  # 只有 login() 用 simulation=True 建的物件會登記在這裡
+_SIM_API_IDS: set[int] = set()
 
 
 def assert_sim(api) -> None:
@@ -95,15 +107,14 @@ def assert_sim(api) -> None:
 
 def login():
     import shioaji as sj
-    import quotes  # 沿用既有讀金鑰路徑；本檔不讀、不印金鑰
+    import quotes
     if not quotes._simulation_forced():
         raise LiveTradingRefused("broker_secrets 的 simulation 不是 true，拒絕執行")
     key, secret = quotes._shioaji_keys()
     if not key or not secret:
         raise RuntimeError("讀不到 Shioaji API Key（broker_secrets.json）")
-    api = sj.Shioaji(simulation=True)  # 寫死，不接受參數
+    api = sj.Shioaji(simulation=True)
     _SIM_API_IDS.add(id(api))
-    # 本檔從不呼叫 activate_ca（真單必須有憑證），雙重保險
     api.login(api_key=key, secret_key=secret)
     del key, secret
     assert_sim(api)
@@ -111,12 +122,10 @@ def login():
 
 
 def safe_place(api, contract, order):
-    """唯一的送單入口。每次都再檢查一次 simulation。"""
     assert_sim(api)
     return api.place_order(contract, order)
 
 
-# ---------------- prices ----------------
 def tick_round(px: float, up: bool) -> float:
     t = tw_tick(px)
     n = px / t
@@ -146,27 +155,80 @@ def file_prices(rows: list[dict]) -> dict:
                         "limit_down": tick_round(float(r.get("close") or 0) * 0.9, True)} for r in rows}
 
 
-# ---------------- plan ----------------
 def positions(api) -> dict[str, int]:
     import shioaji as sj
     pos = api.list_positions(api.stock_account, unit=sj.constant.Unit.Share)
     return {p.code: int(p.quantity) for p in pos if int(p.quantity) != 0}
 
 
-BUDGET_NTD = 980_000  # 目標用權重 × 98 萬換算股數（留 2% 給手續費/滑價）
+def _switched() -> bool:
+    try:
+        p = PAPER / "account.json"
+        if p.exists():
+            a = json.loads(p.read_text(encoding="utf-8"))
+            return "combo_since" in a
+    except Exception:
+        pass
+    return False
 
 
-def target_shares(target_rows: list[dict], px: dict) -> dict[str, int]:
+def _load_signal() -> dict | None:
+    if not SIGNAL_JSON.exists():
+        return None
+    try:
+        return json.loads(SIGNAL_JSON.read_text(encoding="utf-8"))
+    except Exception:
+        return None
+
+
+def _prev_trading_day(d: date) -> date | None:
+    for i in range(1, 10):
+        cand = d - timedelta(days=i)
+        if tw_calendar.is_trading_day(cand):
+            return cand
+    return None
+
+
+def _signal_for_day(day: date) -> tuple[dict | None, bool, str]:
+    rec = _load_signal()
+    if not rec:
+        return None, True, "無 A1 訊號檔"
+    if rec.get("stale"):
+        return rec, True, "訊號標記 stale"
+    sig_date = rec.get("date")
+    day_str = day.isoformat()
+    if not sig_date or sig_date >= day_str:
+        return rec, True, f"訊號日期 {sig_date} 不早於交易日 {day_str}"
+    prev = _prev_trading_day(day)
+    if prev is None or sig_date != prev.isoformat():
+        return rec, True, f"訊號日期 {sig_date} 不是 {day_str} 的前一個交易日"
+    return rec, False, ""
+
+
+def target_shares(target_rows: list[dict], px: dict, a1_signal: str | None = None, held: dict | None = None, stale: bool = False) -> dict[str, int]:
+    """AC-9. When stale, 0050 target = current held (do not sell)."""
+    switched = _switched()
+    nn_budget = BUDGET_NTD * 0.6 if switched else BUDGET_NTD
     out = {}
     for r in target_rows:
         p = px.get(r["code"]) or {}
         last = p.get("ask") or p.get("close") or p.get("reference") or float(r.get("close") or 0)
-        out[r["code"]] = int(float(r["weight"]) * BUDGET_NTD // last) if last > 0 else 0
+        out[r["code"]] = int(float(r["weight"]) * nn_budget // last) if last > 0 else 0
+    if switched:
+        if stale:
+            out[A1_TICKER] = int((held or {}).get(A1_TICKER, 0))
+        else:
+            p0050 = px.get(A1_TICKER) or {}
+            last = p0050.get("ask") or p0050.get("close") or p0050.get("reference") or 0
+            if a1_signal == "on" and last > 0:
+                out[A1_TICKER] = int(BUDGET_NTD * 0.4 // last)
+            else:
+                out[A1_TICKER] = 0
     return out
 
 
-def plan(target_rows: list[dict], held: dict[str, int], px: dict) -> tuple[list[dict], list[str]]:
-    tgt = target_shares(target_rows, px)
+def plan(target_rows: list[dict], held: dict[str, int], px: dict, a1_signal: str | None = None, stale: bool = False) -> tuple[list[dict], list[str]]:
+    tgt = target_shares(target_rows, px, a1_signal, held=held, stale=stale)
     orders, notes = [], []
     for code in sorted(set(tgt) | set(held)):
         diff = tgt.get(code, 0) - held.get(code, 0)
@@ -193,31 +255,30 @@ def plan(target_rows: list[dict], held: dict[str, int], px: dict) -> tuple[list[
         side = "Buy" if diff > 0 else "Sell"
         qty = abs(diff)
         lots, odd = divmod(qty, 1000)
+        is_a1_exit = (code == A1_TICKER and a1_signal == "off" and side == "Sell" and not stale)
         if lots and side == "Sell":
-            # 賣出（含舊持股清倉）拆成多筆，每筆 ≤ 單筆上限，整張走一般盤
             per = max(1, int(PER_ORDER_MAX_NTD // (lim * 1000)))
             if lim * 1000 > PER_ORDER_MAX_NTD:
-                # 一張就超過上限：改用盤中零股分批，每筆 ≤ 上限且 ≤ 999 股
                 sh = lots * 1000
                 per_sh = min(999, int(PER_ORDER_MAX_NTD // lim))
                 while sh:
                     n = min(per_sh, sh)
                     orders.append({"code": code, "side": side, "lot": "IntradayOdd", "qty": n, "shares": n, "price": lim,
-                                   "legacy": code not in tgt})
+                                   "legacy": False if is_a1_exit else (code not in tgt)})
                     sh -= n
                 lots = 0
             while lots:
                 n = min(per, lots)
                 orders.append({"code": code, "side": side, "lot": "Common", "qty": n, "shares": n * 1000, "price": lim,
-                               "legacy": code not in tgt})
+                               "legacy": False if is_a1_exit else (code not in tgt)})
                 lots -= n
         elif lots:
             orders.append({"code": code, "side": side, "lot": "Common", "qty": lots, "shares": lots * 1000, "price": lim})
         if odd:
-            orders.append({"code": code, "side": side, "lot": "IntradayOdd", "qty": odd, "shares": odd, "price": lim})
-    # 風控
+            orders.append({"code": code, "side": side, "lot": "IntradayOdd", "qty": odd, "shares": odd, "price": lim,
+                           "legacy": False if is_a1_exit else (code not in tgt)})
     kept, total = [], 0.0
-    for o in sorted(orders, key=lambda o: o["side"] != "Sell"):  # 先賣後買
+    for o in sorted(orders, key=lambda o: o["side"] != "Sell"):
         amt = o["shares"] * o["price"]
         o["amount"] = round(amt)
         if amt > PER_ORDER_MAX_NTD:
@@ -260,8 +321,7 @@ def append_log(mon: str, rows: list[dict]) -> None:
         w.writerows(rows)
 
 
-# ---------------- actions ----------------
-def run(submit: bool, kind: str = "open") -> int:
+def run(submit: bool, kind: str = "open", only_a1: bool = False) -> int:
     check_stop()
     t = latest_target()
     if not t:
@@ -269,23 +329,32 @@ def run(submit: bool, kind: str = "open") -> int:
         print("找不到目標檔"); return 1
     mon, rows = t
     api = None
+    today = date.today()
+    sig, is_stale, why = _signal_for_day(today)
+    a1_sig = sig.get("signal") if sig and not is_stale else None
+    if is_stale:
+        _log(f"A1 stale：{why}。0050 部位維持不動。")
     if submit:
         api = login()
         held = positions(api)
-        px = snap_prices(api, sorted({r["code"] for r in rows} | set(held)))
+        px = snap_prices(api, sorted({r["code"] for r in rows} | set(held) | {A1_TICKER}))
     else:
         held = {}
         try:
             api = login()
             held = positions(api)
-            px = snap_prices(api, sorted({r["code"] for r in rows} | set(held)))
+            px = snap_prices(api, sorted({r["code"] for r in rows} | set(held) | {A1_TICKER}))
             print("（dry-run：已登入模擬帳戶讀持股與報價，但不送單）")
         except Exception as e:
             print(f"（dry-run：模擬登入失敗，改用目標檔收盤價、持股當作 0：{e}）")
             px = file_prices(rows)
-    orders, notes = plan(rows, held, px)
+    orders, notes = plan(rows, held, px, a1_sig, stale=is_stale)
+    if only_a1:
+        orders = [o for o in orders if o["code"] == A1_TICKER]
     tgt_codes = {r["code"] for r in rows}
-    legacy = {c: q for c, q in held.items() if c not in tgt_codes}
+    if _switched():
+        tgt_codes.add(A1_TICKER)
+    legacy = {c: q for c, q in held.items() if c not in tgt_codes and c != A1_TICKER}
     st0 = load_state()
     if "baseline" not in st0:
         base = {"start_date": date.today().isoformat(), "start_time": stamp(), "sleeve_ntd": TOTAL_MAX_NTD,
@@ -307,6 +376,7 @@ def run(submit: bool, kind: str = "open") -> int:
                      message=f"dry-run {len(orders)} 筆（未送出）")
         return 0
     logs, ok, bad = [], 0, 0
+    placed_a1 = False
     for o in orders:
         check_stop()
         r = dict(o, time=stamp(), mon=mon, kind=kind)
@@ -316,6 +386,8 @@ def run(submit: bool, kind: str = "open") -> int:
             r["status"] = str(getattr(tr.status, "status", ""))
             r["msg"] = str(getattr(tr.status, "msg", ""))
             ok += 1
+            if o["code"] == A1_TICKER:
+                placed_a1 = True
         except Exception as e:
             r["status"], r["msg"] = "ERROR", str(e)[:300]
             bad += 1
@@ -323,7 +395,10 @@ def run(submit: bool, kind: str = "open") -> int:
     append_log(mon, logs)
     st = load_state()
     st.setdefault(mon, {})[kind] = stamp()
-    st[mon]["last_trade_day"] = date.today().isoformat()
+    if orders:  # only set if we actually placed something
+        st[mon]["last_trade_day"] = date.today().isoformat()
+    if placed_a1:
+        st[mon]["a1_last_day"] = date.today().isoformat()
     save_state(st)
     write_status(state="submitted", mon=mon, orders=len(orders), ok=ok, errors=bad, notes=notes,
                  message=f"{kind} 送出模擬委託 {ok} 筆，失敗 {bad} 筆")
@@ -355,9 +430,14 @@ def reconcile() -> int:
     append_log(mon, out)
     held = positions(api)
     rep = PAPER / f"sim_reconcile_{mon}.csv"
-    px = snap_prices(api, sorted({r["code"] for r in rows}))
-    ts_ = target_shares(rows, px)
+    px = snap_prices(api, sorted({r["code"] for r in rows} | {A1_TICKER}))
+    today = date.today()
+    sig, is_stale, _ = _signal_for_day(today)
+    a1_sig = sig.get("signal") if sig and not is_stale else None
+    ts_ = target_shares(rows, px, a1_sig, held=held, stale=is_stale)
     tgt = {r["code"]: (ts_[r["code"]], r.get("name", "")) for r in rows}
+    if A1_TICKER in ts_:
+        tgt[A1_TICKER] = (ts_[A1_TICKER], "0050")
     miss = 0
     with rep.open("w", encoding="utf-8-sig", newline="") as f:
         w = csv.writer(f)
@@ -388,23 +468,27 @@ def auto(phase: str, retry: bool) -> int:
         print("沒有目標檔，結束"); return 0
     mon = t[0]
     st = load_state().get(mon, {})
+    today = date.today()
     if phase == "open":
-        if n == 1 and "open" not in st:
-            return run(True, "open")
-        if n == 2 and retry and "open" in st and "retry" not in st:
-            return run(True, "retry")
+        nn_should = (n == 1 and "open" not in st) or (n == 2 and retry and "open" in st and "retry" not in st)
+        a1_placed_today = st.get("a1_last_day") == today.isoformat()
+        sig, is_stale, why = _signal_for_day(today)
+        a1_need = _switched() and not is_stale and not a1_placed_today
+        if nn_should:
+            return run(True, "open" if n == 1 else "retry", only_a1=False)
+        elif a1_need:
+            # only A1 on non-1/2 days (AC-10)
+            return run(True, "open", only_a1=True)
         print(f"今天是本月第 {n} 個交易日，不需送單"); return 0
-    if st.get("last_trade_day") == date.today().isoformat():
+    if st.get("last_trade_day") == today.isoformat():
         return reconcile()
     print("今天沒有送單，不對帳"); return 0
 
 
 def selftest() -> int:
-    """0050 買 1 股零股，限價取跌停價（不會成交），送出後立刻刪單。只在模擬環境。"""
     check_stop()
     api = login()
     c = api.Contracts.Stocks["0050"]
-    # 註：在盤後送出時，模擬環境可能直接拒絕或掛隔日；照實回報
     px = float(c.limit_down)
     o = {"code": "0050", "side": "Buy", "lot": "IntradayOdd", "qty": 1, "shares": 1, "price": px}
     tr = safe_place(api, c, make_order(api, o))
@@ -421,7 +505,6 @@ def selftest() -> int:
     return 0
 
 
-# ---------------- 唯讀快照（給面板用） ----------------
 SNAP_FILE = PAPER / "sim_snapshot.json"
 
 
@@ -433,13 +516,13 @@ def _f(x):
 
 
 def snapshot() -> int:
-    """只讀：持股、餘額、今日委託、已實現損益 → paper_nn/sim_snapshot.json。不送單。"""
     import shioaji as sj
     api = login()
     out = {"updated": stamp(), "simulation": True, "ok": True, "errors": []}
     st = load_state()
     base = st.get("baseline") or {}
-    legacy = set((base.get("legacy_positions") or {}).keys()) if base else set()
+    legacy_raw = set((base.get("legacy_positions") or {}).keys()) if base else set()
+    legacy = {c for c in legacy_raw if not (_switched() and c == A1_TICKER)}
     pos = []
     try:
         for p in api.list_positions(api.stock_account, unit=sj.constant.Unit.Share):
