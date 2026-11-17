@@ -589,5 +589,35 @@ class TestCommonPeriodAndCorrelations(unittest.TestCase):
             self.assertIn("樣本不足，未產出滾動相關", text)
 
 
+    def test_ma_ready_mid_month_starts_next_month(self):
+        # MA ready mid-May 2015; others ready much earlier → start must be 2015-06-30
+        ready = pd.Timestamp("2015-05-15")
+        pre = pd.bdate_range(end=ready, periods=200)
+        post = pd.bdate_range(start=ready + pd.Timedelta(days=1), end="2026-08-31")
+        twii_idx = pre.union(post)
+        twii = pd.Series(10000.0, index=twii_idx)
+        nn = pd.Series(0.01, index=pd.date_range("2014-01-31", "2026-08-31", freq="ME"))
+        p0050 = pd.Series(50.0, index=pd.bdate_range("2014-01-01", "2026-08-31"))
+        pinv = pd.Series(30.0, index=pd.bdate_range("2014-01-01", "2026-08-31"))
+        start, end = find_common_period(nn, twii, p0050, pinv)
+        self.assertEqual(start, pd.Timestamp("2015-06-30"))
+        self.assertEqual(end, pd.Timestamp("2026-08-31"))
+
+    def test_ma_ready_on_first_trading_day_keeps_month(self):
+        # MA ready exactly on first trading day of May 2015 → that month is valid
+        may_begin = pd.Timestamp("2015-05-01")
+        first_td = pd.bdate_range(start=may_begin, periods=1)[0]
+        pre = pd.bdate_range(end=first_td, periods=200)
+        post = pd.bdate_range(start=first_td + pd.Timedelta(days=1), end="2026-08-31")
+        twii_idx = pre.union(post)
+        twii = pd.Series(10000.0, index=twii_idx)
+        nn = pd.Series(0.01, index=pd.date_range("2014-01-31", "2026-08-31", freq="ME"))
+        p0050 = pd.Series(50.0, index=pd.bdate_range("2014-01-01", "2026-08-31"))
+        pinv = pd.Series(30.0, index=pd.bdate_range("2014-01-01", "2026-08-31"))
+        start, end = find_common_period(nn, twii, p0050, pinv)
+        self.assertEqual(start, pd.Timestamp("2015-05-31"))
+        self.assertEqual(end, pd.Timestamp("2026-08-31"))
+
+
 if __name__ == "__main__":
     unittest.main()

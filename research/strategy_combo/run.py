@@ -78,9 +78,20 @@ def find_common_period(
     if ma_ready is None:
         raise RuntimeError("TWII 200-day MA never becomes available")
 
+    # Adjust MA ready to first full month: if ready mid-month (after first trading day),
+    # use the next month's end.
+    ma_ready_period = ma_ready.to_period("M")
+    month_begin = ma_ready_period.to_timestamp()
+    first_td = twii_close.index[twii_close.index >= month_begin]
+    first_td = first_td.min() if len(first_td) else None
+    if first_td is not None and ma_ready > first_td:
+        ma_full = (ma_ready_period + 1).to_timestamp("M")
+    else:
+        ma_full = ma_ready_period.to_timestamp("M")
+
     starts = [
         nn3.index.min(),
-        ma_ready,
+        ma_full,
         _first_full_month(p0050),
         _first_full_month(p00632r),
     ]
