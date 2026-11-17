@@ -1,0 +1,4 @@
+code,name,category,market,listing_date,yf_symbol,source_url
+0050,元大台灣50,台股,上市,2003-06-30,0050.TW,https://accessibility.twse.com.tw/zh/products/securities/etf/products/list.html
+00679B,元大美債20年,美國長天期公債,上櫃,2017-01-17,00679B.TWO,https://news.cnyes.com/news/id/3688141
+00635U,期元大S&P黃金,黃金期貨,上市,2015-04-15,00635U.TW,https://www.yuantaetfs.com/product/detail/00635U/Basic_information
