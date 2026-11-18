@@ -702,5 +702,35 @@ class TestFetchOpenTimestamp(ComboTestBase):
             self.assertEqual(result, 102.5)
 
 
+class TestA1CashCap(ComboTestBase):
+    def test_cutover_and_fill_respect_cash_cap(self):
+        """Regression: cutover a1.cash <= acct.cash; fill does not drive cash negative.
+        Synthetic near-full account. Must fail on pre-fix code, pass on current.
+        """
+        a = json.loads((self.paper / "account.json").read_text(encoding="utf-8"))
+        a["cash"] = 40_000.0
+        a["positions"] = [{
+            "ticker": "2330", "name": "test", "shares": 960, "avg_price": 1000.0,
+            "entry_date": "2026-10-01", "last": 1000.0, "price_src": "test"
+        }]
+        a["equity"] = a["cash"] + 960 * 1000.0
+        (self.paper / "account.json").write_text(json.dumps(a), encoding="utf-8")
+        rows = [{"code": "2330", "weight": 1.0, "close": 1000.0, "rank": 1, "score": 1.0, "industry": "SEMI"}]
+        self._write_target("2026-12", rows)
+        with patch.object(self.nn_paper, "fetch_closes", return_value={"2330": (1000.0, "test")}), \
+             patch.object(self.nn_paper, "_do_backup", return_value=True):
+            self.nn_paper.daily()
+        a_after = json.loads((self.paper / "account.json").read_text(encoding="utf-8"))
+        self.assertLessEqual(a_after.get("a1", {}).get("cash", 0), a_after["cash"] + 1e-4)
+        self.assertGreaterEqual(a_after["cash"], 0.0)
+        sig = {"date": "2026-11-17", "signal": "on", "stale": False}
+        (self.paper / "a1_signal.json").write_text(json.dumps(sig), encoding="utf-8")
+        with patch.object(self.nn_paper, "fetch_open", return_value=100.0), \
+             patch.object(self.nn_paper, "_today", return_value=date(2026, 11, 18)), \
+             patch.object(self.nn_paper.tw_calendar, "is_trading_day", side_effect=lambda d: True):
+            self.nn_paper._a1_fill(a_after, "2026-11-18", sig)
+        self.assertGreaterEqual(a_after["cash"], -1e-4)
+        self.assertLessEqual(a_after["a1"]["cash"], a_after["cash"] + 1e-4)
+
 if __name__ == "__main__":
     unittest.main()
