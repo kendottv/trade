@@ -44,6 +44,7 @@ from research.strategy_combo.run_candidates import (  # noqa: E402
     _slice_daily,
     _avg_monthly_turnover,
     _months_inclusive,
+    _xa_holdings_rows,
 )
 
 
@@ -373,6 +374,35 @@ class TestXA(unittest.TestCase):
         n_months = (end_ts.to_period("M") - first_perf.to_period("M")).n + 1
         total = sum(hold_m.values())
         self.assertEqual(total, n_months * 2)
+
+    def test_xa_holdings_csv_includes_first_month_non_trading_end(self):
+        """xa_holdings rows must include 2018-02-27 when calendar end is not a trading day."""
+        all_bdays = pd.bdate_range("2017-01-03", "2019-12-31")
+        holiday = pd.Timestamp("2018-02-28")
+        dates = all_bdays[all_bdays != holiday]
+        last_feb = dates[dates.to_period("M") == "2018-02"].max()
+        self.assertEqual(last_feb, pd.Timestamp("2018-02-27"))
+        prices = {
+            "0050": pd.Series(np.linspace(100, 180, len(dates)), index=dates),
+            "00679B": pd.Series(np.linspace(100, 170, len(dates)), index=dates),
+            "00635U": pd.Series(np.linspace(100, 160, len(dates)), index=dates),
+        }
+        listing = {c: dates[0] for c in prices}
+        daily, monthly, holds, hold_m, first_perf, _ = backtest_xa(
+            prices, listing, dates, apply_costs=False
+        )
+        self.assertIsNotNone(first_perf)
+        self.assertEqual(first_perf.to_period("M"), pd.Period("2018-02", freq="M"))
+        end_ts = pd.Timestamp("2019-12-31")
+        rows = _xa_holdings_rows(holds, first_perf, end_ts)
+        self.assertGreater(len(rows), 0)
+        # must contain the last trading day of the first performance month
+        feb_rows = [r for r in rows if pd.Timestamp(r["date"]) == last_feb]
+        self.assertGreater(len(feb_rows), 0)
+        # number of distinct months in the rows equals inclusive months from first_perf to end
+        months_in_rows = {pd.Timestamp(r["date"]).to_period("M") for r in rows}
+        n_months = (end_ts.to_period("M") - first_perf.to_period("M")).n + 1
+        self.assertEqual(len(months_in_rows), n_months)
 
 
 class TestCostsAndCombo(unittest.TestCase):

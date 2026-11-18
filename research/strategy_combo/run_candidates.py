@@ -111,6 +111,29 @@ def _months_inclusive(start: pd.Timestamp, end: pd.Timestamp) -> int:
     return (end.to_period("M") - start.to_period("M")).n + 1
 
 
+def _xa_holdings_rows(
+    hold_xa: List[dict],
+    xa_start_ts: pd.Timestamp,
+    end: pd.Timestamp,
+) -> List[dict]:
+    """Build rows for xa_holdings.csv using month-period comparison (inclusive)."""
+    rows: List[dict] = []
+    if not hold_xa or xa_start_ts is None:
+        return rows
+    start_per = pd.Timestamp(xa_start_ts).to_period("M")
+    end_per = pd.Timestamp(end).to_period("M")
+    for h in hold_xa:
+        d = pd.Timestamp(h["date"])
+        if start_per <= d.to_period("M") <= end_per:
+            etf_w = sum(h.get("weights", {}).values())
+            cash_w = 1.0 - etf_w
+            for code, w in h.get("weights", {}).items():
+                rows.append({"date": d, "code": code, "weight": w})
+            if cash_w > 1e-9:
+                rows.append({"date": d, "code": "CASH", "weight": cash_w})
+    return rows
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description="LV + XA candidate strategies research runner")
     parser.add_argument("--nn-out-dir", type=Path, default=DEFAULT_NN_OUT_DIR)
@@ -470,16 +493,7 @@ def main() -> None:
                     rows.append({"date": d, "code": code, "weight": h["weights"].get(code, 0), "industry": industry_map.get(code, "")})
         pd.DataFrame(rows).to_csv(out_dir / "lv_holdings.csv", index=False, encoding="utf-8")
     if hold_xa_c and xa_n:
-        rows = []
-        for h in hold_xa_c:
-            d = pd.Timestamp(h["date"])
-            if xa_start_ts <= d <= end:
-                etf_w = sum(h.get("weights", {}).values())
-                cash_w = 1.0 - etf_w
-                for code, w in h.get("weights", {}).items():
-                    rows.append({"date": d, "code": code, "weight": w})
-                if cash_w > 1e-9:
-                    rows.append({"date": d, "code": "CASH", "weight": cash_w})
+        rows = _xa_holdings_rows(hold_xa_c, xa_start_ts, end)
         pd.DataFrame(rows).to_csv(out_dir / "xa_holdings.csv", index=False, encoding="utf-8")
 
     # series CSVs (period only)
