@@ -282,7 +282,11 @@ class TestXA(unittest.TestCase):
         )
         self.assertIsNotNone(first_perf)
         self.assertGreater(len(holds), 0)
-        period_holds = [h for h in holds if pd.Timestamp(h["date"]) >= first_perf]
+        start_per = first_perf.to_period("M")
+        period_holds = [
+            h for h in holds
+            if pd.Timestamp(h["date"]).to_period("M") >= start_per
+        ]
         self.assertGreater(len(period_holds), 0)
         avg_n = np.mean([h.get("n", 0) for h in period_holds])
         self.assertAlmostEqual(avg_n, 2.0, places=5)
@@ -338,6 +342,37 @@ class TestXA(unittest.TestCase):
         self.assertAlmostEqual(traded_nc.loc[rebal_fill_day], 1.0, places=5)
         diff = daily_nc.loc[rebal_fill_day] - daily_c.loc[rebal_fill_day]
         self.assertAlmostEqual(diff, 0.003925, places=5)
+
+    def test_first_perf_month_calendar_end_not_trading_day(self):
+        """First performance month is 2018-02 whose calendar end is not a trading day; must count it."""
+        # start prices ~2017-01 so first signal month ~2018-01, first perf month = 2018-02
+        all_bdays = pd.bdate_range("2017-01-03", "2019-12-31")
+        holiday = pd.Timestamp("2018-02-28")
+        dates = all_bdays[all_bdays != holiday]
+        self.assertNotIn(holiday, dates)
+        last_feb = dates[dates.to_period("M") == "2018-02"].max()
+        self.assertEqual(last_feb, pd.Timestamp("2018-02-27"))
+        prices = {
+            "0050": pd.Series(np.linspace(100, 180, len(dates)), index=dates),
+            "00679B": pd.Series(np.linspace(100, 170, len(dates)), index=dates),
+            "00635U": pd.Series(np.linspace(100, 160, len(dates)), index=dates),
+        }
+        listing = {c: dates[0] for c in prices}
+        daily, monthly, holds, hold_m, first_perf, _ = backtest_xa(
+            prices, listing, dates, apply_costs=False
+        )
+        self.assertIsNotNone(first_perf)
+        # must be exactly 2018-02; if not, fail (no if)
+        self.assertEqual(first_perf.to_period("M"), pd.Period("2018-02", freq="M"))
+        # holdings log must contain the last trading day of that month
+        feb_holds = [h for h in holds if pd.Timestamp(h["date"]) == last_feb]
+        self.assertEqual(len(feb_holds), 1)
+        self.assertGreater(feb_holds[0].get("n", 0), 0)
+        # hold_months must include 2018-02: total asset-months == months_from_first_to_end * 2
+        end_ts = pd.Timestamp("2019-12-31")
+        n_months = (end_ts.to_period("M") - first_perf.to_period("M")).n + 1
+        total = sum(hold_m.values())
+        self.assertEqual(total, n_months * 2)
 
 
 class TestCostsAndCombo(unittest.TestCase):

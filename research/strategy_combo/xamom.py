@@ -116,6 +116,8 @@ def backtest_xa(
     Returns daily, monthly (only from first performance month), holdings log,
     holding months count (within performance period up to end_limit), first_performance_month, traded_weight.
     Months before first performance are absent from monthly series.
+    Holding-month counting uses period (year-month) comparison so the first performance
+    month is included even when its calendar month-end is not a trading day.
     """
     trading_dates = pd.DatetimeIndex(trading_dates).sort_values()
     if end_limit is not None:
@@ -193,7 +195,7 @@ def backtest_xa(
                 "weights": dict(holdings),
                 "n": sum(1 for w in holdings.values() if w > 0),
             })
-            if first_performance_month is not None and dt >= first_performance_month:
+            if first_performance_month is not None and dt.to_period("M") >= first_performance_month.to_period("M"):
                 if end_limit is None or dt <= end_limit:
                     for c, w in holdings.items():
                         if w > 0:

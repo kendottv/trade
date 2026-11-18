@@ -330,13 +330,16 @@ def main() -> None:
         return m
 
     # average holdings: once per month, last trading day before rebalance (month-end)
+    # period comparison so calendar month-end not being a trading day does not drop the month
     def _avg_holdings(holds, start_m, end_m):
         if not holds:
             return 0.0
         counts = []
+        start_per = pd.Timestamp(start_m).to_period("M")
+        end_per = pd.Timestamp(end_m).to_period("M")
         for h in holds:
             d = pd.Timestamp(h["date"])
-            if start_m <= d <= end_m:
+            if start_per <= d.to_period("M") <= end_per:
                 counts.append(h.get("n", 0))
         return float(np.mean(counts)) if counts else 0.0
 
