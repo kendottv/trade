@@ -332,7 +332,7 @@ def rebalance(acct: dict, mon: str, rows: list[dict], cutover: bool = False) -> 
         a1_mv_before = (a1_pos["shares"] * px.get(A1_TICKER, a1_pos.get("last", a1_pos["avg_price"]))) if a1_pos else 0.0
         # temporarily set a1.cash so total A1 = E*40% before share adjust; then adjust shares and finalize cash
         target_a1_total = a1_budget
-        a1["cash"] = max(0.0, target_a1_total - a1_mv_before)
+        a1["cash"] = max(0.0, min(target_a1_total - a1_mv_before, acct["cash"]))
         # now adjust 0050 shares to target (using a1.cash)
         if a1_pos and px.get(A1_TICKER):
             fill_px = px[A1_TICKER] * (1 + s["slippage"])
@@ -350,11 +350,12 @@ def rebalance(acct: dict, mon: str, rows: list[dict], cutover: bool = False) -> 
                             "price": round(fill_price, 4), "shares": q})
             elif cur_shares < tgt_shares:
                 fill_price = px[A1_TICKER] * (1 + s["slippage"])
-                max_by_cash = int(a1["cash"] / (fill_price * (1 + s["buy_fee"])))
+                available = min(a1["cash"], acct["cash"])
+                max_by_cash = int(available / (fill_price * (1 + s["buy_fee"])))
                 q = min(tgt_shares - cur_shares, max_by_cash)
                 if q > 0:
                     cost = buy_cost(q, fill_price, COMM_RATE, COMM_MIN)
-                    if cost <= a1["cash"] + 1e-8:
+                    if cost <= available + 1e-8:
                         acct["cash"] -= cost
                         a1["cash"] -= cost
                         a1_pos["shares"] += q
@@ -404,7 +405,7 @@ def rebalance(acct: dict, mon: str, rows: list[dict], cutover: bool = False) -> 
     if cutover:
         a1 = acct.setdefault("a1", {})
         a1["target_ntd"] = round(a1_budget, 2)
-        a1["cash"] = round(a1_budget, 2)
+        a1["cash"] = round(min(a1_budget, acct["cash"]), 2)
         a1["shares"] = 0
         a1["state"] = "cash"
         a1["last_signal_date"] = None
@@ -442,10 +443,11 @@ def _a1_fill(acct: dict, day: str, signal_rec: dict) -> list[dict]:
     if sig == "on" and have == 0:
         fill_price = open_px * (1 + SLIPPAGE)
         tgt = int(a1["target_ntd"] / fill_price)
-        q = min(tgt, int(a1["cash"] / (fill_price * (1 + STRATEGY["buy_fee"]))))
+        available = min(a1["cash"], acct["cash"])
+        q = min(tgt, int(available / (fill_price * (1 + STRATEGY["buy_fee"]))))
         if q > 0:
             cost = buy_cost(q, fill_price, COMM_RATE, COMM_MIN)
-            if cost <= a1["cash"] + 1e-8:
+            if cost <= available + 1e-8:
                 acct["cash"] -= cost
                 a1["cash"] -= cost
                 if pos:
@@ -500,9 +502,11 @@ def daily() -> dict:
         mv, eq = _equity(acct, {})
         acct["strategy"] = "nn3_60_a1_40"
         acct["combo_since"] = day
+        a1_target = round(eq * 0.4, 2)
+        a1_cash_cap = min(a1_target, acct["cash"])
         acct["a1"] = {
-            "target_ntd": round(eq * 0.4, 2),
-            "cash": round(eq * 0.4, 2),
+            "target_ntd": a1_target,
+            "cash": a1_cash_cap,
             "shares": 0,
             "last_signal_date": None,
             "state": "cash",
