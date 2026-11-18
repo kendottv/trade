@@ -70,3 +70,23 @@ python -m unittest discover research/strategy_combo/tests
 ```
 
 必須全部通過、0 skip。
+
+## 候選策略（LV、XA）
+
+在 repo 根目錄執行：
+
+```bash
+python research/strategy_combo/run_candidates.py
+```
+
+會在 `research/strategy_combo/out/candidates/` 產生報告與 CSV／PNG。
+
+- LV：低波動因子，使用 `inputs/tw50_membership_intervals.csv` 與 industry.csv（只讀）＋ `inputs/industry_delisted.csv`。每月最後交易日訊號、次日收盤成交；每檔權重固定 10%，產業上限 30%，不足放現金。
+- XA：跨資產動能，使用 `inputs/etf_universe.csv` 與 yfinance 價格。月底價取該月最後交易日；第一個績效月為第一個訊號月的下個月。
+- 稅率一律 0.3%（比實際規定保守：債券 ETF 目前免稅，00635U、0050 是 0.1%）。
+- 最大回撤統一使用全期資料，有前視偏誤；係數 > 1 時融資成本未計算。
+- 產業別使用目前分類，有輕微前視偏誤。
+- 平均每月換手率 = 評估期間內每月（交易權重絕對值總和 ÷ 2）的平均，含強制賣出。
+- v5 月數由 `find_common_period` 計算，不寫死。
+- `data/`、`out/`、`inputs/tej/` 不進 repo。
+- 不連任何券商、不下任何單、不讀寫交易紀錄或帳戶檔。
